@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 struct player_s {
-    
+    int hpMax, hp, dmgMin, dmgMax, atkMod, atkNum, armor;
 }
 
 int main(int argc, char* argv) {
