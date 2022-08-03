@@ -162,10 +162,10 @@ void playerAtk(playerS *player, enemyS *enemy){
     int dmgRoll = 0;
 
     printf("Attack roll result (1d20%+i): %i\n\n", player->atkMod, atkRoll);
-    if(atkRoll-player->atkMod == 20) {
+    if(atkRoll-player->atkMod > 17) {
         printf("[Critical Hit] Rolling double the damage dice.\n");
-        dmgRoll = rollDice(player->dmgDice, player->dmgDiceNum*2, player->dmgMod);
-        printf("Damage roll result (%id%i%+i): %i\n\n", player->dmgDiceNum*2, player->dmgDice, player->dmgMod, dmgRoll);
+        dmgRoll = rollDice(player->dmgDice, player->dmgDiceNum*2, player->dmgMod*2);
+        printf("Damage roll result (%id%i%+i): %i\n\n", player->dmgDiceNum*2, player->dmgDice, player->dmgMod*2, dmgRoll);
         printf("Critical hit! Your blade slashes the goblin's torso with brutal strength, dealing massive damage.\n\n");
     } 
     else if (atkRoll >= enemy->armor) {
@@ -200,6 +200,7 @@ int readOption(playerS *player, enemyS *enemy) {
     while (1) {
         printf("Choose an option:\n> ");
         scanf("%i", &option);
+        printf("\n");
 
         switch (option)
         {
@@ -255,8 +256,8 @@ int main(int argc, char** argv) {
     int battleState = 0;
 
     // Declarando criaturas
-    playerS player = {32, 32, 1, 8, 3, 5, 1, 16, "You"};
-    enemyS enemy = {21, 21, 1, 4, 2, 4, 2, 10, "Goblin"};
+    playerS player = {21, 21, 1, 8, 3, 5, 1, 16, "You"};
+    enemyS enemy = {32, 32, 1, 4, 2, 4, 2, 14, "Goblin"};
 
     while (1) {
         battleState = updateHp(&player, &enemy);
