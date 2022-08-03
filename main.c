@@ -99,6 +99,16 @@ int digitNum (int num) {
     }
 }
 
+void trueSleep(int ms) {
+    #ifdef _WIN32 || _WIN64
+        //Sleep(1000); // Sleep 1 segundo
+        Sleep(ms); // Sleep 0,5 segundo
+      #else
+        //sleep(1); // Sleep 1 segundo
+        usleep(ms*1000);  // Sleep 0,5 segundo (500 milisegundos)
+      #endif
+}
+
 
 /* ==== Funções de imprimir atributos ==== */
 
