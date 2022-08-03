@@ -4,6 +4,12 @@
 #include <math.h>
 #include <time.h>
 
+#ifdef _WIN32 || _WIN64
+    #include <Windows.h>
+#else
+    #include <unistd.h>
+#endif
+
 #define MAX_NAME 25
 #define BORDER_LEN 96
 #define MAX_OPTION 15
