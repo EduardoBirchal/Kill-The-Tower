@@ -79,6 +79,7 @@ int updateHp (playerS *player, enemyS *enemy) {
 
     if(enemy->hp == 0) return 1;
     if(player->hp == 0) return 2;
+    return 0;
 }
 
 int digitNum (int num) {
@@ -160,19 +161,21 @@ void playerAtk(playerS *player, enemyS *enemy){
     int atkRoll = rollDice(20, 1, player->atkMod);
     int dmgRoll = 0;
 
-    printf("Attack roll result (1d20%+i): %i\n", player->atkMod, atkRoll);
+    printf("Attack roll result (1d20%+i): %i\n\n", player->atkMod, atkRoll);
     if(atkRoll-player->atkMod == 20) {
-        printf("Critical hit! Rolling double the damage dice.\n");
+        printf("[Critical Hit] Rolling double the damage dice.\n");
         dmgRoll = rollDice(player->dmgDice, player->dmgDiceNum*2, player->dmgMod);
-        printf("Damage roll result (%id%i%+i): %i\n", player->dmgDiceNum*2, player->dmgDice, player->dmgMod, dmgRoll);
+        printf("Damage roll result (%id%i%+i): %i\n\n", player->dmgDiceNum*2, player->dmgDice, player->dmgMod, dmgRoll);
+        printf("Critical hit! Your blade slashes the goblin's torso with brutal strength, dealing massive damage.\n\n");
     } 
     else if (atkRoll >= enemy->armor) {
-        printf("The attack hits! Rolling damage dice.\n");
+        printf("[Hit] Rolling damage dice.\n");
         dmgRoll = rollDice(player->dmgDice, player->dmgDiceNum, player->dmgMod);
-        printf("Damage roll result (%id%i%+i): %i\n", player->dmgDiceNum, player->dmgDice, player->dmgMod, dmgRoll);
+        printf("Damage roll result (%id%i%+i): %i\n\n", player->dmgDiceNum, player->dmgDice, player->dmgMod, dmgRoll);
+        printf("You swing at the creature, who fails to evade the attack and recoils in pain.\n\n");
     }
     else {
-        printf("The attack misses.\n");
+        printf("[Miss] You swing downwards at your opponent, who nimbly dodges to the side. The blade meets only dirt.\n\n");
     }
 
     enemy->hp -= dmgRoll;
@@ -249,18 +252,28 @@ int turnPlayer(playerS *player, enemyS *enemy) {
 
 int main(int argc, char** argv) {
     // Declarando variáveis
+    int battleState = 0;
 
     // Declarando criaturas
-    playerS player = {32, 32, 4, 6, 5, 3, 1, 16, "Bababooey"};
-    enemyS enemy = {21, 21, 2, 10, 5, -2, 2, 10, "Bobao Feio"};
+    playerS player = {32, 32, 1, 8, 3, 5, 1, 16, "You"};
+    enemyS enemy = {21, 21, 1, 4, 2, 4, 2, 10, "Goblin"};
 
     while (1) {
-        updateHp(&player, &enemy);
+        battleState = updateHp(&player, &enemy);
+        if(battleState) {
+            if (battleState == 1) {
+                printf("The goblin falls to the ground, defeated.\n");
+            }
+            else if (battleState == 2) {
+                printf("You succumb to your wounds and black out.\n");
+            }
+            break;
+        }
         printInfo(player, enemy);
         if (turnPlayer(&player, &enemy)) {
             break;
         }
-        //turnEnemy();
+        //turnEnemy(&player, &enemy);
     }
     printf("\n");
 
