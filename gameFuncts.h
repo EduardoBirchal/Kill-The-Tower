@@ -15,29 +15,40 @@
 
 
 /* ==== Defines ==== */
+#define true 1
+#define false 0
 
 #define MAX_NAME 25
 #define BORDER_LEN 96
+
 #define MAX_OPTION 15
 #define OPTION_AMT 6
+
+#define NUM_STATUSES 1
 
 
 /* ==== Structs ==== */
 
 struct player_s {
-    int hpMax, hp, dmgDiceNum, dmgDice, dmgMod, atkMod, atkNum, armor;
+    int hpMax, hp, dmgDiceNum, dmgDice, dmgMod, atkMod, atkNum, armor, magMod;
     char name[MAX_NAME];
+    bool status[NUM_STATUSES];
 };
 
 struct enemy_s {
-    int hpMax, hp, dmgDiceNum, dmgDice, dmgMod, atkMod, atkNum, armor;
+    int hpMax, hp, dmgDiceNum, dmgDice, dmgMod, atkMod, atkNum, armor, magMod;
     char name[MAX_NAME];
+    bool status[NUM_STATUSES];
 };
 
 typedef struct player_s playerS;
 typedef struct enemy_s enemyS;
-typedef int (*magFunct) (playerS *player, enemyS *enemy); // define int (*coisa) (playerS *player, enemyS *enemy) como só magFunct. É um ponteiro de função.
 
+/* ==== Typedefs ==== */
+enum statuses {mageArm = 0};
+
+typedef int (*magFunct) (playerS *player, enemyS *enemy); // define int (*coisa) (playerS *player, enemyS *enemy) como só magFunct. É um ponteiro de função.
+typedef int bool;
 
 /* ==== Funções ==== */
 
@@ -70,3 +81,12 @@ void rollSlow (int result);
 
 // Imprime uma margem
 void printBorder ();
+
+// Imprime os atributos do player
+void playerInfo(playerS player);
+
+// Imprime os atributos do inimigo
+void enemyInfo(enemyS enemy);
+
+// Imprime o menu de atributos
+void printInfo (playerS player, enemyS enemy);

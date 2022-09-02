@@ -8,66 +8,10 @@ int rollDice(int size, int num, int mod) {
     for(int i=0; i<num; i++) {
         srand(time(NULL) + i); // O +i é pra seed ser diferente todo loop. Não tenho certeza do porquê de ela ser igual todo loop sem esse +i, já que ele dá o srand todo loop, mas isso faz funcionar.
         total += 1 + rand()%size;
-        //printf("\t%io dado: %i\n", i+1, total);
+        //printf("\t%io dado: %i\n", i+1, total); // Só usar pra debug.
     }
     return total+mod;
 }
-
-/* ==== Funções de imprimir atributos ==== */
-
-void playerInfo(playerS player) {
-    int hpMaxLen = digitNum(player.hpMax);
-    int hpLen = digitNum(player.hp);
-    hpLen = hpLen + hpMaxLen + 4; // hpLen é o comprimento da string do valor do hp do player, que vai ser escrita depois do nome. O +4 é por causa do espaço, dos dois parênteses e da barra
-
-    // Imprime o nome
-    centerText(strlen(player.name) + hpLen, BORDER_LEN);
-    printf("\033[1m ");
-    printf("%s (%i/%i)\n", player.name, player.hp, player.hpMax);
-    printf("\033[0m ");
-
-    // Imprime o hp e os atributos
-    centerText(player.hpMax, BORDER_LEN);
-    printHp(player.hpMax, player.hp);
-    printf("Rolagem de Ataque: \033[4m1d20%+i\033[0m\tRolagem de Dano: \033[4m%id%i%+i\033[0m\tArmadura: \033[4m%i\033[0m\n", player.atkMod, player.dmgDiceNum, player.dmgDice, player.dmgMod, player.armor);
-}
-
-void enemyInfo(enemyS enemy) {
-    int hpMaxLen = digitNum(enemy.hpMax); //(int) log10f(enemy.hpMax) + 1;
-    int hpLen = digitNum(enemy.hp); //(int) log10f(enemy.hp) + 1;
-    hpLen = hpLen + hpMaxLen + 4; 
-
-    // Imprime a margem de cima
-    printBorder();
-
-    // Imprime o nome
-    centerText(strlen(enemy.name) + hpLen, BORDER_LEN);
-    printf("\033[1m ");
-    printf("%s (%i/%i)\n", enemy.name, enemy.hp, enemy.hpMax);
-    printf("\033[0m ");
-
-    // Imprime o hp e os atributos
-    centerText(enemy.hpMax, BORDER_LEN);
-    printHp(enemy.hpMax, enemy.hp);
-    printf("Rolagem de Ataque: \033[4m1d20%+i\033[0m\tRolagem de Dano: \033[4m%id%i%+i\033[0m\tArmadura: \033[4m%i\033[0m\n", enemy.atkMod, enemy.dmgDiceNum, enemy.dmgDice, enemy.dmgMod, enemy.armor);
-
-}
-
-void printInfo (playerS player, enemyS enemy) {
-    // Limpa a tela
-    clearTerm(); 
-
-    // Imprime a margem de cima
-    printBorder();
-
-    // Imprime a informação
-    playerInfo(player);
-    enemyInfo(enemy);
-
-    // Imprime a margem de baixo
-    printBorder();
-}
-
 
 /* ==== Opções do jogador ==== */
 
@@ -102,8 +46,8 @@ void playerAtk(playerS *player, enemyS *enemy){
     enemy->hp -= dmgRoll;
 }
 
-void playerMag (playerS *player) {
-
+void playerMag (playerS *player, enemyS *enemy) {
+    
 }
 
 
@@ -151,7 +95,7 @@ int readOption(playerS *player, enemyS *enemy) {
             return 0;
             break;
         case 3:
-            //playerMag(player);
+            playerMag(player, enemy);
             requestEnter();
             return 0;
             break;
@@ -192,8 +136,8 @@ int main(int argc, char** argv) {
     int battleState = 0;
 
     // Declarando criaturas
-    playerS player = {21, 21, 1, 8, 3, 5, 1, 16, "Voce"};
-    enemyS enemy = {32, 32, 1, 4, 2, 4, 2, 14, "Goblin"};
+    playerS player = {21, 21, 1, 8, 3, 5, 1, 16, 4, "Voce"};
+    enemyS enemy = {32, 32, 1, 4, 2, 4, 2, 14, 1, "Goblin"};
 
     while (1) {
         battleState = updateHp(&player, &enemy);

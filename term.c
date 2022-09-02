@@ -11,10 +11,10 @@ void requestEnter() {
 void trueSleep(int ms) {
     #ifdef _WIN32
         //Sleep(1000); // Sleep 1 segundo
-        Sleep(ms); // Sleep 0,5 segundo
+        Sleep(ms);
     #else
         //sleep(1); // Sleep 1 segundo
-        usleep(ms*1000);  // Sleep 0,5 segundo (500 milisegundos)
+        usleep(ms*1000);
     #endif
 }
 
@@ -97,4 +97,60 @@ void printBorder () {
     }
     printf("\033[0m ");
     printf("\n");
+}
+
+// Imprime os atributos do player
+void playerInfo(playerS player) {
+    int hpMaxLen = digitNum(player.hpMax);
+    int hpLen = digitNum(player.hp);
+    hpLen = hpLen + hpMaxLen + 4; // hpLen é o comprimento da string do valor do hp do player, que vai ser escrita depois do nome. O +4 é por causa do espaço, dos dois parênteses e da barra
+
+    // Imprime o nome
+    centerText(strlen(player.name) + hpLen, BORDER_LEN);
+    printf("\033[1m ");
+    printf("%s (%i/%i)\n", player.name, player.hp, player.hpMax);
+    printf("\033[0m ");
+
+    // Imprime o hp e os atributos
+    centerText(player.hpMax, BORDER_LEN);
+    printHp(player.hpMax, player.hp);
+    printf("Rolagem de Ataque: \033[4m1d20%+i\033[0m\tRolagem de Dano: \033[4m%id%i%+i\033[0m\tArmadura: \033[4m%i\033[0m\n", player.atkMod, player.dmgDiceNum, player.dmgDice, player.dmgMod, player.armor);
+}
+
+// Imprime os atributos do inimigo
+void enemyInfo(enemyS enemy) {
+    int hpMaxLen = digitNum(enemy.hpMax); //(int) log10f(enemy.hpMax) + 1;
+    int hpLen = digitNum(enemy.hp); //(int) log10f(enemy.hp) + 1;
+    hpLen = hpLen + hpMaxLen + 4; 
+
+    // Imprime a margem de cima
+    printBorder();
+
+    // Imprime o nome
+    centerText(strlen(enemy.name) + hpLen, BORDER_LEN);
+    printf("\033[1m ");
+    printf("%s (%i/%i)\n", enemy.name, enemy.hp, enemy.hpMax);
+    printf("\033[0m ");
+
+    // Imprime o hp e os atributos
+    centerText(enemy.hpMax, BORDER_LEN);
+    printHp(enemy.hpMax, enemy.hp);
+    printf("Rolagem de Ataque: \033[4m1d20%+i\033[0m\tRolagem de Dano: \033[4m%id%i%+i\033[0m\tArmadura: \033[4m%i\033[0m\n", enemy.atkMod, enemy.dmgDiceNum, enemy.dmgDice, enemy.dmgMod, enemy.armor);
+
+}
+
+// Imprime o menu de atributos
+void printInfo (playerS player, enemyS enemy) {
+    // Limpa a tela
+    clearTerm(); 
+
+    // Imprime a margem de cima
+    printBorder();
+
+    // Imprime a informação
+    playerInfo(player);
+    enemyInfo(enemy);
+
+    // Imprime a margem de baixo
+    printBorder();
 }
