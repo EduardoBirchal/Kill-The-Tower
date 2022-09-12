@@ -38,7 +38,7 @@ int spellDmg (playerS* player, enemyS *enemy, int dmgDie, int dmgDieNum, char* s
 // Um feitiço simples, que dá uma boa quantidade de dano.
 int fireBolt (playerS* player, enemyS *enemy) {
     spellDmg (player, enemy, 6, 2,
-    "\n\nO dardo de fogo acerta a criatura, estalando num estouro de chamas.\n\n", 
+    "\n\nO dardo de fogo acerta a criatura, estalando e criando um estouro de chamas.\n\n", 
     " \033[33;4mFalha...\033[0m\n\nO alvo se abaixa para fora do caminho do projétil, que dispara por cima dele e se dissipa numa nuvem de brasas.\n\n");
 }
 
@@ -61,6 +61,35 @@ int mageArmor (playerS *player, enemyS *enemy) {
         player->armor += 2;
         printSlow("Voce conjura uma armadura translucida de energia protetiva em volta de si. \033[33mArmadura +2!\033[0m\n\n");
     }
+}
+
+int mageShield (playerS *player, enemyS *enemy) {
+    if(player->status[mageShld]) {
+        printSlow("Esse feitico ja esta em efeito!\n\n");
+    } else {
+        player->status[mageShld] = 2;
+        player->armor += 5;
+        printSlow("Com uma runa protetora, voce conjura um escudo flutuante de energia arcana. \033[33mArmadura +5!\033[0m\n\n");
+    }
+}
+
+int psiDagger (playerS *player, enemyS *enemy) {
+    int i = 0;
+    wpnSmnS dagger = {1, 4, "Adaga Psionica"};
+
+    for (i=0; i<MAX_WPN_SMN; i++) {
+        if (strcmp (player->wpnSmns[i].name, "none")) {
+            player->wpnSmns[i] = dagger;
+            printSlow("Uma adaga de energia psionica se manifesta ao seu lado, se movendo pelo ar como se tivesse vida propria.\n\n");
+            return true;
+        }
+    }
+    
+    printSlow("Voce nao consegue se concentrar em mais de %i armas conjuradas ao mesmo tempo!\n\n");
+}
+
+int magicMissile (playerS *player, enemyS *enemy) {
+
 }
 
 magFunct spells[10] = {&fireBolt, &sonicBlast, &mageArmor, &mageShield, &psiDagger, &magicMissile};

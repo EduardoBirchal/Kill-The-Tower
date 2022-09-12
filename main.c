@@ -128,6 +128,20 @@ int turnPlayer(playerS *player, enemyS *enemy) {
     return 0;
 }
 
+playerS createPlayer() {
+    playerS player = {21, 21, 1, 8, 3, 5, 1, 16, 4, "Voce"};
+    
+    for(int i=0; i<NUM_STATUSES; i++) {
+        player.status[i] = false;
+    }
+
+    for(int i=0; i<MAX_WPN_SMN; i++) {
+        wpnSmnS vazio = {0, 0, "none"};
+        player.wpnSmns[i] = vazio;
+    }
+
+    return player;
+}
 
 /* ==== Main ==== */
 
@@ -136,11 +150,12 @@ int main(int argc, char** argv) {
     int battleState = 0;
 
     // Declarando criaturas
-    playerS player = {21, 21, 1, 8, 3, 5, 1, 16, 4, "Voce"};
+    playerS player = createPlayer();
     enemyS enemy = {32, 32, 1, 4, 2, 4, 2, 14, 1, "Goblin"};
 
     while (1) {
         battleState = updateHp(&player, &enemy);
+        updateStatus(&player);
         printInfo(player, enemy);
         if(battleState) {
             if (battleState == 1) {

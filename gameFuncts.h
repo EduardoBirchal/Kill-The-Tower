@@ -24,28 +24,32 @@
 #define MAX_OPTION 15
 #define OPTION_AMT 6
 
-#define NUM_STATUSES 1
+#define NUM_STATUSES 2
+#define MAX_WPN_SMN 3
 
 
 /* ==== Structs ==== */
+typedef struct wpnSmn_s {
+    int dmgDiceNum, dmgDice;
+    char name[MAX_NAME];
+} wpnSmnS;
 
-struct player_s {
+typedef struct player_s {
     int hpMax, hp, dmgDiceNum, dmgDice, dmgMod, atkMod, atkNum, armor, magMod;
     char name[MAX_NAME];
-    bool status[NUM_STATUSES];
-};
+    int status[NUM_STATUSES];
 
-struct enemy_s {
+    wpnSmnS wpnSmns[MAX_WPN_SMN];
+} playerS;
+
+typedef struct enemy_s {
     int hpMax, hp, dmgDiceNum, dmgDice, dmgMod, atkMod, atkNum, armor, magMod;
     char name[MAX_NAME];
-    bool status[NUM_STATUSES];
-};
-
-typedef struct player_s playerS;
-typedef struct enemy_s enemyS;
+    int status[NUM_STATUSES];
+} enemyS;
 
 /* ==== Typedefs ==== */
-enum statuses {mageArm = 0};
+enum statNums {mageArm = 0, mageShld};
 
 typedef int (*magFunct) (playerS *player, enemyS *enemy); // define int (*coisa) (playerS *player, enemyS *enemy) como só magFunct. É um ponteiro de função.
 typedef int bool;
