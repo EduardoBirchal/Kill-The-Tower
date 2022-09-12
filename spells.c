@@ -89,7 +89,13 @@ int psiDagger (playerS *player, enemyS *enemy) {
 }
 
 int magicMissile (playerS *player, enemyS *enemy) {
+    int dmgRoll = rollDice(4, 3, 1);
 
+    printSlow("Rolagem de dano - \033[36mrolando ");
+    printf("%id%i%+i", 3, 4, 1);
+    rollSlow(dmgRoll);
+    printSlow("Voce invoca tres dardos de energia que se curvam pelo ar e atingem o alvo, liberando pulsos de forca arcana no impacto.");
+    enemy->hp -= dmgRoll;
 }
 
 magFunct spells[10] = {&fireBolt, &sonicBlast, &mageArmor, &mageShield, &psiDagger, &magicMissile};
