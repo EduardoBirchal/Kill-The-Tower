@@ -30,32 +30,6 @@ void centerText (int len, int borderPos) {
     }
 }
 
-// Imprime uma barra de vida
-void printHp (int hpMax, int hp) {
-    for(int i=1; i<=hpMax; i++) {
-        if(i <= (hp)) {
-            printf("\033[102m ");
-        }
-        else {
-            printf("\033[42m ");
-        }
-    }
-    printf("\033[0m");
-    printf("\n\n");
-}
-
-// Conserta o HP pra não ficar negativo
-int updateHp (playerS *player, enemyS *enemy) {
-    if(enemy->hp < 0) enemy->hp = 0;
-    if(enemy->hp > enemy->hpMax) enemy->hp = enemy->hpMax;
-    if(player->hp < 0) player->hp = 0;
-    if(player->hp > player->hpMax) player->hp = player->hpMax;
-
-    if(enemy->hp == 0) return 1;
-    if(player->hp == 0) return 2;
-    return 0;
-}
-
 // Conta o número de dígitos de um número recursivamente
 int digitNum (int num) {
     int digits = 1;
@@ -72,7 +46,7 @@ int digitNum (int num) {
 void printSlow (char string[]) {
     for(int i=0; string[i]!='\0'; i++) {
         printf("%c", string[i]);
-        fflush(stdout);
+        fflush(stdout); // Alguns sistemas operacionais colocam a string inteira num buffer e imprimem tudo de uma vez em vez de imprimir um char por vez
         if(string[i] != '\n') {
             trueSleep(25);
         }
@@ -92,7 +66,7 @@ void rollSlow (int result) {
 // Imprime uma margem
 void printBorder () {
     printf("\033[93m ");
-    for(int i=0; i<BORDER_LEN; i++) { 
+    for(int i=0; i<BORDER_LEN; i++) { // Imprime "-" até chegar no BORDER_LEN
         printf("-");
     }
     printf("\033[0m ");
@@ -136,7 +110,6 @@ void enemyInfo(enemyS enemy) {
     centerText(enemy.hpMax, BORDER_LEN);
     printHp(enemy.hpMax, enemy.hp);
     printf("Rolagem de Ataque: \033[4m1d20%+i\033[0m\tRolagem de Dano: \033[4m%id%i%+i\033[0m\tArmadura: \033[4m%i\033[0m\n", enemy.atkMod, enemy.dmgDiceNum, enemy.dmgDice, enemy.dmgMod, enemy.armor);
-
 }
 
 // Imprime o menu de atributos

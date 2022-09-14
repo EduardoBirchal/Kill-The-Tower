@@ -56,6 +56,8 @@ typedef int bool;
 
 /* ==== Funções ==== */
 
+/* ==== term.c - funções de terminal ==== */
+
 // Imprime para apertar enter e não continua até o usuário apertar
 void requestEnter();
 
@@ -67,12 +69,6 @@ void clearTerm();
 
 // Imprime espaços pra centralizar a próxima impressão em uma margem
 void centerText (int len, int borderPos);
-
-// Imprime uma barra de vida
-void printHp (int hpMax, int hp);
-
-// Conserta o HP pra não ficar negativo
-int updateHp (playerS *player, enemyS *enemy);
 
 // Conta o número de dígitos de um número recursivamente
 int digitNum (int num);
@@ -94,3 +90,19 @@ void enemyInfo(enemyS enemy);
 
 // Imprime o menu de atributos
 void printInfo (playerS player, enemyS enemy);
+
+/* ==== status.c - as funções de cada status do player ==== */
+
+// Checa o array de status do player e faz os efeitos de cada status
+void updateStatus(playerS *player);
+
+/* ==== combat.c - funções de combate ==== */
+
+// Imprime uma barra de vida
+void printHp (int hpMax, int hp);
+
+// Conserta o HP pra não ficar negativo
+int updateHp (playerS *player, enemyS *enemy);
+
+// Rola [num] dados de [size] lados
+int rollDice(int size, int num, int mod);

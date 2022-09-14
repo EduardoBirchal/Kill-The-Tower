@@ -1,18 +1,5 @@
 #include "gameFuncts.h"
 
-/* ==== Funções gerais de combate ==== */
-
-int rollDice(int size, int num, int mod) {
-    int total = 0;
-
-    for(int i=0; i<num; i++) {
-        srand(time(NULL) + i); // O +i é pra seed ser diferente todo loop. Não tenho certeza do porquê de ela ser igual todo loop sem esse +i, já que ele dá o srand todo loop, mas isso faz funcionar.
-        total += 1 + rand()%size;
-        //printf("\t%io dado: %i\n", i+1, total); // Só usar pra debug.
-    }
-    return total+mod;
-}
-
 /* ==== Opções do jogador ==== */
 
 void playerAtk(playerS *player, enemyS *enemy){

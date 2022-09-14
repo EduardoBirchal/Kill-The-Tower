@@ -1,6 +1,9 @@
 #include "gameFuncts.h"
 
-#define NUM_SPELLS 6
+#define NUM_SPELLS 5
+#define MAX_SPELL 20
+
+/* ==== Lista de feitiços ==== */
 
 // Rola o ataque pra um feitiço.
 int spellAtk (playerS* player) {
@@ -73,29 +76,18 @@ int mageShield (playerS *player, enemyS *enemy) {
     }
 }
 
-int psiDagger (playerS *player, enemyS *enemy) {
-    int i = 0;
-    wpnSmnS dagger = {1, 4, "Adaga Psionica"};
-
-    for (i=0; i<MAX_WPN_SMN; i++) {
-        if (strcmp (player->wpnSmns[i].name, "none")) {
-            player->wpnSmns[i] = dagger;
-            printSlow("Uma adaga de energia psionica se manifesta ao seu lado, se movendo pelo ar como se tivesse vida propria.\n\n");
-            return true;
-        }
-    }
-    
-    printSlow("Voce nao consegue se concentrar em mais de %i armas conjuradas ao mesmo tempo!\n\n");
-}
-
 int magicMissile (playerS *player, enemyS *enemy) {
     int dmgRoll = rollDice(4, 3, 1);
 
     printSlow("Rolagem de dano - \033[36mrolando ");
     printf("%id%i%+i", 3, 4, 1);
     rollSlow(dmgRoll);
-    printSlow("Voce invoca tres dardos de energia que se curvam pelo ar e atingem o alvo, liberando pulsos de forca arcana no impacto.");
+    printSlow("Voce invoca tres dardos de energia que se curvam pelo ar e atingem o alvo, liberando pulsos de forca arcana no impacto.\n\n");
     enemy->hp -= dmgRoll;
 }
 
-magFunct spells[10] = {&fireBolt, &sonicBlast, &mageArmor, &mageShield, &psiDagger, &magicMissile};
+magFunct spells[10] = {&fireBolt, &sonicBlast, &mageArmor, &mageShield, &magicMissile};
+
+
+/* ==== Imprimir menu de feitiços ==== */
+
