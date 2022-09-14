@@ -91,3 +91,77 @@ magFunct spells[10] = {&fireBolt, &sonicBlast, &mageArmor, &mageShield, &magicMi
 
 /* ==== Imprimir menu de feitiços ==== */
 
+void printSpells() {
+    char options[NUM_SPELLS+1][MAX_OPTION] = {"Dardo de Fogo", "Pulso Sonico", "Armadura Espectral", "Escudo Espectral", "Misseis Magicos", "Cancelar"};
+    int option = 0;
+
+    printf("\n");
+    for(int i=0; i<NUM_SPELLS; i++) {
+        printf("%i: %s\n", i+1, options[i]);
+    }
+    printf("\n");
+}
+
+int readSpell(playerS *player, enemyS *enemy) {
+    int option = 1;
+
+    while (1) {
+        printf("\nEscolha um feitico:\n> ");
+        scanf("%i", &option);
+        printf("\n");
+
+        /*while (1) {
+            uint8_t *state = SDL_GetKeyboardState(NULL);
+            if (state[80]) {
+                option--;
+            }
+            if (state[79]) {
+                option++;
+                printf("%i ", option);
+            }
+        }*/
+        switch (option)
+        {
+        case 1:
+            playerAtk(player, enemy);
+            requestEnter();
+            return 0;
+            break;
+        case 2:
+            //playerSkl(player);
+            requestEnter();
+            return 0;
+            break;
+        case 3:
+            playerMag(player, enemy);
+            requestEnter();
+            return 0;
+            break;
+        case 4:
+            //playerInv(player);
+            requestEnter();
+            return 0;
+            break;
+        case 5:
+            //playerAct(player);
+            requestEnter();
+            return 0;
+            break;
+        case 6:
+            return 1;
+            break;
+        default:
+            printf("Invalid option! (has to be number between 1 and %i).\n", OPTION_AMT);
+            break;
+        }
+    }
+}
+
+int turnPlayer(playerS *player, enemyS *enemy) {
+    printOptions();
+    if(readOption(player, enemy)) {
+        return 1; // Retorna 1, fazendo com que o programa feche
+    }
+
+    return 0;
+}
