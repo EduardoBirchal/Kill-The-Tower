@@ -137,7 +137,7 @@ int main(int argc, char** argv) {
 
     // Declarando criaturas
     playerS player = createPlayer();
-    enemyS enemy = {32, 32, 1, 4, 2, 4, 2, 14, 1, "Goblin"};
+    enemyS enemy = {96, 96, 1, 4, 2, 4, 2, 14, 1, "Ze Pequeno, o Anao Denso"};
 
     while (1) {
         battleState = updateHp(&player, &enemy);

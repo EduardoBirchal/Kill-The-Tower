@@ -10,7 +10,8 @@ typedef struct spell_s {
     char desc[MAX_DESC];
 } spellS;
 
-/* ==== Lista de feitiços ==== */
+
+/* ==== Funções de feitiço ==== */
 
 // Rola o ataque pra um feitiço.
 int spellAtk (playerS* player) {
@@ -28,7 +29,7 @@ int spellDmg (playerS* player, enemyS *enemy, int dmgDie, int dmgDieNum, char* s
     int dmgRoll = 0;
     int atkRoll = spellAtk (player);
 
-    if (atkRoll >= enemy->armor) {
+    if (atkRoll >= enemy->armor) { // Se acertou, dá dano e imprime 'strHit'.
         printSlow(" \033[33;4mAcerto!\033[0m\n\n");
         dmgRoll = rollDice(dmgDie, dmgDieNum, player->magMod);
         printSlow("Rolagem de dano - \033[36mrolando ");
@@ -39,17 +40,22 @@ int spellDmg (playerS* player, enemyS *enemy, int dmgDie, int dmgDieNum, char* s
 
         return 1;
     }
-    else {
+    else { // Senão, imprime 'strMiss'.
         printSlow(strMiss);
         return 0;
     }
 }
+
+
+/* ==== Lista de feitiços ==== */
 
 // Um feitiço simples, que dá uma boa quantidade de dano.
 int fireBolt (playerS* player, enemyS *enemy) {
     spellDmg (player, enemy, 6, 2,
     "\n\nO dardo de fogo acerta a criatura, estalando e criando um estouro de chamas.\n\n", 
     " \033[33;4mFalha...\033[0m\n\nO alvo se abaixa para fora do caminho do projétil, que dispara por cima dele e se dissipa numa nuvem de brasas.\n\n");
+
+    return 1;
 }
 
 // Dá dano médio e diminui armadura.
@@ -61,28 +67,36 @@ int sonicBlast (playerS* player, enemyS *enemy) {
     if (result) {
         enemy->armor--;
     }
+
+    return 1;
 }
 
 // Aumenta a armadura do player. Não acumula.
 int mageArmor (playerS *player, enemyS *enemy) {
     if(player->status[mageArm]) {
         printSlow("Esse feitico ja esta em efeito!\n\n");
+        return 0;
     } else {
         player->status[mageArm] = true;
         player->armor += 2;
         printSlow("Voce conjura uma armadura translucida de energia protetiva em volta de si. \033[33mArmadura +2!\033[0m\n\n");
     }
+
+    return 1;
 }
 
 // Aumenta muito a armadura do player, por 1 turno. Não acumula.
 int mageShield (playerS *player, enemyS *enemy) {
     if(player->status[mageShld]) {
         printSlow("Esse feitico ja esta em efeito!\n\n");
+        return 0;
     } else {
         player->status[mageShld] = 2;
         player->armor += 5;
         printSlow("Com uma runa protetora, voce conjura um escudo flutuante de energia arcana. \033[33mArmadura +5!\033[0m\n\n");
     }
+
+    return 1;
 }
 
 // Dá dano baixo e acerta sempre, sem precisar rolar ataque.
@@ -92,8 +106,10 @@ int magicMissile (playerS *player, enemyS *enemy) {
     printSlow("Rolagem de dano - \033[36mrolando ");
     printf("%id%i%+i", 3, 4, 1);
     rollSlow(dmgRoll);
-    printSlow("\nVoce invoca tres dardos de energia que se curvam pelo ar e atingem o alvo, liberando pulsos de forca arcana no impacto.\n\n");
+    printSlow("\n\nTres dardos de energia se materializam, se curvando pelo ar e liberando pulsos de forca arcana ao atingirem o alvo.\n\n");
     enemy->hp -= dmgRoll;
+
+    return 1;
 }
 
 /* ==== Criar o array de feitiços ==== */
@@ -143,29 +159,18 @@ int readSpell(playerS *player, enemyS *enemy) {
     int option = 1;
 
     while (1) {
-        printf("\nEscolha um feitico:\n> ");
+        printf("\nEscolha um feitico:\n> "); // Lê a opção
         scanf("%i", &option);
         printf("\n");
 
-        /*while (1) {
-            uint8_t *state = SDL_GetKeyboardState(NULL);
-            if (state[80]) {
-                option--;
-            }
-            if (state[79]) {
-                option++;
-                printf("%i ", option);
-            }
-        }*/
-        if(option>0 && option<=NUM_SPELLS) {
-            spells[option-1].funct (player, enemy); // Se a opção é um feitiço, conjura ele
-            break;
-        } 
+        if(option>0 && option<=NUM_SPELLS) {                  // Se a opção é um feitiço, conjura ele.
+            if(spells[option-1].funct (player, enemy)) break; // Se ele retornar 1, acaba o loop. Feitiços retornam 0 se eles não funcionam 
+        }                                                     // (Exemplo: conjura Armadura Arcana quando ela já está em efeito)
         else if(option=NUM_SPELLS+1) {  
-            return 1;
+            return 1; // Se a opção for cancelar, volta pro menu
         } 
         else {
-            printf("Opcao invalida! (tem que ser um numero de 1 a %i).\n", NUM_SPELLS+1);
+            printf("Opcao invalida! (tem que ser um numero de 1 a %i).\n", NUM_SPELLS+1); // Se não for válida, pede pra colocar outra
         }
     }
 

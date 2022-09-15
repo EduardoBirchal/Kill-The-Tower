@@ -18,7 +18,7 @@
 #define true 1
 #define false 0
 
-#define MAX_NAME 25
+#define MAX_NAME 50
 #define BORDER_LEN 96
 
 #define MAX_OPTION 15
