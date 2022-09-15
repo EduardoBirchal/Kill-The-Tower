@@ -33,10 +33,6 @@ void playerAtk(playerS *player, enemyS *enemy){
     enemy->hp -= dmgRoll;
 }
 
-void playerMag (playerS *player, enemyS *enemy) {
-    
-}
-
 
 /* ==== Funções do turno do jogador ==== */
 
@@ -82,7 +78,10 @@ int readOption(playerS *player, enemyS *enemy) {
             return 0;
             break;
         case 3:
-            playerMag(player, enemy);
+            if (playerMag(player, enemy)) {
+                printInfo(*player, *enemy);
+                return 0;
+            }
             requestEnter();
             return 0;
             break;
@@ -116,7 +115,7 @@ int turnPlayer(playerS *player, enemyS *enemy) {
 }
 
 playerS createPlayer() {
-    playerS player = {21, 21, 1, 8, 3, 5, 1, 16, 4, "Voce"};
+    playerS player = {21, 21, 1, 8, 3, 5, 1, 16, 6, "Voce"};
     
     for(int i=0; i<NUM_STATUSES; i++) {
         player.status[i] = false;

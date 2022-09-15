@@ -1,7 +1,14 @@
 #include "gameFuncts.h"
 
 #define NUM_SPELLS 5
-#define MAX_SPELL 20
+#define MAX_SPELL 25
+#define MAX_DESC 100
+
+typedef struct spell_s {
+    magFunct funct;
+    char name[MAX_SPELL];
+    char desc[MAX_DESC];
+} spellS;
 
 /* ==== Lista de feitiços ==== */
 
@@ -56,6 +63,7 @@ int sonicBlast (playerS* player, enemyS *enemy) {
     }
 }
 
+// Aumenta a armadura do player. Não acumula.
 int mageArmor (playerS *player, enemyS *enemy) {
     if(player->status[mageArm]) {
         printSlow("Esse feitico ja esta em efeito!\n\n");
@@ -66,6 +74,7 @@ int mageArmor (playerS *player, enemyS *enemy) {
     }
 }
 
+// Aumenta muito a armadura do player, por 1 turno. Não acumula.
 int mageShield (playerS *player, enemyS *enemy) {
     if(player->status[mageShld]) {
         printSlow("Esse feitico ja esta em efeito!\n\n");
@@ -76,30 +85,58 @@ int mageShield (playerS *player, enemyS *enemy) {
     }
 }
 
+// Dá dano baixo e acerta sempre, sem precisar rolar ataque.
 int magicMissile (playerS *player, enemyS *enemy) {
     int dmgRoll = rollDice(4, 3, 1);
 
     printSlow("Rolagem de dano - \033[36mrolando ");
     printf("%id%i%+i", 3, 4, 1);
     rollSlow(dmgRoll);
-    printSlow("Voce invoca tres dardos de energia que se curvam pelo ar e atingem o alvo, liberando pulsos de forca arcana no impacto.\n\n");
+    printSlow("\nVoce invoca tres dardos de energia que se curvam pelo ar e atingem o alvo, liberando pulsos de forca arcana no impacto.\n\n");
     enemy->hp -= dmgRoll;
 }
 
-magFunct spells[10] = {&fireBolt, &sonicBlast, &mageArmor, &mageShield, &magicMissile};
+/* ==== Criar o array de feitiços ==== */
 
+spellS spells[NUM_SPELLS] = {
+    {
+        &fireBolt, // Função de quando o feitiço é conjurado
+        "Dardo de Fogo", // Nome do feitiço
+        "Causa dano alto." // Descrição do feitiço
+    },
+    {
+        &sonicBlast,
+        "Pulso Sonico",
+        "Causa dano medio e diminui a armadura do alvo em -1."
+    },
+    {
+        &mageArmor,
+        "Armadura Arcana",
+        "Aumenta sua armadura em +2 permanentemente."
+    },
+    {
+        &mageShield,
+        "Escudo Arcano",
+        "Aumenta sua armadura em +5 por 1 turno."
+    },
+    {
+        &magicMissile,
+        "Misseis Magicos",
+        "Causa dano baixo e nunca erra, nao importa a armadura do alvo."
+    }
+};
 
 /* ==== Imprimir menu de feitiços ==== */
 
 void printSpells() {
-    char options[NUM_SPELLS+1][MAX_OPTION] = {"Dardo de Fogo", "Pulso Sonico", "Armadura Espectral", "Escudo Espectral", "Misseis Magicos", "Cancelar"};
-    int option = 0;
+    int option = 0, i = 0;
 
     printf("\n");
-    for(int i=0; i<NUM_SPELLS; i++) {
-        printf("%i: %s\n", i+1, options[i]);
+    for(i=0; i<NUM_SPELLS; i++) {
+        printf("\033[33m%i:\033[0m ", i+1);
+        puts(spells[i].name);
     }
-    printf("\n");
+    printf("\033[33m%i: \033[36mCancelar\033[0m\n", i+1);
 }
 
 int readSpell(playerS *player, enemyS *enemy) {
@@ -120,47 +157,25 @@ int readSpell(playerS *player, enemyS *enemy) {
                 printf("%i ", option);
             }
         }*/
-        switch (option)
-        {
-        case 1:
-            playerAtk(player, enemy);
-            requestEnter();
-            return 0;
+        if(option>0 && option<=NUM_SPELLS) {
+            spells[option-1].funct (player, enemy); // Se a opção é um feitiço, conjura ele
             break;
-        case 2:
-            //playerSkl(player);
-            requestEnter();
-            return 0;
-            break;
-        case 3:
-            playerMag(player, enemy);
-            requestEnter();
-            return 0;
-            break;
-        case 4:
-            //playerInv(player);
-            requestEnter();
-            return 0;
-            break;
-        case 5:
-            //playerAct(player);
-            requestEnter();
-            return 0;
-            break;
-        case 6:
+        } 
+        else if(option=NUM_SPELLS+1) {  
             return 1;
-            break;
-        default:
-            printf("Invalid option! (has to be number between 1 and %i).\n", OPTION_AMT);
-            break;
+        } 
+        else {
+            printf("Opcao invalida! (tem que ser um numero de 1 a %i).\n", NUM_SPELLS+1);
         }
     }
+
+    return 0;
 }
 
-int turnPlayer(playerS *player, enemyS *enemy) {
-    printOptions();
-    if(readOption(player, enemy)) {
-        return 1; // Retorna 1, fazendo com que o programa feche
+int playerMag (playerS *player, enemyS *enemy) {
+    printSpells();
+    if(readSpell(player, enemy)) {
+        return 1; // Retorna 1, fazendo com que o menu imprima de novo
     }
 
     return 0;

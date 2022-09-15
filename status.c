@@ -5,13 +5,12 @@ void updateStatus(playerS *player) {
     for (int i=0; i<NUM_STATUSES; i++) {
         switch (i)
         {
-        /*case mageShld:
+        case mageShld:
+            if (player->status[mageShld] == 1) player->armor -= 5; // Quando mageShld está pra acabar, diminui a armadura em 5.
             if (player->status[mageShld] > 0) player->status[mageShld]--; // Mage Shield dura pelo turno que ele foi ativado e o próximo turno.
-            else player->armor -= 5;                                      // O status mageShld começa em 2 e diminui todo início de turno, até chegar em 0 e o seu efeito acabar.
             
             break;                                                        
         
-        */
         default:
             break;
         }
