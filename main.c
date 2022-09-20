@@ -2,8 +2,8 @@
 
 /* ==== Opções do jogador ==== */
 
-void playerAtk(playerS *player, enemyS *enemy){
-    int atkRoll = rollDice(20, 1, player->atkMod);
+int playerAtk(playerS *player, enemyS *enemy){
+    int atkRoll = rollDice(20, 1, player->atkMod, player->advantage);
     int dmgRoll = 0;
 
     printSlow("Rolagem de ataque - \033[36mrolando ");
@@ -12,25 +12,30 @@ void playerAtk(playerS *player, enemyS *enemy){
     
     if(atkRoll-player->atkMod > 17) {
         printSlow(" \033[33;4mAcerto Critico!\033[0m Dados de dano dobrados pra esse ataque.\n\n");
-        dmgRoll = rollDice(player->dmgDice, player->dmgDiceNum*2, player->dmgMod*2);
+        dmgRoll = rollDice(player->dmgDice, player->dmgDiceNum*2, player->dmgMod*2, 0);
         printSlow("Rolagem de dano - \033[36mrolando ");
         printf("%id%i%+i", player->dmgDiceNum*2, player->dmgDice, player->dmgMod*2);
         rollSlow(dmgRoll);
         printSlow("\n\nSua lamina atinge o alvo com precisao brutal, causando dano massivo.\n\n");
+
+        enemy->hp -= dmgRoll;
+        return 2;
     } 
     else if (atkRoll >= enemy->armor) {
         printSlow(" \033[33;4mAcerto!\033[0m\n\n");
-        dmgRoll = rollDice(player->dmgDice, player->dmgDiceNum, player->dmgMod);
+        dmgRoll = rollDice(player->dmgDice, player->dmgDiceNum, player->dmgMod, 0);
         printSlow("Rolagem de dano - \033[36mrolando ");
         printf("%id%i%+i", player->dmgDiceNum, player->dmgDice, player->dmgMod);
         rollSlow(dmgRoll);
         printSlow("\n\nVoce ataca a criatura, que falha em se esquivar e recua com um grito.\n\n");
+
+        enemy->hp -= dmgRoll;
+        return 1;
     }
     else {
         printSlow(" \033[33;4mFalha...\033[0m\n\nO oponente desvia agilmente do seu golpe, saltando para o lado. A lamina encontra apenas terra.\n\n");
+        return 0;
     }
-
-    enemy->hp -= dmgRoll;
 }
 
 
@@ -73,7 +78,10 @@ int readOption(playerS *player, enemyS *enemy) {
             return 0;
             break;
         case 2:
-            //playerSkl(player);
+            if (playerSkl(player, enemy)) {
+                printInfo(*player, *enemy);
+                return 0;
+            }
             requestEnter();
             return 0;
             break;
@@ -115,7 +123,7 @@ int turnPlayer(playerS *player, enemyS *enemy) {
 }
 
 playerS createPlayer() {
-    playerS player = {21, 21, 1, 8, 3, 5, 1, 16, 6, "Voce"};
+    playerS player = {21, 21, 1, 8, 3, 5, 1, 16, 6, "Voce", 0};
     
     for(int i=0; i<NUM_STATUSES; i++) {
         player.status[i] = false;

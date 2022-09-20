@@ -9,7 +9,15 @@ void updateStatus(playerS *player) {
             if (player->status[mageShld] == 1) player->armor -= 5; // Quando mageShld está pra acabar, diminui a armadura em 5.
             if (player->status[mageShld] > 0) player->status[mageShld]--; // Mage Shield dura pelo turno que ele foi ativado e o próximo turno.
             
-            break;                                                        
+            break;     
+
+        case tripAtk:
+            if (player->status[tripAtk] == true) {
+                player->status[tripAtk] == false;
+                player->advantage--;
+            } 
+            
+            break;                                                    
         
         default:
             break;

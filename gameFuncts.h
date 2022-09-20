@@ -38,6 +38,7 @@ typedef struct player_s {
     int hpMax, hp, dmgDiceNum, dmgDice, dmgMod, atkMod, atkNum, armor, magMod;
     char name[MAX_NAME];
     int status[NUM_STATUSES];
+    int advantage; // Se vantagem=0, não tem vantagem.
 
     wpnSmnS wpnSmns[MAX_WPN_SMN];
 } playerS;
@@ -49,10 +50,12 @@ typedef struct enemy_s {
 } enemyS;
 
 /* ==== Typedefs ==== */
-enum statNums {mageArm = 0, mageShld};
 
-typedef int (*magFunct) (playerS *player, enemyS *enemy); // define int (*coisa) (playerS *player, enemyS *enemy) como só magFunct. É um ponteiro de função.
+enum statNums {mageArm = 0, mageShld, tripAtk};
+
+typedef int (*sklFunct) (playerS *player, enemyS *enemy); // define int (*coisa) (playerS *player, enemyS *enemy) como só sklFunct. É um ponteiro de função.
 typedef int bool;
+
 
 /* ==== Funções ==== */
 
@@ -105,4 +108,4 @@ void printHp (int hpMax, int hp);
 int updateHp (playerS *player, enemyS *enemy);
 
 // Rola [num] dados de [size] lados
-int rollDice(int size, int num, int mod);
+int rollDice(int size, int num, int mod, int adv);

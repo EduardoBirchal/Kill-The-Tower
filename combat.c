@@ -27,13 +27,24 @@ int updateHp (playerS *player, enemyS *enemy) {
 }
 
 // Rola [num] dados de [size] lados
-int rollDice(int size, int num, int mod) {
-    int total = 0;
+int rollDice(int size, int num, int mod, int adv) {
+    int total;
+    int roll = 0;
 
-    for(int i=0; i<num; i++) {
-        srand(time(NULL) + i); // O +i é pra seed ser diferente todo loop. Não tenho certeza do porquê de ela ser igual todo loop sem esse +i, já que ele dá o srand todo loop, mas isso faz funcionar.
-        total += 1 + rand()%size;
-        //printf("\t%io dado: %i\n", i+1, total); // Só usar pra debug.
+    for(int j=0; j<num; j++) {
+        roll += 1 + rand()%size;
+        //printf("\t%io dado: %i\n", j+1, roll); // Só usar pra debug.
     }
+    total = roll;
+
+    for(int i=0; i<adv; i++) {
+        roll = 0;
+        for(int j=0; j<num; j++) {
+            roll += 1 + rand()%size;
+            //printf("\t%io dado: %i\n", j+1, roll); // Só usar pra debug.
+        }
+        if (roll>total) total=roll;
+    }
+
     return total+mod;
 }
