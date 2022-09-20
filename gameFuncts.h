@@ -59,53 +59,112 @@ typedef int bool;
 
 /* ==== Funções ==== */
 
-/* ==== term.c - funções de terminal ==== */
+/* ==== Combate - funções de combate ==== */
 
-// Imprime para apertar enter e não continua até o usuário apertar
-void requestEnter();
+    // Imprime uma barra de vida
+    void printHp (int hpMax, int hp);
 
-// Sleep que funciona em Windows e Linux
-void trueSleep(int ms);
+    // Conserta o HP pra não ficar negativo
+    int updateHp (playerS *player, enemyS *enemy);
 
-// Um regex que limpa o terminal, muitas vezes mais rápido que o system("clear") e é multiplataforma
-void clearTerm();
+    // Rola [num] dados de [size] lados
+    int rollDice(int size, int num, int mod, int adv);
 
-// Imprime espaços pra centralizar a próxima impressão em uma margem
-void centerText (int len, int borderPos);
 
-// Conta o número de dígitos de um número recursivamente
-int digitNum (int num);
+/* ==== Skills - habilidades especiais não-mágicas ==== */
 
-// Imprime uma mensagem devagar
-void printSlow (char string[]);
+    // Rola o ataque pra um habilidade.
+    int skillAtk (playerS* player);
 
-// Imprime o resultado de um dado devagar
-void rollSlow (int result);
+    // Um habilidade de dano genérico. Retorna se acertou ou errou, pra efeitos adicionais.
+    int skillDmg (playerS* player, enemyS *enemy, int dmgDie, int dmgDieNum, char* strHit, char* strMiss);
 
-// Imprime uma margem
-void printBorder ();
+    // Ataca duas vezes.
+    int doubleStrike (playerS* player, enemyS *enemy);
 
-// Imprime os atributos do player
-void playerInfo(playerS player);
+    // Ataca e ganha vantagem nos ataques no turno seguinte.
+    int tripAttack (playerS* player, enemyS *enemy);
 
-// Imprime os atributos do inimigo
-void enemyInfo(enemyS enemy);
+    // Imprime a lista de habilidades.
+    void printSkills();
 
-// Imprime o menu de atributos
-void printInfo (playerS player, enemyS enemy);
+    // Lê a escolha de habilidade do player.
+    int readSkill(playerS *player, enemyS *enemy);
 
-/* ==== status.c - as funções de cada status do player ==== */
+    // Imprime as habilidades e lê a escolha do player.
+    int playerSkl (playerS *player, enemyS *enemy);
 
-// Checa o array de status do player e faz os efeitos de cada status
-void updateStatus(playerS *player);
 
-/* ==== combat.c - funções de combate ==== */
+/* ==== Spells - as funções de feitiços ==== */
 
-// Imprime uma barra de vida
-void printHp (int hpMax, int hp);
+    // Rola o ataque pra um feitiço.
+    int spellAtk (playerS* player);
 
-// Conserta o HP pra não ficar negativo
-int updateHp (playerS *player, enemyS *enemy);
+    // Um feitiço de dano genérico. Retorna se acertou ou errou, pra efeitos adicionais.
+    int spellDmg (playerS* player, enemyS *enemy, int dmgDie, int dmgDieNum, char* strHit, char* strMiss);
 
-// Rola [num] dados de [size] lados
-int rollDice(int size, int num, int mod, int adv);
+    // Um feitiço simples, que dá uma boa quantidade de dano.
+    int fireBolt (playerS* player, enemyS *enemy);
+
+    // Dá dano médio e diminui armadura.
+    int sonicBlast (playerS* player, enemyS *enemy);
+
+    // Aumenta a armadura do player. Não acumula.
+    int mageArmor (playerS *player, enemyS *enemy);
+
+    // Aumenta muito a armadura do player, por 1 turno. Não acumula.
+    int mageShield (playerS *player, enemyS *enemy);
+
+    // Dá dano baixo e acerta sempre, sem precisar rolar ataque.
+    int magicMissile (playerS *player, enemyS *enemy);
+
+    // Imprime a lista de feitiços.
+    void printSpells();
+
+    // Lê a escolha de feitiços do player.
+    int readSpell(playerS *player, enemyS *enemy);
+    
+    // Imprime os feitiços e lê a escolha do player.
+    int playerMag (playerS *player, enemyS *enemy);
+
+
+/* ==== Status - as funções de cada status do player ==== */
+
+    // Checa o array de status do player e faz os efeitos de cada status
+    void updateStatus(playerS *player);
+
+
+/* ==== Term - funções de terminal ==== */
+
+    // Imprime para apertar enter e não continua até o usuário apertar
+    void requestEnter();
+
+    // Sleep que funciona em Windows e Linux
+    void trueSleep(int ms);
+
+    // Um regex que limpa o terminal, muitas vezes mais rápido que o system("clear") e é multiplataforma
+    void clearTerm();
+
+    // Imprime espaços pra centralizar a próxima impressão em uma margem
+    void centerText (int len, int borderPos);
+
+    // Conta o número de dígitos de um número recursivamente
+    int digitNum (int num);
+
+    // Imprime uma mensagem devagar
+    void printSlow (char string[]);
+
+    // Imprime o resultado de um dado devagar
+    void rollSlow (int result);
+
+    // Imprime uma margem
+    void printBorder ();
+
+    // Imprime os atributos do player
+    void playerInfo(playerS player);
+
+    // Imprime os atributos do inimigo
+    void enemyInfo(enemyS enemy);
+
+    // Imprime o menu de atributos
+    void printInfo (playerS player, enemyS enemy);
