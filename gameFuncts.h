@@ -27,12 +27,10 @@
 #define NUM_STATUSES 2
 #define MAX_WPN_SMN 3
 
+#define INV_SIZE 6
+
 
 /* ==== Structs ==== */
-typedef struct wpnSmn_s {
-    int dmgDiceNum, dmgDice;
-    char name[MAX_NAME];
-} wpnSmnS;
 
 typedef struct player_s {
     int hpMax, hp, dmgDiceNum, dmgDice, dmgMod, atkMod, atkNum, armor, magMod;
@@ -40,7 +38,8 @@ typedef struct player_s {
     int status[NUM_STATUSES];
     int advantage; // Se vantagem=0, não tem vantagem.
 
-    wpnSmnS wpnSmns[MAX_WPN_SMN];
+    itemS inventory[INV_SIZE];
+    int invFill;
 } playerS;
 
 typedef struct enemy_s {
@@ -56,6 +55,13 @@ enum statNums {mageArm = 0, mageShld, tripAtk};
 typedef int (*sklFunct) (playerS *player, enemyS *enemy); // define int (*coisa) (playerS *player, enemyS *enemy) como só sklFunct. É um ponteiro de função.
 typedef int bool;
 
+typedef struct item_s { // Tá definido aqui porque depende do tipo sklFunct
+    sklFunct funct;
+    char name[MAX_ITEM];
+    char desc[MAX_DESC_ITEM];
+
+    int num; // O número de itens no slot. Se for 0, o slot está vazio.
+} itemS;
 
 /* ==== Funções ==== */
 

@@ -73,11 +73,13 @@ int readOption(playerS *player, enemyS *enemy) {
         switch (option)
         {
         case 1:
+            printInfo(*player, *enemy);
             playerAtk(player, enemy);
             requestEnter();
             return 0;
             break;
         case 2:
+            printInfo(*player, *enemy);
             if (playerSkl(player, enemy)) {
                 printInfo(*player, *enemy);
                 return 0;
@@ -86,6 +88,7 @@ int readOption(playerS *player, enemyS *enemy) {
             return 0;
             break;
         case 3:
+            printInfo(*player, *enemy);
             if (playerMag(player, enemy)) {
                 printInfo(*player, *enemy);
                 return 0;
@@ -99,6 +102,7 @@ int readOption(playerS *player, enemyS *enemy) {
             return 0;
             break;
         case 5:
+            printInfo(*player, *enemy);
             //playerAct(player);
             requestEnter();
             return 0;
@@ -107,6 +111,7 @@ int readOption(playerS *player, enemyS *enemy) {
             return 1;
             break;
         default:
+            printInfo(*player, *enemy);
             printf("Invalid option! (has to be number between 1 and %i).\n", OPTION_AMT);
             break;
         }
@@ -123,16 +128,17 @@ int turnPlayer(playerS *player, enemyS *enemy) {
 }
 
 playerS createPlayer() {
+    // Inicializando os atributos
     playerS player = {21, 21, 1, 8, 3, 5, 1, 16, 6, "Voce", 0};
     
-    for(int i=0; i<NUM_STATUSES; i++) {
+    // Inicializando os status
+    for(int i=0; i<NUM_STATUSES; i++) { 
         player.status[i] = false;
     }
 
-    for(int i=0; i<MAX_WPN_SMN; i++) {
-        wpnSmnS vazio = {0, 0, "none"};
-        player.wpnSmns[i] = vazio;
-    }
+    // Inicializando o inventário
+    initInv(player);
+    fillInv(player);
 
     return player;
 }

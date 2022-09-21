@@ -3,7 +3,7 @@
 
 /* ==== Defines ==== */
 
-#define NUM_SKILLS 2
+#define NUM_SKILLS 3
 #define MAX_SKILL 25
 #define MAX_DESC_SKILL 100
 
@@ -137,6 +137,14 @@ typedef struct spell_s {
         return 1;
     }
 
+    // Dá dano no player, pra debug.
+    int debugSelfDmg (playerS* player, enemyS *enemy) {
+        player->hp -= 10;
+        printSlow("Ai.\n\n");
+
+        return 1;
+    }
+
     /* ==== Criar o array de habilidades ==== */
 
     skillS skills[NUM_SKILLS] = {
@@ -149,6 +157,11 @@ typedef struct spell_s {
             &tripAttack,
             "Rasteira",
             "Da uma rasteira no alvo, fazendo-o cair e te dando vantagem no proximo ataque."
+        },
+        {
+            &debugSelfDmg,
+            "Auto-esfaquear",
+            "Da dano em si mesmo. Ai."
         },
     };
 
@@ -174,6 +187,7 @@ typedef struct spell_s {
             printf("\n");
 
             if(option>0 && option<=NUM_SKILLS) {                  // Se a opção é um habilidade, conjura ele.
+                printInfo(*player, *enemy);
                 if(skills[option-1].funct (player, enemy)) break; // Se ele retornar 1, acaba o loop. habilidades retornam 0 se eles não funcionam 
             }                                                     // (Exemplo: conjura Armadura Arcana quando ela já está em efeito)
             else if(option==NUM_SKILLS+1) {  
@@ -352,6 +366,7 @@ typedef struct spell_s {
             printf("\n");
 
             if(option>0 && option<=NUM_SPELLS) {                  // Se a opção é um feitiço, conjura ele.
+                printInfo(*player, *enemy);
                 if(spells[option-1].funct (player, enemy)) break; // Se ele retornar 1, acaba o loop. Feitiços retornam 0 se eles não funcionam 
             }                                                     // (Exemplo: conjura Armadura Arcana quando ela já está em efeito)
             else if(option==NUM_SPELLS+1) {  
