@@ -78,6 +78,45 @@ typedef struct spell_s {
         return total+mod;
     }
 
+    // Faz o ataque do player
+    int playerAtk(playerS *player, enemyS *enemy) {
+        int atkRoll = rollDice(20, 1, player->atkMod, player->advantage); // Rola o ataque
+        int dmgRoll = 0;
+
+        printSlow("Rolagem de ataque - \033[36mrolando ");
+        printf("1d20%+i", player->atkMod);
+        rollSlow(atkRoll);
+        
+        // Se for 17 natural pra cima, é um acerto crítico
+        if(atkRoll-player->atkMod > 17) {
+            printSlow(" \033[33;4mAcerto Critico!\033[0m Dados de dano dobrados pra esse ataque.\n\n");
+            dmgRoll = rollDice(player->dmgDice, player->dmgDiceNum*2, player->dmgMod*2, 0);
+            printSlow("Rolagem de dano - \033[36mrolando ");
+            printf("%id%i%+i", player->dmgDiceNum*2, player->dmgDice, player->dmgMod*2);
+            rollSlow(dmgRoll);
+            printSlow("\n\nSua lamina atinge o alvo com precisao brutal, causando dano massivo.\n\n");
+
+            enemy->hp -= dmgRoll;
+            return 2;
+        } 
+        // Se for acima da armadura do inimigo, acerta
+        else if (atkRoll >= enemy->armor) { 
+            printSlow(" \033[33;4mAcerto!\033[0m\n\n");
+            dmgRoll = rollDice(player->dmgDice, player->dmgDiceNum, player->dmgMod, 0);
+            printSlow("Rolagem de dano - \033[36mrolando ");
+            printf("%id%i%+i", player->dmgDiceNum, player->dmgDice, player->dmgMod);
+            rollSlow(dmgRoll);
+            printSlow("\n\nVoce ataca a criatura, que falha em se esquivar e recua com um grito.\n\n");
+
+            enemy->hp -= dmgRoll;
+            return 1;
+        }
+        else {
+            printSlow(" \033[33;4mFalha...\033[0m\n\nO oponente desvia agilmente do seu golpe, saltando para o lado. A lamina encontra apenas terra.\n\n");
+            return 0;
+        }
+    }
+
 
 /* ======= Skills ======= */
 
@@ -167,6 +206,7 @@ typedef struct spell_s {
 
     /* ==== Imprimir menu de habilidades ==== */
 
+    // Imprime o menu de skills
     void printSkills() {
         int option = 0, i = 0;
 
@@ -178,6 +218,7 @@ typedef struct spell_s {
         printf("\033[33m%i: \033[36mCancelar\033[0m\n", i+1);
     }
 
+    // Lê a escolha de skill do player
     int readSkill(playerS *player, enemyS *enemy) {
         int option = 1;
 
@@ -186,10 +227,10 @@ typedef struct spell_s {
             scanf("%i", &option);
             printf("\n");
 
-            if(option>0 && option<=NUM_SKILLS) {                  // Se a opção é um habilidade, conjura ele.
+            if(option>0 && option<=NUM_SKILLS) {                  // Se a opção é um habilidade, usa ela.
                 printInfo(*player, *enemy);
                 if(skills[option-1].funct (player, enemy)) break; // Se ele retornar 1, acaba o loop. habilidades retornam 0 se eles não funcionam 
-            }                                                     // (Exemplo: conjura Armadura Arcana quando ela já está em efeito)
+            }                                                     // (Exemplo: usa Rasteira quando ela já está em efeito)
             else if(option==NUM_SKILLS+1) {  
                 return 1; // Se a opção for cancelar, volta pro menu
             } 

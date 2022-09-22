@@ -1,46 +1,9 @@
 #include "gameFuncts.h"
 
-/* ==== Opções do jogador ==== */
-
-int playerAtk(playerS *player, enemyS *enemy){
-    int atkRoll = rollDice(20, 1, player->atkMod, player->advantage);
-    int dmgRoll = 0;
-
-    printSlow("Rolagem de ataque - \033[36mrolando ");
-    printf("1d20%+i", player->atkMod);
-    rollSlow(atkRoll);
-    
-    if(atkRoll-player->atkMod > 17) {
-        printSlow(" \033[33;4mAcerto Critico!\033[0m Dados de dano dobrados pra esse ataque.\n\n");
-        dmgRoll = rollDice(player->dmgDice, player->dmgDiceNum*2, player->dmgMod*2, 0);
-        printSlow("Rolagem de dano - \033[36mrolando ");
-        printf("%id%i%+i", player->dmgDiceNum*2, player->dmgDice, player->dmgMod*2);
-        rollSlow(dmgRoll);
-        printSlow("\n\nSua lamina atinge o alvo com precisao brutal, causando dano massivo.\n\n");
-
-        enemy->hp -= dmgRoll;
-        return 2;
-    } 
-    else if (atkRoll >= enemy->armor) {
-        printSlow(" \033[33;4mAcerto!\033[0m\n\n");
-        dmgRoll = rollDice(player->dmgDice, player->dmgDiceNum, player->dmgMod, 0);
-        printSlow("Rolagem de dano - \033[36mrolando ");
-        printf("%id%i%+i", player->dmgDiceNum, player->dmgDice, player->dmgMod);
-        rollSlow(dmgRoll);
-        printSlow("\n\nVoce ataca a criatura, que falha em se esquivar e recua com um grito.\n\n");
-
-        enemy->hp -= dmgRoll;
-        return 1;
-    }
-    else {
-        printSlow(" \033[33;4mFalha...\033[0m\n\nO oponente desvia agilmente do seu golpe, saltando para o lado. A lamina encontra apenas terra.\n\n");
-        return 0;
-    }
-}
-
 
 /* ==== Funções do turno do jogador ==== */
 
+// Imprime as opções do player
 void printOptions() {
     char options[OPTION_AMT][MAX_OPTION] = {"ATACAR", "HABILIDADES", "MAGIA", "INVENTARIO", "ACOES", "FECHAR JOGO"};
     int option = 0;
@@ -52,6 +15,7 @@ void printOptions() {
     printf("\n");
 }
 
+// Lê a opção que o player escolheu
 int readOption(playerS *player, enemyS *enemy) {
     int option = 1;
 
@@ -60,25 +24,18 @@ int readOption(playerS *player, enemyS *enemy) {
         scanf("%i", &option);
         printf("\n");
 
-        /*while (1) {
-            uint8_t *state = SDL_GetKeyboardState(NULL);
-            if (state[80]) {
-                option--;
-            }
-            if (state[79]) {
-                option++;
-                printf("%i ", option);
-            }
-        }*/
         switch (option)
         {
-        case 1:
+        // Ataque
+        case 1: 
             printInfo(*player, *enemy);
             playerAtk(player, enemy);
             requestEnter();
             return 0;
             break;
-        case 2:
+
+        // Skills
+        case 2: 
             printInfo(*player, *enemy);
             if (playerSkl(player, enemy)) {
                 printInfo(*player, *enemy);
@@ -87,7 +44,9 @@ int readOption(playerS *player, enemyS *enemy) {
             requestEnter();
             return 0;
             break;
-        case 3:
+
+        // Magia
+        case 3: 
             printInfo(*player, *enemy);
             if (playerMag(player, enemy)) {
                 printInfo(*player, *enemy);
@@ -96,20 +55,31 @@ int readOption(playerS *player, enemyS *enemy) {
             requestEnter();
             return 0;
             break;
-        case 4:
-            //playerInv(player);
+
+        // Inventário
+        case 4: 
+            if (playerInv(player, enemy)) {
+                printInfo(*player, *enemy);
+                return 0;
+            }
             requestEnter();
             return 0;
             break;
-        case 5:
+
+        // Ações
+        case 5: 
             printInfo(*player, *enemy);
             //playerAct(player);
             requestEnter();
             return 0;
             break;
-        case 6:
+
+        // Cancelar
+        case 6: 
             return 1;
             break;
+
+        // Opção inválido
         default:
             printInfo(*player, *enemy);
             printf("Invalid option! (has to be number between 1 and %i).\n", OPTION_AMT);
@@ -137,8 +107,8 @@ playerS createPlayer() {
     }
 
     // Inicializando o inventário
-    initInv(player);
-    fillInv(player);
+    initInv(&player);
+    fillInv(&player);
 
     return player;
 }
@@ -167,6 +137,7 @@ int main(int argc, char** argv) {
             break;
         }
         if (turnPlayer(&player, &enemy)) {
+            free (player.inventory);
             break;
         }
         //turnEnemy(&player, &enemy);

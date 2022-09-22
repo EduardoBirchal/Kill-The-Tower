@@ -23,6 +23,8 @@ int itemHeal (playerS* player, enemyS *enemy, int healDie, int healDieNum, int h
     printf("%id%i%+i", healDieNum, healDie, healMod);
     rollSlow(healRoll);
     printSlow(str);
+
+    player->hp += healRoll;
 }
 
     /* ==== Lista de feitiços ==== */
@@ -76,6 +78,8 @@ itemS items[INV_SIZE] = {
 
 // Cria um inventário vazio.
 void initInv (playerS *player) {
+    player->inventory = (itemS*) malloc (sizeof(itemS) * INV_SIZE);
+
     for(int i=0; i<INV_SIZE; i++) {
         player->inventory[i].num = 0;
     }
@@ -93,17 +97,18 @@ void setInvSlot (playerS *player, int slot, int item, int itemNum) {
 
 // Pra debug, enche o inventário com uma lista pré-pronta de itens.
 void fillInv (playerS *player) {
-    setInvSlot(player, 0, 0, 3);
-    setInvSlot(player, 1, 2, 2);
-    setInvSlot(player, 2, 1, 5);
+    setInvSlot(player, 0, 0, 1);
+    setInvSlot(player, 1, 1, 1);
+    setInvSlot(player, 2, 2, 1);
 }
 
 // Usa um item, diminuindo a quantidade do item no slot.
 int useItem (playerS *player, enemyS *enemy, int item) {   
+    int deuCerto = player->inventory[item].funct (player, enemy); // Executa a função do item e retorna o que ela retornar (guardado no deuCerto).
     if(player->inventory[item].num <= 1) { // Se está usando o último item do slot, deleta ele do vetor.
         int i = item;
         
-        for (int i=0; i<INV_SIZE; i++) {
+        for (i=item; i<INV_SIZE; i++) {
             if (player->inventory[i+1].num <= 0) break; // Se o próximo item do inventário tem 0 de num (ou seja, se o item atual é o último item do inventário, saia do loop)
             player->inventory[i] = player->inventory[i+1]; // Senão, o item atual é igual ao próximo.
         }
@@ -112,23 +117,25 @@ int useItem (playerS *player, enemyS *enemy, int item) {
     }
     else player->inventory[item].num--; // Se não estiver usando o último item do slot, só diminui o número de itens.
 
-    return player->inventory[item].funct (player, enemy); // Executa a função do item e retorna o que ela retornar.
+    return deuCerto;
 }
 
 /* ==== Imprimir menu de itens ==== */
 
+// Imprime o menu de itens.
 void printItems(playerS *player) {
     int option = 0, i = 0;
 
-    printf("\n");
     for(i=0; i<player->invFill; i++) {
         printf("\033[33m%i:\033[0m ", i+1);
-        puts(player->inventory[i].name);
+        fputs(player->inventory[i].name, stdout);
+        printf(" \033[36m(x%i)\033[0m\n", player->inventory[i].num);
     }
     printf("\033[33m%i: \033[36mCancelar\033[0m\n", i+1);
 }
 
-int readSpell(playerS *player, enemyS *enemy) {
+// Lê a escolha do player.
+int readItem(playerS *player, enemyS *enemy) {
     int option = 1;
     int size = player->invFill;
 
@@ -152,9 +159,10 @@ int readSpell(playerS *player, enemyS *enemy) {
     return 0;
 }
 
-int playerMag (playerS *player, enemyS *enemy) {
-    printSpells();
-    if(readSpell(player, enemy)) {
+// Imprime o menu e lê a escolha de item.
+int playerInv (playerS *player, enemyS *enemy) {
+    printItems(player);
+    if(readItem(player, enemy)) {
         return 1; // Retorna 1, fazendo com que o menu imprima de novo
     }
 
