@@ -229,6 +229,10 @@ typedef struct spell_s {
 
             if(option>0 && option<=NUM_SKILLS) {                  // Se a opção é um habilidade, usa ela.
                 printInfo(*player, *enemy);
+
+                centerText(strlen(skills[option-1].name) + 10, BORDER_LEN); // Imprime o nome da habilidade, centralizado, em cima.
+                printf("\033[33m[Usando: %s]\033[0m\n\n", skills[option-1].name);
+
                 if(skills[option-1].funct (player, enemy)) break; // Se ele retornar 1, acaba o loop. habilidades retornam 0 se eles não funcionam 
             }                                                     // (Exemplo: usa Rasteira quando ela já está em efeito)
             else if(option==NUM_SKILLS+1) {  
@@ -408,6 +412,10 @@ typedef struct spell_s {
 
             if(option>0 && option<=NUM_SPELLS) {                  // Se a opção é um feitiço, conjura ele.
                 printInfo(*player, *enemy);
+
+                centerText(strlen(spells[option-1].name) + 10, BORDER_LEN); // Imprime o nome do feitiço, centralizado, em cima.
+                printf("\033[33m[Usando: %s]\033[0m\n\n", spells[option-1].name);
+
                 if(spells[option-1].funct (player, enemy)) break; // Se ele retornar 1, acaba o loop. Feitiços retornam 0 se eles não funcionam 
             }                                                     // (Exemplo: conjura Armadura Arcana quando ela já está em efeito)
             else if(option==NUM_SPELLS+1) {  
