@@ -31,19 +31,23 @@
 #define MAX_ITEM 25
 #define MAX_DESC_ITEM 75
 
+#define NUM_CLASSES 5
+
 
 /* ==== Structs ==== */
 
 struct item_s; // itemS depende de playerS e playerS depende de itemS, então eu dei forward declaration. 
 
 typedef struct player_s {
-    int hpMax, hp, dmgDiceNum, dmgDice, dmgMod, atkMod, atkNum, armor, magMod;
+    int hpMax, hp, dmgDiceNum, dmgDice, dmgMod, atkMod, atkNum, armor, magMod, manaMax, mana;
     char name[MAX_NAME];
     int status[NUM_STATUSES];
     int advantage; // Se vantagem=0, não tem vantagem.
 
     struct item_s *inventory;
     int invFill;
+
+    int class;
 } playerS;
 
 typedef struct enemy_s {
@@ -52,9 +56,11 @@ typedef struct enemy_s {
     int status[NUM_STATUSES];
 } enemyS;
 
+
 /* ==== Typedefs ==== */
 
 enum statNums {mageArm = 0, mageShld, tripAtk};
+enum classes {warrior = 0, wizard, warlock, paladin, rogue};
 
 typedef int (*sklFunct) (playerS *player, enemyS *enemy); // define int (*coisa) (playerS *player, enemyS *enemy) como só sklFunct. É um ponteiro de função.
 typedef int bool;
@@ -73,6 +79,9 @@ typedef struct item_s { // Tá definido aqui porque depende do tipo sklFunct
 
     // Imprime uma barra de vida
     void printHp (int hpMax, int hp);
+
+    // Imprime uma barra de mana
+    void printMana (int manaMax, int mana);
 
     // Conserta o HP pra não ficar negativo
     int updateHp (playerS *player, enemyS *enemy);

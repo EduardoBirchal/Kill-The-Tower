@@ -85,9 +85,13 @@ void playerInfo(playerS player) {
     printf("%s (%i/%i)\n", player.name, player.hp, player.hpMax);
     printf("\033[0m ");
 
-    // Imprime o hp e os atributos
+    // Imprime o hp, mana e os atributos
     centerText(player.hpMax, BORDER_LEN);
     printHp(player.hpMax, player.hp);
+
+    centerText(player.manaMax, BORDER_LEN);
+    printMana(player.manaMax, player.mana);
+
     printf("Rolagem de Ataque: \033[4m1d20%+i\033[0m\tRolagem de Dano: \033[4m%id%i%+i\033[0m\tArmadura: \033[4m%i\033[0m\n", player.atkMod, player.dmgDiceNum, player.dmgDice, player.dmgMod, player.armor);
 }
 

@@ -24,6 +24,8 @@ typedef struct spell_s {
     sklFunct funct;
     char name[MAX_SPELL];
     char desc[MAX_DESC_SPELL];
+
+    int cost;
 } spellS;
 
 
@@ -37,6 +39,21 @@ typedef struct spell_s {
             }
             else {
                 printf("\033[42m ");
+            }
+        }
+        printf("\033[0m");
+        printf("\n\n");
+    }
+
+    // Imprime uma barra de mana
+    void printMana (int manaMax, int mana) {
+        printf(" ");
+        for(int i=1; i<=manaMax; i++) {
+            if(i <= (mana)) {
+                printf("\033[104m "); // Imprime em azul as células de mana cheio e o resto (mana vazio) imprime em azul escuro
+            }
+            else {
+                printf("\033[44m ");
             }
         }
         printf("\033[0m");
@@ -229,10 +246,6 @@ typedef struct spell_s {
 
             if(option>0 && option<=NUM_SKILLS) {                  // Se a opção é um habilidade, usa ela.
                 printInfo(*player, *enemy);
-
-                centerText(strlen(skills[option-1].name) + 10, BORDER_LEN); // Imprime o nome da habilidade, centralizado, em cima.
-                printf("\033[33m[Usando: %s]\033[0m\n\n", skills[option-1].name);
-
                 if(skills[option-1].funct (player, enemy)) break; // Se ele retornar 1, acaba o loop. habilidades retornam 0 se eles não funcionam 
             }                                                     // (Exemplo: usa Rasteira quando ela já está em efeito)
             else if(option==NUM_SKILLS+1) {  
@@ -365,27 +378,32 @@ typedef struct spell_s {
         {
             &fireBolt, // Função de quando o feitiço é conjurado
             "Dardo de Fogo", // Nome do feitiço
-            "Causa dano alto." // Descrição do feitiço
+            "Causa dano alto.", // Descrição do feitiço
+            5 // Custo de mana do feitiço
         },
         {
             &sonicBlast,
             "Pulso Sonico",
-            "Causa dano medio e diminui a armadura do alvo em -1."
+            "Causa dano medio e diminui a armadura do alvo em -1.",
+            6
         },
         {
             &mageArmor,
             "Armadura Arcana",
-            "Aumenta sua armadura em +2 permanentemente."
+            "Aumenta sua armadura em +2 permanentemente.",
+            2
         },
         {
             &mageShield,
             "Escudo Arcano",
-            "Aumenta sua armadura em +5 por 1 turno."
+            "Aumenta sua armadura em +5 por 1 turno.",
+            1
         },
         {
             &magicMissile,
             "Misseis Magicos",
-            "Causa dano baixo e nunca erra, nao importa a armadura do alvo."
+            "Causa dano baixo e nunca erra, nao importa a armadura do alvo.",
+            3
         }
     };
 
@@ -397,7 +415,8 @@ typedef struct spell_s {
         printf("\n");
         for(i=0; i<NUM_SPELLS; i++) {
             printf("\033[33m%i:\033[0m ", i+1);
-            puts(spells[i].name);
+            fputs(spells[i].name, stdout);
+            printf(" \033[94m(%i mana)\033[0m\n", spells[i].cost);
         }
         printf("\033[33m%i: \033[36mCancelar\033[0m\n", i+1);
     }
@@ -410,14 +429,19 @@ typedef struct spell_s {
             scanf("%i", &option);
             printf("\n");
 
-            if(option>0 && option<=NUM_SPELLS) {                  // Se a opção é um feitiço, conjura ele.
-                printInfo(*player, *enemy);
+            if(option>0 && option<=NUM_SPELLS) {    // Se a opção é um feitiço, conjura ele.
+                if(player->mana >= spells[option-1].cost) {
+                    printInfo(*player, *enemy);
 
-                centerText(strlen(spells[option-1].name) + 10, BORDER_LEN); // Imprime o nome do feitiço, centralizado, em cima.
-                printf("\033[33m[Usando: %s]\033[0m\n\n", spells[option-1].name);
-
-                if(spells[option-1].funct (player, enemy)) break; // Se ele retornar 1, acaba o loop. Feitiços retornam 0 se eles não funcionam 
-            }                                                     // (Exemplo: conjura Armadura Arcana quando ela já está em efeito)
+                    if(spells[option-1].funct (player, enemy)) {
+                        player->mana -= spells[option-1].cost;
+                        break;  // Se ele retornar 1, acaba o loop. Feitiços retornam 0 se eles não funcionam 
+                    }           // (Exemplo: conjura Armadura Arcana quando ela já está em efeito)
+                }                                                     
+                else {
+                    printf("Voce nao tem mana o suficiente para usar esse feitico!\n"); // Se não tem mana suficiente, não usa o feitiço
+                }
+            }
             else if(option==NUM_SPELLS+1) {  
                 return 1; // Se a opção for cancelar, volta pro menu
             } 

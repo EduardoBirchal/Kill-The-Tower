@@ -82,7 +82,7 @@ int readOption(playerS *player, enemyS *enemy) {
         // Opção inválido
         default:
             printInfo(*player, *enemy);
-            printf("Invalid option! (has to be number between 1 and %i).\n", OPTION_AMT);
+            printf("Opcao invalida! (tem que ser um numero entre 1 e %i).\n", OPTION_AMT);
             break;
         }
     }
@@ -97,9 +97,120 @@ int turnPlayer(playerS *player, enemyS *enemy) {
     return 0;
 }
 
+// Imprime as classes pro player escolher
+void printClasses() {
+    clearTerm();
+
+    centerText (strlen("Escolha sua classe:"), BORDER_LEN);
+    char nomes[NUM_CLASSES][MAX_ITEM] = {"Guerreiro", "Mago", "Bruxo", "Paladino", "Ladrao"}; // Lista dos nomes das classes
+
+    printf("\033[1mEscolha sua classe:\033[0m\n\n");
+
+    for(int i=0; i<NUM_CLASSES; i++) {
+        printf("\033[33m%i: \033[0m", i+1);
+        puts(nomes[i]);
+    }
+}
+
+
+playerS chooseClass (playerS player) {
+    int escolha;
+    printClasses();
+
+        printf("> ");
+        scanf("%i", &escolha);
+        escolha--; // O enum começa em 0, então diminui em 1.
+
+    while (1) {
+        switch (escolha)
+        {
+        case warrior:
+            player.armor = 18;
+            player.atkMod = 6;
+            player.atkNum = 1;
+            player.dmgDice = 6;
+            player.dmgDiceNum = 2;
+            player.dmgMod = 6;
+            player.hpMax = 25;
+            player.magMod = -1;
+            player.manaMax = 10;
+            
+            break;
+        
+        case wizard:
+            player.armor = 14;
+            player.atkMod = 0;
+            player.atkNum = 1;
+            player.dmgDice = 6;
+            player.dmgDiceNum = 1;
+            player.dmgMod = -2;
+            player.hpMax = 15;
+            player.magMod = 6;
+            player.manaMax = 25;
+            
+            break;
+
+        case warlock:
+            player.armor = 12;
+            player.atkMod = 0;
+            player.atkNum = 1;
+            player.dmgDice = 8;
+            player.dmgDiceNum = 1;
+            player.dmgMod = 2;
+            player.hpMax = 15;
+            player.magMod = 6;
+            player.manaMax = 20;
+            
+            break;
+
+        case paladin:
+            player.armor = 16;
+            player.atkMod = 5;
+            player.atkNum = 1;
+            player.dmgDice = 8;
+            player.dmgDiceNum = 1;
+            player.dmgMod = 3;
+            player.hpMax = 20;
+            player.magMod = 3;
+            player.manaMax = 20;
+            
+            break;
+
+        case rogue:
+            player.armor = 14;
+            player.atkMod = 6;
+            player.atkNum = 1;
+            player.dmgDice = 4;
+            player.dmgDiceNum = 1;
+            player.dmgMod = 4;
+            player.hpMax = 15;
+            player.magMod = 2;
+            player.manaMax = 15;
+            
+            break;
+        
+        default:
+            printf("Opcao invalida! (tem que ser um numero entre 1 e %i).\n", NUM_CLASSES);
+            continue;
+            break;
+        }
+
+        break;
+    }
+
+    player.class = escolha;
+    return player;
+}
+
 playerS createPlayer() {
+    playerS player;
+    player = chooseClass (player);
+
     // Inicializando os atributos
-    playerS player = {21, 21, 1, 8, 3, 5, 1, 16, 6, "Voce", 0};
+    player.advantage = 0;
+    player.hp = player.hpMax;
+    player.mana = player.manaMax;
+    strcpy(player.name, "Voce");
     
     // Inicializando os status
     for(int i=0; i<NUM_STATUSES; i++) { 

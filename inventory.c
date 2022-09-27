@@ -144,14 +144,10 @@ int readItem(playerS *player, enemyS *enemy) {
         scanf("%i", &option);
         printf("\n");
 
-        if(option>0 && option<=size) {                        // Se a opção é um item, usa ele.
+        if(option>0 && option<=size) {                  // Se a opção é um feitiço, conjura ele.
             printInfo(*player, *enemy);
-
-            centerText(strlen(items[option-1].name) + 10, BORDER_LEN); // Imprime o nome do item, centralizado, em cima.
-            printf("\033[33m[Usando: %s]\033[0m\n\n", items[option-1].name);
-
-            if(useItem(player, enemy, option-1)) break;       // Se ele retornar 1, acaba o loop. Itens retornam 0 se eles não funcionam 
-        }                                                     // (Exemplo: usa Óleo de Afiação quando ele já está em efeito)
+            if(useItem(player, enemy, option-1)) break; // Se ele retornar 1, acaba o loop. Feitiços retornam 0 se eles não funcionam 
+        }                                                     // (Exemplo: conjura Armadura Arcana quando ela já está em efeito)
         else if(option==size+1) {  
             return 1; // Se a opção for cancelar, volta pro menu
         } 
