@@ -3,7 +3,7 @@
 
 /* ==== Defines ==== */
 
-#define NUM_SKILLS 3
+#define NUM_SKILLS 7
 #define MAX_SKILL 25
 #define MAX_DESC_SKILL 100
 
@@ -67,6 +67,9 @@ typedef struct spell_s {
         if(player->hp < 0) player->hp = 0;
         if(player->hp > player->hpMax) player->hp = player->hpMax;
 
+        if(player->mana < 0) player->mana = 0;
+        if(player->mana > player->manaMax) player->mana = player->manaMax;
+
         if(enemy->hp == 0) return 1; // Retorna >0 se alguem morreu
         if(player->hp == 0) return 2;
         return 0;
@@ -111,25 +114,52 @@ typedef struct spell_s {
             printSlow("Rolagem de dano - \033[36mrolando ");
             printf("%id%i%+i", player->dmgDiceNum*2, player->dmgDice, player->dmgMod*2);
             rollSlow(dmgRoll);
-            printSlow("\n\nSua lamina atinge o alvo com precisao brutal, causando dano massivo.\n\n");
+            printSlow(player->critString);
+
+            if (player->status[rdntSmiteS]) {
+                player->status[rdntSmiteS] = false;
+                int rdntRoll = rollDice(6, 2, 0, 0);
+
+                printSlow("Rolagem de dano (Golpe Radiante) - \033[36mrolando ");
+                printf("%id%i", 2, 6);
+                rollSlow(rdntRoll);
+
+                enemy->hp -= rdntRoll;
+
+                printSlow("Voce canaliza toda a energia divina acumulada para a sua lamina, liberando-a num pulso reverberante de poder radiante.\n\n");
+            }
 
             enemy->hp -= dmgRoll;
             return 2;
         } 
         // Se for acima da armadura do inimigo, acerta
-        else if (atkRoll >= enemy->armor) { 
+        else if (atkRoll >= enemy->armor && player->class != rogue) { 
             printSlow(" \033[33;4mAcerto!\033[0m\n\n");
             dmgRoll = rollDice(player->dmgDice, player->dmgDiceNum, player->dmgMod, 0);
             printSlow("Rolagem de dano - \033[36mrolando ");
             printf("%id%i%+i", player->dmgDiceNum, player->dmgDice, player->dmgMod);
             rollSlow(dmgRoll);
-            printSlow("\n\nVoce ataca a criatura, que falha em se esquivar e recua com um grito.\n\n");
+            printSlow(player->hitString);
+
+            if (player->status[rdntSmiteS]) {
+                player->status[rdntSmiteS] = false;
+                int rdntRoll = rollDice(6, 2, 0, 0);
+
+                printSlow("Rolagem de dano (Golpe Radiante) - \033[36mrolando ");
+                printf("%id%i", 2, 6);
+                rollSlow(rdntRoll);
+
+                enemy->hp -= rdntRoll;
+
+                printSlow("Voce canaliza toda a energia divina acumulada para a sua lamina, liberando-a num pulso reverberante de poder radiante.\n\n");
+            }
 
             enemy->hp -= dmgRoll;
             return 1;
         }
         else {
-            printSlow(" \033[33;4mFalha...\033[0m\n\nO oponente desvia agilmente do seu golpe, saltando para o lado. A lamina encontra apenas terra.\n\n");
+            printSlow(" \033[33;4mFalha...\033[0m");
+            printSlow(player->missString);
             return 0;
         }
     }
@@ -139,37 +169,16 @@ typedef struct spell_s {
 
     /* ==== Funções de habilidade ==== */
 
-    // Rola o ataque pra um habilidade.
-    int skillAtk (playerS* player) {
-        int atkRoll = rollDice(20, 1, player->magMod, 0);
+    // Uma skill de cura genérica.
+    int skillHeal (playerS* player, enemyS *enemy, int healDie, int healDieNum, int healMod, char* str) {
+        int healRoll = rollDice(healDieNum, healDie, healMod, 0);
 
-        printSlow("Rolagem de ataque magico - \033[36mrolando ");
-        printf("1d20%+i", player->magMod);
-        rollSlow(atkRoll);
+        printSlow("Rolagem de cura - \033[36mrolando ");
+        printf("%id%i%+i", healDieNum, healDie, healMod);
+        rollSlow(healRoll);
+        printSlow(str);
 
-        return atkRoll;
-    }
-
-    // Um habilidade de dano genérico. Retorna se acertou ou errou, pra efeitos adicionais.
-    int skillDmg (playerS* player, enemyS *enemy, int dmgDie, int dmgDieNum, char* strHit, char* strMiss) {
-        int dmgRoll = 0;
-        int atkRoll = skillAtk (player);
-
-        if (atkRoll >= enemy->armor) { // Se acertou, dá dano e imprime 'strHit'.
-            printSlow(" \033[33;4mAcerto!\033[0m\n\n");
-            dmgRoll = rollDice(dmgDie, dmgDieNum, player->magMod, 0);
-            printSlow("Rolagem de dano - \033[36mrolando ");
-            printf("%id%i%+i", dmgDieNum, dmgDie, player->magMod);
-            rollSlow(dmgRoll);
-            printSlow(strHit);
-            enemy->hp -= dmgRoll;
-
-            return 1;
-        }
-        else { // Senão, imprime 'strMiss'.
-            printSlow(strMiss);
-            return 0;
-        }
+        player->hp += healRoll;
     }
 
 
@@ -186,8 +195,10 @@ typedef struct spell_s {
     // Ataca e ganha vantagem nos ataques no turno seguinte.
     int tripAttack (playerS* player, enemyS *enemy) {
         if (playerAtk(player, enemy)) {
-            player->status[tripAtk] = true;
+            player->status[tripAtkS] = true;
             player->advantage++;
+
+            printSlow("O seu ataque faz o inimigo cair no chao, vulneravel. \033[33mVantagem +1!\033[0m\n\n");
         }
 
         return 1;
@@ -201,13 +212,62 @@ typedef struct spell_s {
         return 1;
     }
 
+    // Ataca e ganha um bônus de armadura no turno seguinte.
+    int parryAttack (playerS* player, enemyS *enemy) {
+        playerAtk(player, enemy);
+
+        player->status[parryAtkS] = 2;
+        player->armor += 3;
+
+        printSlow("Voce posiciona sua arma para bloquear o proximo ataque. \033[33mArmadura +3!\033[0m\n\n");
+
+        return 1;
+    }
+
+    // Recupera HP.
+    int secondWind (playerS* player, enemyS *enemy) {
+        itemHeal(player, enemy, 6, 2, 2,
+        "Voce recua e respira, recuperando seu folego e se sentindo descansado.\n\n");
+
+        return 1;
+    }
+
+    // Ataca com um bônus de ataque e dano.
+    int divineGuidance (playerS* player, enemyS *enemy) {
+        player->atkMod += 5;
+        player->dmgMod += 5;
+        printSlow("Voce se concentra na sua divindade, deixando conhecimento divino guiar seu ataque. \033[33mAtaque e dano +5!\033[0m\n\n");
+
+        playerAtk(player, enemy);
+
+        player->atkMod -= 5;
+        player->dmgMod -= 5;
+
+        return 1;
+    }
+
+    // Recebe dano e recupera mana.
+    int bloodOffering (playerS* player, enemyS *enemy) {
+        int sacrifice;  
+
+        printf("\nQuanto de HP sacrificar? (1 de HP recupera 3 Mana)\n\n> ");
+        scanf("%i", &sacrifice);
+
+        player->hp -= sacrifice;
+        player->mana += sacrifice*3;
+
+        printSlow("Voce corta o seu braco, deixando sangue sair. O sangue evapora ao tocar o chao, e voce sente energia magica fluindo para suas reservas.");
+    
+        return 1;
+    }
+
     /* ==== Criar o array de habilidades ==== */
 
     skillS skills[NUM_SKILLS] = {
         {
-            &doubleStrike, // Função de quando o habilidade é conjurado
-            "Golpe Duplo", // Nome do habilidade
-            "Ataca duas vezes." // Descrição do habilidade
+            &doubleStrike, // Função de quando a habilidade é usada
+            "Golpe Duplo", // Nome da habilidade
+            "Ataca duas vezes." // Descrição da habilidade
         },
         {
             &tripAttack,
@@ -219,18 +279,42 @@ typedef struct spell_s {
             "Auto-esfaquear",
             "Da dano em si mesmo. Ai."
         },
+
+        {
+            &parryAttack,
+            "Golpe Defensivo",
+            "Ataca e assume uma posicao defensiva, aumentando sua armadura no proximo turno."
+        },
+
+        {
+            &secondWind,
+            "Recuperar Folego",
+            "Descansa e se cura."
+        },
+
+        {
+            &divineGuidance,
+            "Orientacao Divina",
+            "Ataca e ganha um bonus na rolagem de ataque e de dano."
+        },
+
+        {
+            &bloodOffering,
+            "Oferenda de Sangue",
+            "Sacrifica HP por Mana."
+        }
     };
 
     /* ==== Imprimir menu de habilidades ==== */
 
     // Imprime o menu de skills
-    void printSkills() {
+    void printSkills(playerS *player) {
         int option = 0, i = 0;
 
         printf("\n");
-        for(i=0; i<NUM_SKILLS; i++) {
+        for(i=0; i<player->skillNum; i++) {
             printf("\033[33m%i:\033[0m ", i+1);
-            puts(skills[i].name);
+            puts(player->knownSkills[i].name);
         }
         printf("\033[33m%i: \033[36mCancelar\033[0m\n", i+1);
     }
@@ -240,19 +324,19 @@ typedef struct spell_s {
         int option = 1;
 
         while (1) {
-            printf("\nEscolha um feitico:\n> "); // Lê a opção
+            printf("\nEscolha uma habilidade:\n> "); // Lê a opção
             scanf("%i", &option);
             printf("\n");
 
-            if(option>0 && option<=NUM_SKILLS) {                  // Se a opção é um habilidade, usa ela.
+            if(option>0 && option<=player->skillNum) {                  // Se a opção é uma habilidade, usa ela.
                 printInfo(*player, *enemy);
-                if(skills[option-1].funct (player, enemy)) break; // Se ele retornar 1, acaba o loop. habilidades retornam 0 se eles não funcionam 
+                if(player->knownSkills[option-1].funct (player, enemy)) break; // Se ele retornar 1, acaba o loop. habilidades retornam 0 se elas não funcionam 
             }                                                     // (Exemplo: usa Rasteira quando ela já está em efeito)
-            else if(option==NUM_SKILLS+1) {  
+            else if(option==player->skillNum+1) {  
                 return 1; // Se a opção for cancelar, volta pro menu
             } 
             else {
-                printf("Opcao invalida! (tem que ser um numero de 1 a %i).\n", NUM_SKILLS+1); // Se não for válida, pede pra colocar outra
+                printf("Opcao invalida! (tem que ser um numero de 1 a %i).\n", player->skillNum+1); // Se não for válida, pede pra colocar outra
             }
         }
 
@@ -260,12 +344,29 @@ typedef struct spell_s {
     }
 
     int playerSkl (playerS *player, enemyS *enemy) {
-        printSkills();
+        printSkills(player);
         if(readSkill(player, enemy)) {
             return 1; // Retorna 1, fazendo com que o menu imprima de novo
         }
 
         return 0;
+    }
+
+
+    /* ==== Funções de skills conhecidas ==== */
+
+    // Inicializa o vetor de skills do player.
+    void initSkills (playerS *player) {
+        player->knownSkills = (skillS*) malloc(sizeof(skillS));
+        player->skillNum = 0;
+    }
+
+    // Adiciona uma skill no vetor de skills do player.
+    void addSkill (playerS *player, int index) {
+        player->skillNum++;
+        player->knownSkills = (skillS*) realloc(player->knownSkills, sizeof(skillS)*(player->skillNum)); // Realoca o vetor pra caber mais uma skill.
+
+        player->knownSkills[player->skillNum-1] = skills[index];
     }
 
 
@@ -333,11 +434,11 @@ typedef struct spell_s {
 
     // Aumenta a armadura do player. Não acumula.
     int mageArmor (playerS *player, enemyS *enemy) {
-        if(player->status[mageArm]) {
+        if(player->status[mageArmS]) {
             printSlow("Esse feitico ja esta em efeito!\n\n");
             return 0;
         } else {
-            player->status[mageArm] = true;
+            player->status[mageArmS] = true;
             player->armor += 2;
             printSlow("Voce conjura uma armadura translucida de energia protetiva em volta de si. \033[33mArmadura +2!\033[0m\n\n");
         }
@@ -347,11 +448,11 @@ typedef struct spell_s {
 
     // Aumenta muito a armadura do player, por 1 turno. Não acumula.
     int mageShield (playerS *player, enemyS *enemy) {
-        if(player->status[mageShld]) {
+        if(player->status[mageShldS]) {
             printSlow("Esse feitico ja esta em efeito!\n\n");
             return 0;
         } else {
-            player->status[mageShld] = 2;
+            player->status[mageShldS] = 2;
             player->armor += 5;
             printSlow("Com uma runa protetora, voce conjura um escudo flutuante de energia arcana. \033[33mArmadura +5!\033[0m\n\n");
         }
@@ -370,6 +471,18 @@ typedef struct spell_s {
         enemy->hp -= dmgRoll;
 
         return 1;
+    }
+
+    // Aumenta o dano da arma permanentemente.
+    int blessWeapon (playerS *player, enemyS *enemy) {
+        player->dmgMod += 2;
+        printSlow("Com uma oracao voce abencoa sua arma, manipulando as forcas do destino para favorecer sua lamina. \033[33mDano +2!\033[0m\n\n");
+    }
+
+    // Amplifica o dano do seu próximo ataque.
+    int radiantSmite (playerS *player, enemyS *enemy) {
+        player->status[rdntSmiteS] = true;
+        printSlow("Voce se concentra e canaliza as energias da sua divindade. Seu corpo comeca a emitir centelhas de poder divino, que voce sente fluir pelas suas veias. \033[33mDano do proximo ataque +2d6!\033[0m\n\n");
     }
 
     /* ==== Criar o array de feitiços ==== */
@@ -409,11 +522,11 @@ typedef struct spell_s {
 
     /* ==== Imprimir menu de feitiços ==== */
 
-    void printSpells() {
+    void printSpells(playerS *player) {
         int option = 0, i = 0;
 
         printf("\n");
-        for(i=0; i<NUM_SPELLS; i++) {
+        for(i=0; i<player->spellNum; i++) {
             printf("\033[33m%i:\033[0m ", i+1);
             fputs(spells[i].name, stdout);
             printf(" \033[94m(%i mana)\033[0m\n", spells[i].cost);
@@ -429,12 +542,12 @@ typedef struct spell_s {
             scanf("%i", &option);
             printf("\n");
 
-            if(option>0 && option<=NUM_SPELLS) {    // Se a opção é um feitiço, conjura ele.
-                if(player->mana >= spells[option-1].cost) {
+            if(option>0 && option<=player->spellNum) {    // Se a opção é um feitiço, conjura ele.
+                if(player->mana >= player->knownSpells[option-1].cost) {
                     printInfo(*player, *enemy);
 
-                    if(spells[option-1].funct (player, enemy)) {
-                        player->mana -= spells[option-1].cost;
+                    if(player->knownSpells[option-1].funct (player, enemy)) {
+                        player->mana -= player->knownSpells[option-1].cost;
                         break;  // Se ele retornar 1, acaba o loop. Feitiços retornam 0 se eles não funcionam 
                     }           // (Exemplo: conjura Armadura Arcana quando ela já está em efeito)
                 }                                                     
@@ -442,11 +555,11 @@ typedef struct spell_s {
                     printf("Voce nao tem mana o suficiente para usar esse feitico!\n"); // Se não tem mana suficiente, não usa o feitiço
                 }
             }
-            else if(option==NUM_SPELLS+1) {  
+            else if(option==player->spellNum+1) {  
                 return 1; // Se a opção for cancelar, volta pro menu
             } 
             else {
-                printf("Opcao invalida! (tem que ser um numero de 1 a %i).\n", NUM_SPELLS+1); // Se não for válida, pede pra colocar outra
+                printf("Opcao invalida! (tem que ser um numero de 1 a %i).\n", player->spellNum+1); // Se não for válida, pede pra colocar outra
             }
         }
 
@@ -454,7 +567,7 @@ typedef struct spell_s {
     }
 
     int playerMag (playerS *player, enemyS *enemy) {
-        printSpells();
+        printSpells(player);
         if(readSpell(player, enemy)) {
             return 1; // Retorna 1, fazendo com que o menu imprima de novo
         }
@@ -462,6 +575,21 @@ typedef struct spell_s {
         return 0;
     }
 
+    /* ==== Funções de feitiços conhecidos ==== */
+
+    // Inicializa o vetor de feitiços do player.
+    void initSpells (playerS *player) {
+        player->knownSpells = (spellS*) malloc(sizeof(spellS));
+        player->spellNum = 0;
+    }
+
+    // Adiciona um feitiço no vetor de feitiços do player.
+    void addSpell (playerS *player, int index) {
+        player->spellNum++;
+        player->knownSpells = realloc(player->knownSpells, sizeof(spellS)*(player->spellNum+1)); // Realoca o vetor pra caber mais um feitiço.
+
+        player->knownSpells[player->spellNum-1] = spells[index];
+    }
 
 /* ======= Status ======= */
 
@@ -470,19 +598,25 @@ typedef struct spell_s {
         for (int i=0; i<NUM_STATUSES; i++) {
             switch (i)
             {
-            case mageShld:
-                if (player->status[mageShld] == 1) player->armor -= 5; // Quando mageShld está pra acabar, diminui a armadura em 5.
-                if (player->status[mageShld] > 0) player->status[mageShld]--; // Mage Shield dura pelo turno que ele foi ativado e o próximo turno.
+            case mageShldS:
+                if (player->status[mageShldS] == 1) player->armor -= 5; // Quando mageShld está pra acabar, diminui a armadura em 5.
+                if (player->status[mageShldS] > 0) player->status[mageShldS]--; // Mage Shield dura pelo turno que ele foi ativado e o próximo turno.
                 
                 break;
 
-            case tripAtk:
+            case tripAtkS:
                 if (player->status[tripAtk] == true) {
                     player->status[tripAtk] == false;
                     player->advantage--;
                 }
                 
-                break;                                                    
+                break;    
+
+            case parryAtkS:
+                if (player->status[parryAtkS] == 1) player->armor -= 3;
+                if (player->status[parryAtkS] > 0) player->status[parryAtkS]--;
+                
+                break;                   
             
             default:
                 break;

@@ -24,7 +24,7 @@
 #define MAX_OPTION 15
 #define OPTION_AMT 6
 
-#define NUM_STATUSES 2
+#define NUM_STATUSES 5
 #define MAX_WPN_SMN 3
 
 #define INV_SIZE 6
@@ -32,11 +32,14 @@
 #define MAX_DESC_ITEM 75
 
 #define NUM_CLASSES 5
+#define MAX_NARRATE 160
 
 
 /* ==== Structs ==== */
 
-struct item_s; // itemS depende de playerS e playerS depende de itemS, então eu dei forward declaration. 
+struct item_s; // itemS depende de playerS e playerS depende de itemS, então eu dei forward declaration. Mesma coisa pra spell_s e skill_s
+struct spell_s;
+struct skill_s;
 
 typedef struct player_s {
     int hpMax, hp, dmgDiceNum, dmgDice, dmgMod, atkMod, atkNum, armor, magMod, manaMax, mana;
@@ -47,7 +50,17 @@ typedef struct player_s {
     struct item_s *inventory;
     int invFill;
 
+    struct spell_s *knownSpells;
+    int spellNum;
+
+    struct skill_s *knownSkills;
+    int skillNum;
+
     int class;
+
+    char hitString[MAX_NARRATE];
+    char missString[MAX_NARRATE];
+    char critString[MAX_NARRATE];
 } playerS;
 
 typedef struct enemy_s {
@@ -59,8 +72,11 @@ typedef struct enemy_s {
 
 /* ==== Typedefs ==== */
 
-enum statNums {mageArm = 0, mageShld, tripAtk};
-enum classes {warrior = 0, wizard, warlock, paladin, rogue};
+enum statNums {mageArmS, mageShldS, tripAtkS, parryAtkS, rdntSmiteS};
+enum classes {warrior, wizard, warlock, paladin, rogue};
+
+enum spells {fireBlt, sonicBlst, mageArm, mageShld, magicMsl};
+enum skills {doubleStrk, tripAtk, selfDmg, parryAtk, scndWind, dvnGuidance, bldOffering};
 
 typedef int (*sklFunct) (playerS *player, enemyS *enemy); // define int (*coisa) (playerS *player, enemyS *enemy) como só sklFunct. É um ponteiro de função.
 typedef int bool;
@@ -95,11 +111,6 @@ typedef struct item_s { // Tá definido aqui porque depende do tipo sklFunct
     
 /* ==== Skills - habilidades especiais não-mágicas ==== */
 
-    // Rola o ataque pra um habilidade.
-    int skillAtk (playerS* player);
-
-    // Um habilidade de dano genérico. Retorna se acertou ou errou, pra efeitos adicionais.
-    int skillDmg (playerS* player, enemyS *enemy, int dmgDie, int dmgDieNum, char* strHit, char* strMiss);
 
     // Ataca duas vezes.
     int doubleStrike (playerS* player, enemyS *enemy);
@@ -107,14 +118,35 @@ typedef struct item_s { // Tá definido aqui porque depende do tipo sklFunct
     // Ataca e ganha vantagem nos ataques no turno seguinte.
     int tripAttack (playerS* player, enemyS *enemy);
 
+    // Ataca e ganha um bônus de armadura no turno seguinte.
+    int parryAttack (playerS* player, enemyS *enemy);
+
+    // Recupera HP.
+    int secondWind (playerS* player, enemyS *enemy);
+
+    // Ataca com um bônus de ataque e dano.
+    int divineGuidance (playerS* player, enemyS *enemy);
+
+    // Recebe dano e recupera mana.
+    int bloodOffering (playerS* player, enemyS *enemy);
+
+    // Uma skill de cura genérica.
+    int skillHeal (playerS* player, enemyS *enemy, int healDie, int healDieNum, int healMod, char* str);
+
     // Imprime a lista de habilidades.
-    void printSkills();
+    void printSkills(playerS *player);
 
     // Lê a escolha de habilidade do player.
     int readSkill(playerS *player, enemyS *enemy);
 
     // Imprime as habilidades e lê a escolha do player.
     int playerSkl (playerS *player, enemyS *enemy);
+
+    // Inicializa o vetor de skills do player.
+    void initSkills (playerS *player);
+
+    // Adiciona uma skill no vetor de skills do player.
+    void addSkill (playerS *player, int index);
 
 
 /* ==== Spells - as funções de feitiços ==== */
@@ -141,7 +173,7 @@ typedef struct item_s { // Tá definido aqui porque depende do tipo sklFunct
     int magicMissile (playerS *player, enemyS *enemy);
 
     // Imprime a lista de feitiços.
-    void printSpells();
+    void printSpells(playerS *player);
 
     // Lê a escolha de feitiços do player.
     int readSpell(playerS *player, enemyS *enemy);
@@ -149,6 +181,11 @@ typedef struct item_s { // Tá definido aqui porque depende do tipo sklFunct
     // Imprime os feitiços e lê a escolha do player.
     int playerMag (playerS *player, enemyS *enemy);
 
+    // Inicializa o vetor de feitiços do player.
+    void initSpells (playerS *player);
+
+    // Adiciona um feitiço no vetor de feitiços do player.
+    void addSpell (playerS *player, int index);
 
 /* ==== Status - as funções de cada status do player ==== */
 
