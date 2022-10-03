@@ -5,7 +5,7 @@
 
 // Imprime as opções do player
 void printOptions() {
-    char options[OPTION_AMT][MAX_OPTION] = {"ATACAR", "HABILIDADES", "MAGIA", "INVENTARIO", "ACOES", "FECHAR JOGO"};
+    char options[OPTION_AMT][MAX_OPTION] = {"ATACAR", "HABILIDADES", "MAGIA", "INVENTARIO", "FECHAR JOGO"};
     int option = 0;
 
     printf("\n");
@@ -68,16 +68,8 @@ int readOption(playerS *player, enemyS *enemy) {
             return 0;
             break;
 
-        // Ações
-        case 5: 
-            printInfo(*player, *enemy);
-            //playerAct(player);
-            requestEnter();
-            return 0;
-            break;
-
         // Cancelar
-        case 6: 
+        case 5: 
             return 1;
             break;
 
@@ -104,13 +96,12 @@ void printClasses() {
     clearTerm();
 
     centerText (strlen("Escolha sua classe:"), BORDER_LEN);
-    char nomes[NUM_CLASSES][MAX_ITEM] = {"Guerreiro", "Mago", "Bruxo", "Paladino", "Ladrao"}; // Lista dos nomes das classes
+    char nomes[NUM_CLASSES][MAX_ITEM] = {"Guerreiro", "Mago", "Bruxo", "Paladino"}; // Lista dos nomes das classes
     char descricoes[NUM_CLASSES][MAX_DESC_CLASS] = {
     "Especialista em combate. Tem poucas magias, mas muitas habilidades e dano alto.",
     "Arcanista com uma variedade de feiticos uteis e poderosos.",
     "Usa poderes profanos vindos de um pacto com criaturas extraplanares.",
-    "Guerreiro que canaliza o poder de uma divindade para se fortalecer em combate.",
-    "Assassino treinado para atacar com letalidade. Nao acerta ataques nao-criticos mas causa dano enorme."}; // Lista das descrições das classes
+    "Guerreiro que canaliza o poder de uma divindade para se fortalecer em combate."}; // Lista das descrições das classes
 
     printf("\033[1mEscolha sua classe:\033[0m\n\n");
 
@@ -245,22 +236,6 @@ void chooseClass (playerS *player) {
             strcpy(player->missString, "\n\nO som de metal com metal ressoa pelo campo de batalha quando o seu golpe e bloqueado pelo escudo do inimigo.\n\n");
             
             break;
-
-        case rogue:
-            player->armor = 14;
-            player->atkMod = 6;
-            player->atkNum = 1;
-            player->dmgDice = 3;
-            player->dmgDiceNum = 4;
-            player->dmgMod = 3;
-            player->hpMax = 15;
-            player->magMod = 2;
-            player->manaMax = 15;
-
-            strcpy(player->critString, "\n\nCom precisao cirurgica voce acerta um ataque letal com a sua adaga, girando-a e abrindo um ferimento horrivel.\n\n");
-            strcpy(player->missString, "\n\nO seu corte e bloqueado pelo inimigo, raspando contra sua armadura de couro.\n\n");
-            
-            break;
         
         default:
             printf("Opcao invalida! (tem que ser um numero entre 1 e %i).\n", NUM_CLASSES);
@@ -316,8 +291,9 @@ int main(int argc, char** argv) {
     }
 
     while (1) {
-        battleState = updateHp(&player, &enemy);
+        updateHp(&player, &enemy);
         updateStatus(&player, &enemy);
+        battleState = updateHp(&player, &enemy); // Faz o updateHp antes e depois de atualizar os status, pra nao mostrar HP negativo.
         printInfo(player, enemy);
         if(battleState) {
             if (battleState == 1) {

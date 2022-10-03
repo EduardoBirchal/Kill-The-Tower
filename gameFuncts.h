@@ -22,7 +22,7 @@
 #define BORDER_LEN 96
 
 #define MAX_OPTION 15
-#define OPTION_AMT 6
+#define OPTION_AMT 5
 
 #define NUM_STATUSES 6
 #define MAX_WPN_SMN 3
@@ -31,7 +31,7 @@
 #define MAX_ITEM 25
 #define MAX_DESC_ITEM 75
 
-#define NUM_CLASSES 5
+#define NUM_CLASSES 4
 #define MAX_NARRATE 160
 #define MAX_DESC_CLASS 160
 

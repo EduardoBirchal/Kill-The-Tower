@@ -508,7 +508,9 @@ typedef struct spell_s {
         printSlow("Por um instante voce consegue ver com olhos transcendentes, entendendo um pedaco da natureza do mundo e aprofundando a sua comunhao com os Grandes Ancestrais. \033[33mCusto dos feiticos -1!\033[0m\n\n");
 
         for (int i=0; i<player->spellNum; i++) {
-            player->knownSpells[i].cost--;
+            if(player->knownSpells[i].cost>1 && player->knownSpells[i].funct != &sightOfYogSothoth) { // Só reduz o custo até 1 e não reduz o custo de Visão de Yog-Sothoth.
+                player->knownSpells[i].cost--;
+            }
         }
 
         return 1;
@@ -517,8 +519,8 @@ typedef struct spell_s {
     // Causa dano alto.
     int fireOfCthulhu (playerS *player, enemyS *enemy) {
         spellDmg (player, enemy, 8, 3,
-        "\n\nSeus olhos se enchem de escuridao, e voce lanca um fluxo de fogo e trevas contra o inimigo.\n\n", 
-        " \033[33;4mFalha...\033[0m\n\n A criatura bloqueia o raio de chamas sombrias com seu escudo, se protegendo.\n\n");
+        "\n\nSeus olhos se enchem de escuridao, e um fluxo enorme de fogo e trevas soterra o inimigo, escaldando-o com calor necrotico.\n\n", 
+        " \033[33;4mFalha...\033[0m\n\nA criatura bloqueia o raio de chamas sombrias com seu escudo, e o fogo produz um cheiro forte de enxofre.\n\n");
 
         return 1;
     }

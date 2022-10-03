@@ -47,7 +47,7 @@ void printSlow (char string[]) {
         printf("%c", string[i]);
         fflush(stdout); // Alguns sistemas operacionais colocam a string inteira num buffer e imprimem tudo de uma vez em vez de imprimir um char por vez
         if(string[i] != '\n') {
-            trueSleep(15); // Valor default = 25
+            trueSleep(5); // Valor default = 25
         }
     }
 }
@@ -117,6 +117,9 @@ void enemyInfo(enemyS enemy) {
 
 // Imprime o menu de atributos
 void printInfo (playerS player, enemyS enemy) {
+    // Código de escape (se eu não me engano é ANSI) que esconde o cursor
+    printf("\33[?25l");
+
     // Limpa a tela
     clearTerm(); 
 
@@ -129,4 +132,7 @@ void printInfo (playerS player, enemyS enemy) {
 
     // Imprime a margem de baixo
     printBorder();
+
+    // Reabilita o cursor
+    printf("\33[?25h");
 }
