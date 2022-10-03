@@ -76,7 +76,7 @@ typedef struct enemy_s {
 enum statNums {mageArmS, mageShldS, tripAtkS, parryAtkS, rdntSmiteS, hungerOfTheVoidS};
 enum classes {warrior, wizard, warlock, paladin, rogue};
 
-enum spells {fireBlt, sonicBlst, mageArm, mageShld, magicMsl, blessWpn, rndtSmite, voidHunger, yogSothothSight, cthulhuFire};
+enum spells {fireBlt, sonicBlst, mageArm, mageShld, magicMsl, blessWpn, rdntSmite, voidHunger, yogSothothSight, cthulhuFire};
 enum skills {doubleStrk, tripAtk, selfDmg, parryAtk, scndWind, dvnGuidance, bldOffering};
 
 typedef int (*sklFunct) (playerS *player, enemyS *enemy); // define int (*coisa) (playerS *player, enemyS *enemy) como só sklFunct. É um ponteiro de função.

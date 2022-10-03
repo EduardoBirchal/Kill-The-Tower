@@ -230,6 +230,16 @@ void chooseClass (playerS *player) {
             player->magMod = 3;
             player->manaMax = 20;
 
+            addSpell (player, mageArm);
+            addSpell (player, blessWpn);
+            addSpell (player, rdntSmite);
+
+            addSkill (player, parryAtk);
+            addSkill (player, tripAtk);
+            addSkill (player, dvnGuidance);
+            addSkill (player, bldOffering);
+            addSkill (player, selfDmg);
+
             strcpy(player->hitString, "\n\nO golpe da sua espada acerta o alvo com um corte amplo, abrindo um ferimento e jorrando sangue por onde a lamina rasga.\n\n");
             strcpy(player->critString, "\n\nVoce acerta a criatura com o seu escudo numa investida e finca sua espada num ponto vital, causando um ferimento gravissimo.\n\n");
             strcpy(player->missString, "\n\nO som de metal com metal ressoa pelo campo de batalha quando o seu golpe e bloqueado pelo escudo do inimigo.\n\n");

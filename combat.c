@@ -120,13 +120,13 @@ typedef struct spell_s {
                 player->status[rdntSmiteS] = false;
                 int rdntRoll = rollDice(6, 2, 0, 0);
 
+                printSlow("Voce canaliza toda a energia divina acumulada para a sua lamina, liberando-a num pulso reverberante de poder radiante.\n");
                 printSlow("Rolagem de dano (Golpe Radiante) - \033[36mrolando ");
                 printf("%id%i", 2, 6);
                 rollSlow(rdntRoll);
+                printf("\n\n");
 
                 enemy->hp -= rdntRoll;
-
-                printSlow("Voce canaliza toda a energia divina acumulada para a sua lamina, liberando-a num pulso reverberante de poder radiante.\n\n");
             }
 
             enemy->hp -= dmgRoll;
@@ -256,7 +256,7 @@ typedef struct spell_s {
         player->hp -= sacrifice;
         player->mana += sacrifice*3;
 
-        printSlow("Voce corta o seu braco, deixando sangue sair. O sangue evapora ao tocar o chao, e voce sente energia magica fluindo para suas reservas.");
+        printSlow("Voce corta o seu braco, deixando sangue sair. O sangue evapora ao tocar o chao, e voce sente energia magica fluindo para suas reservas.\n\n");
     
         return 1;
     }
@@ -614,12 +614,12 @@ typedef struct spell_s {
                 if(player->mana >= player->knownSpells[option-1].cost) {
                     printInfo(*player, *enemy);
 
-                    if(player->knownSpells[option-1].funct (player, enemy)) {
-                        if (player->status[hungerOfTheVoidS]) { // Se o player estava se concentrando em H. of Hadar, quebra a concentração.
-                            player->status[hungerOfTheVoidS] = false;
-                            printSlow("Voce se concentra em outro feitico, e o portal para o vacuo fecha.\n");
-                        }
+                    if (player->status[hungerOfTheVoidS]) { // Se o player estava se concentrando em H. of Hadar, quebra a concentração.
+                        player->status[hungerOfTheVoidS] = false;
+                        printSlow("Voce se concentra em outro feitico, e o portal para o vacuo fecha.\n");
+                    }
 
+                    if(player->knownSpells[option-1].funct (player, enemy)) {
                         player->mana -= player->knownSpells[option-1].cost;
                         break;  // Se ele retornar 1, acaba o loop. Feitiços retornam 0 se eles não funcionam 
                     }           // (Exemplo: conjura Armadura Arcana quando ela já está em efeito)
@@ -666,6 +666,16 @@ typedef struct spell_s {
 
 /* ======= Status ======= */
 
+    // Se 'evento' for falso, transforma em true e atualiza o terminal.
+    int rodarEvento(int evento, playerS player, enemyS enemy) {
+        if(!evento) {
+            evento = true;
+            printInfo(player, enemy);
+        }
+        
+        return evento;
+    }
+
     // Checa o array de status do player e faz os efeitos de cada status
     void updateStatus(playerS *player, enemyS *enemy) {
         int evento = false; // Se teve algum evento que o player precisa ler, evento = true e o jogo pede um enter depois de todos os eventos.
@@ -695,15 +705,16 @@ typedef struct spell_s {
 
             case hungerOfTheVoidS:
                 if (player->status[hungerOfTheVoidS] == true) {
-                    printSlow("Tentaculos do Longinquo se estendem pelo portal, dilacerando o inimigo com os dentes afiados de suas bocas disformes.\n\n");
+                    evento = rodarEvento(evento, *player, *enemy);
+
+                    printSlow("Tentaculos do Longinquo se estendem pelo portal, dilacerando o inimigo com os dentes afiados de suas bocas disformes.\n");
 
                     int dmgRoll = rollDice(4, 2, player->magMod, 0);
                     printSlow("Rolagem de dano - \033[36mrolando ");
                     printf("%id%i%+i", 2, 4, player->magMod);
                     rollSlow(dmgRoll);
                     enemy->hp -= dmgRoll;
-
-                    evento = true;
+                    printf("\n\n");
                 }
                 
                 break;              
@@ -713,5 +724,8 @@ typedef struct spell_s {
             }
         }
 
-        if (evento) requestEnter();
+        if (evento) {
+            printf("Press ENTER to continue.");
+            getchar(); // Se usasse a função requestEnter, ela ia pedir enter duas vezes, porque ela tem dois getchar pra pegar o \n da msg anterior primeiro
+        }              // já que os eventos acontecem depois de algum outro requestEnter, tem que usar só um getchar
     }

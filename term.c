@@ -3,8 +3,7 @@
 // Imprime para apertar enter e não continua até o usuário apertar
 void requestEnter() {
     printf("Press ENTER to continue.");
-    getchar(); // Primeiro getchar pega o \n da ultima mensagem
-    getchar();
+    if(getchar() == '\n') getchar(); // Primeiro getchar pega o \n da ultima mensagem
 }
 
 // Sleep que funciona em Windows e Linux
@@ -48,7 +47,7 @@ void printSlow (char string[]) {
         printf("%c", string[i]);
         fflush(stdout); // Alguns sistemas operacionais colocam a string inteira num buffer e imprimem tudo de uma vez em vez de imprimir um char por vez
         if(string[i] != '\n') {
-            trueSleep(25);
+            trueSleep(15); // Valor default = 25
         }
     }
 }
