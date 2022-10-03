@@ -7,7 +7,7 @@
 #define MAX_SKILL 25
 #define MAX_DESC_SKILL 100
 
-#define NUM_SPELLS 5
+#define NUM_SPELLS 10
 #define MAX_SPELL 25
 #define MAX_DESC_SPELL 100
 
@@ -412,7 +412,7 @@ typedef struct spell_s {
 
     // Um feitiço simples, que dá uma boa quantidade de dano.
     int fireBolt (playerS* player, enemyS *enemy) {
-        spellDmg (player, enemy, 6, 2,
+        spellDmg (player, enemy, 8, 2,
         "\n\nO dardo de fogo acerta a criatura, estalando e criando um estouro de chamas.\n\n", 
         " \033[33;4mFalha...\033[0m\n\nO alvo se abaixa para fora do caminho do projetil, que dispara por cima dele e se dissipa numa nuvem de brasas.\n\n");
 
@@ -477,12 +477,50 @@ typedef struct spell_s {
     int blessWeapon (playerS *player, enemyS *enemy) {
         player->dmgMod += 2;
         printSlow("Com uma oracao voce abencoa sua arma, manipulando as forcas do destino para favorecer sua lamina. \033[33mDano +2!\033[0m\n\n");
+
+        return 1;
     }
 
     // Amplifica o dano do seu próximo ataque.
     int radiantSmite (playerS *player, enemyS *enemy) {
         player->status[rdntSmiteS] = true;
         printSlow("Voce se concentra e canaliza as energias da sua divindade. Seu corpo comeca a emitir centelhas de poder divino, que voce sente fluir pelas suas veias. \033[33mDano do proximo ataque +2d6!\033[0m\n\n");
+
+        return 1;
+    }
+
+    // Causa dano contínuo no inimigo até o player castar um feitiço
+    int hungerOfTheVoid (playerS *player, enemyS *enemy) {
+        if(player->status[hungerOfTheVoidS]) {
+            printSlow("Esse feitico ja esta em efeito!\n\n");
+            return 0;
+        }
+        else {
+            printSlow("Sua mente se torna inundada de visoes do Longinquo, o vazio alem do Multiverso. Com um grito terrivel, voce evoca essas visoes para o mundo fisico e conjura um portal sombrio.\n\n");
+            player->status[hungerOfTheVoidS] = true;
+        }
+
+        return 1;
+    }
+
+    // Diminui o custo dos feitiços do player.
+    int sightOfYogSothoth (playerS *player, enemyS *enemy) {
+        printSlow("Por um instante voce consegue ver com olhos transcendentes, entendendo um pedaco da natureza do mundo e aprofundando a sua comunhao com os Grandes Ancestrais. \033[33mCusto dos feiticos -1!\033[0m\n\n");
+
+        for (int i=0; i<player->spellNum; i++) {
+            player->knownSpells[i].cost--;
+        }
+
+        return 1;
+    }
+
+    // Causa dano alto.
+    int fireOfCthulhu (playerS *player, enemyS *enemy) {
+        spellDmg (player, enemy, 8, 3,
+        "\n\nSeus olhos se enchem de escuridao, e voce lanca um fluxo de fogo e trevas contra o inimigo.\n\n", 
+        " \033[33;4mFalha...\033[0m\n\n A criatura bloqueia o raio de chamas sombrias com seu escudo, se protegendo.\n\n");
+
+        return 1;
     }
 
     /* ==== Criar o array de feitiços ==== */
@@ -517,6 +555,36 @@ typedef struct spell_s {
             "Misseis Magicos",
             "Causa dano baixo e nunca erra, nao importa a armadura do alvo.",
             3
+        },
+        {
+            &blessWeapon,
+            "Abencoar Arma",
+            "Aumenta o dano da sua arma pelo resto do combate.",
+            4
+        },
+        {
+            &radiantSmite,
+            "Golpe Radiante",
+            "Carrega sua arma com energia divina, aumentando o dano do seu proximo ataque.",
+            5
+        },
+        {
+            &hungerOfTheVoid,
+            "Fome do Vazio",
+            "Invoca tentaculos alienigenas que causam dano continuo enquanto voce nao conjurar outro feitico.",
+            6
+        },
+        {
+            &sightOfYogSothoth,
+            "Visao de Yog-Sothoth",
+            "Diminui o preco das suas magias pelo resto do combate.",
+            3
+        },
+        {
+            &fireOfCthulhu,
+            "Fogo de Cthulhu",
+            "Causa dano alto.",
+            7
         }
     };
 
@@ -528,8 +596,8 @@ typedef struct spell_s {
         printf("\n");
         for(i=0; i<player->spellNum; i++) {
             printf("\033[33m%i:\033[0m ", i+1);
-            fputs(spells[i].name, stdout);
-            printf(" \033[94m(%i mana)\033[0m\n", spells[i].cost);
+            fputs(player->knownSpells[i].name, stdout);
+            printf(" \033[94m(%i mana)\033[0m\n", player->knownSpells[i].cost);
         }
         printf("\033[33m%i: \033[36mCancelar\033[0m\n", i+1);
     }
@@ -547,6 +615,11 @@ typedef struct spell_s {
                     printInfo(*player, *enemy);
 
                     if(player->knownSpells[option-1].funct (player, enemy)) {
+                        if (player->status[hungerOfTheVoidS]) { // Se o player estava se concentrando em H. of Hadar, quebra a concentração.
+                            player->status[hungerOfTheVoidS] = false;
+                            printSlow("Voce se concentra em outro feitico, e o portal para o vacuo fecha.\n");
+                        }
+
                         player->mana -= player->knownSpells[option-1].cost;
                         break;  // Se ele retornar 1, acaba o loop. Feitiços retornam 0 se eles não funcionam 
                     }           // (Exemplo: conjura Armadura Arcana quando ela já está em efeito)
@@ -594,7 +667,9 @@ typedef struct spell_s {
 /* ======= Status ======= */
 
     // Checa o array de status do player e faz os efeitos de cada status
-    void updateStatus(playerS *player) {
+    void updateStatus(playerS *player, enemyS *enemy) {
+        int evento = false; // Se teve algum evento que o player precisa ler, evento = true e o jogo pede um enter depois de todos os eventos.
+
         for (int i=0; i<NUM_STATUSES; i++) {
             switch (i)
             {
@@ -616,10 +691,27 @@ typedef struct spell_s {
                 if (player->status[parryAtkS] == 1) player->armor -= 3;
                 if (player->status[parryAtkS] > 0) player->status[parryAtkS]--;
                 
-                break;                   
+                break;       
+
+            case hungerOfTheVoidS:
+                if (player->status[hungerOfTheVoidS] == true) {
+                    printSlow("Tentaculos do Longinquo se estendem pelo portal, dilacerando o inimigo com os dentes afiados de suas bocas disformes.\n\n");
+
+                    int dmgRoll = rollDice(4, 2, player->magMod, 0);
+                    printSlow("Rolagem de dano - \033[36mrolando ");
+                    printf("%id%i%+i", 2, 4, player->magMod);
+                    rollSlow(dmgRoll);
+                    enemy->hp -= dmgRoll;
+
+                    evento = true;
+                }
+                
+                break;              
             
             default:
                 break;
             }
         }
+
+        if (evento) requestEnter();
     }

@@ -24,7 +24,7 @@
 #define MAX_OPTION 15
 #define OPTION_AMT 6
 
-#define NUM_STATUSES 5
+#define NUM_STATUSES 6
 #define MAX_WPN_SMN 3
 
 #define INV_SIZE 6
@@ -33,6 +33,7 @@
 
 #define NUM_CLASSES 5
 #define MAX_NARRATE 160
+#define MAX_DESC_CLASS 160
 
 
 /* ==== Structs ==== */
@@ -72,10 +73,10 @@ typedef struct enemy_s {
 
 /* ==== Typedefs ==== */
 
-enum statNums {mageArmS, mageShldS, tripAtkS, parryAtkS, rdntSmiteS};
+enum statNums {mageArmS, mageShldS, tripAtkS, parryAtkS, rdntSmiteS, hungerOfTheVoidS};
 enum classes {warrior, wizard, warlock, paladin, rogue};
 
-enum spells {fireBlt, sonicBlst, mageArm, mageShld, magicMsl};
+enum spells {fireBlt, sonicBlst, mageArm, mageShld, magicMsl, blessWpn, rndtSmite, voidHunger, yogSothothSight, cthulhuFire};
 enum skills {doubleStrk, tripAtk, selfDmg, parryAtk, scndWind, dvnGuidance, bldOffering};
 
 typedef int (*sklFunct) (playerS *player, enemyS *enemy); // define int (*coisa) (playerS *player, enemyS *enemy) como só sklFunct. É um ponteiro de função.
@@ -172,6 +173,12 @@ typedef struct item_s { // Tá definido aqui porque depende do tipo sklFunct
     // Dá dano baixo e acerta sempre, sem precisar rolar ataque.
     int magicMissile (playerS *player, enemyS *enemy);
 
+    // Aumenta o dano da arma permanentemente.
+    int blessWeapon (playerS *player, enemyS *enemy);
+
+    // Amplifica o dano do seu próximo ataque.
+    int radiantSmite (playerS *player, enemyS *enemy);
+
     // Imprime a lista de feitiços.
     void printSpells(playerS *player);
 
@@ -190,7 +197,7 @@ typedef struct item_s { // Tá definido aqui porque depende do tipo sklFunct
 /* ==== Status - as funções de cada status do player ==== */
 
     // Checa o array de status do player e faz os efeitos de cada status
-    void updateStatus(playerS *player);
+    void updateStatus(playerS *player, enemyS *enemy);
 
 
 /* ==== Term - funções de terminal ==== */
@@ -231,38 +238,38 @@ typedef struct item_s { // Tá definido aqui porque depende do tipo sklFunct
 
 /* ==== Inventory - funções de inventário do player ==== */
 
-// Um item de dano genérico.
-int itemDmg (playerS* player, enemyS *enemy, int dmgDie, int dmgDieNum, int dmgMod, char* strHit);
+    // Um item de dano genérico.
+    int itemDmg (playerS* player, enemyS *enemy, int dmgDie, int dmgDieNum, int dmgMod, char* strHit);
 
-// Um item de cura genérico.
-int itemHeal (playerS* player, enemyS *enemy, int healDie, int healDieNum, int healMod, char* str);
+    // Um item de cura genérico.
+    int itemHeal (playerS* player, enemyS *enemy, int healDie, int healDieNum, int healMod, char* str);
 
-// Aumenta a armadura do player. Não acumula.
-int healPotion (playerS *player, enemyS *enemy);
+    // Aumenta a armadura do player. Não acumula.
+    int healPotion (playerS *player, enemyS *enemy);
 
-// Aumenta muito a armadura do player, por 1 turno. Não acumula.
-int armorRune (playerS *player, enemyS *enemy);
+    // Aumenta muito a armadura do player, por 1 turno. Não acumula.
+    int armorRune (playerS *player, enemyS *enemy);
 
-// Dá dano baixo e acerta sempre, sem precisar rolar ataque.
-int acidFlask (playerS *player, enemyS *enemy);
+    // Dá dano baixo e acerta sempre, sem precisar rolar ataque.
+    int acidFlask (playerS *player, enemyS *enemy);
 
-// Cria um inventário vazio.
-void initInv (playerS *player);
+    // Cria um inventário vazio.
+    void initInv (playerS *player);
 
-// Coloca um número de itens num slot.
-void setInvSlot (playerS *player, int slot, int item, int itemNum);
+    // Coloca um número de itens num slot.
+    void setInvSlot (playerS *player, int slot, int item, int itemNum);
 
-// Pra debug, enche o inventário com uma lista pré-pronta de itens.
-void fillInv (playerS *player);
+    // Pra debug, enche o inventário com uma lista pré-pronta de itens.
+    void fillInv (playerS *player);
 
-// Usa um item, diminuindo a quantidade do item no slot.
-int useItem (playerS *player, enemyS *enemy, int item);
+    // Usa um item, diminuindo a quantidade do item no slot.
+    int useItem (playerS *player, enemyS *enemy, int item);
 
-// Imprime o menu de itens.
-void printItems(playerS *player);
+    // Imprime o menu de itens.
+    void printItems(playerS *player);
 
-// Lê a escolha do player.
-int readItem(playerS *player, enemyS *enemy);
+    // Lê a escolha do player.
+    int readItem(playerS *player, enemyS *enemy);
 
-// Imprime o menu e lê a escolha de item.
-int playerInv (playerS *player, enemyS *enemy);
+    // Imprime o menu e lê a escolha de item.
+    int playerInv (playerS *player, enemyS *enemy);

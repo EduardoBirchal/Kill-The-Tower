@@ -105,12 +105,21 @@ void printClasses() {
 
     centerText (strlen("Escolha sua classe:"), BORDER_LEN);
     char nomes[NUM_CLASSES][MAX_ITEM] = {"Guerreiro", "Mago", "Bruxo", "Paladino", "Ladrao"}; // Lista dos nomes das classes
+    char descricoes[NUM_CLASSES][MAX_DESC_CLASS] = {
+    "Especialista em combate. Tem poucas magias, mas muitas habilidades e dano alto.",
+    "Arcanista com uma variedade de feiticos uteis e poderosos.",
+    "Usa poderes profanos vindos de um pacto com criaturas extraplanares.",
+    "Guerreiro que canaliza o poder de uma divindade para se fortalecer em combate.",
+    "Assassino treinado para atacar com letalidade. Nao acerta ataques nao-criticos mas causa dano enorme."}; // Lista das descrições das classes
 
     printf("\033[1mEscolha sua classe:\033[0m\n\n");
 
     for(int i=0; i<NUM_CLASSES; i++) {
         printf("\033[33m%i: \033[0m", i+1);
-        puts(nomes[i]);
+        fputs(nomes[i], stdout);
+        printf(" - \033[32m");
+        puts(descricoes[i]);
+        printf("\033[0m");
     }
 }
 
@@ -167,6 +176,16 @@ void chooseClass (playerS *player) {
             player->magMod = 6;
             player->manaMax = 25;
 
+            addSpell (player, fireBlt);
+            addSpell (player, sonicBlst);
+            addSpell (player, mageArm);
+            addSpell (player, mageShld);
+            addSpell (player, magicMsl);
+
+            addSkill (player, parryAtk);
+            addSkill (player, scndWind);
+            addSkill (player, selfDmg);
+
             strcpy(player->hitString, "\n\nApesar da sua falta de treinamento marcial, voce consegue atingir a criatura com o seu cajado, fazendo-a recuar.\n\n");
             strcpy(player->critString, "\n\nVoce acerta o alvo com um giro do seu cajado, com um impacto brutal e o som de ossos quebrando.\n\n");
             strcpy(player->missString, "\n\nVoce golpeia pra frente com a ponta do bastao, mas a armadura do inimigo absorve o impacto do ataque.\n\n");
@@ -183,6 +202,16 @@ void chooseClass (playerS *player) {
             player->hpMax = 15;
             player->magMod = 6;
             player->manaMax = 20;
+
+            addSpell (player, mageArm);
+            addSpell (player, voidHunger);
+            addSpell (player, yogSothothSight);
+            addSpell (player, cthulhuFire);
+
+            addSkill (player, doubleStrk);
+            addSkill (player, tripAtk);
+            addSkill (player, bldOffering);
+            addSkill (player, selfDmg);
             
             strcpy(player->hitString, "\n\nVoce invoca um feixe de energia sombria que dispara erraticamente pelo ar, atingindo o inimigo e queimando-o.\n\n");
             strcpy(player->critString, "\n\nCom uma palavra profana voce conjura um raio faiscante de sombra, que atinge o alvo em cheio e o empurra pra tras numa chuva de faiscas.\n\n");
@@ -278,7 +307,7 @@ int main(int argc, char** argv) {
 
     while (1) {
         battleState = updateHp(&player, &enemy);
-        updateStatus(&player);
+        updateStatus(&player, &enemy);
         printInfo(player, enemy);
         if(battleState) {
             if (battleState == 1) {
