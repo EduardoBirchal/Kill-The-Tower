@@ -24,7 +24,7 @@
 #define MAX_OPTION 15
 #define OPTION_AMT 5
 
-#define NUM_STATUSES 6
+#define NUM_STATUSES 8
 #define MAX_WPN_SMN 3
 
 #define INV_SIZE 6
@@ -34,6 +34,8 @@
 #define NUM_CLASSES 4
 #define MAX_NARRATE 160
 #define MAX_DESC_CLASS 160
+
+#define TAB "      "
 
 
 /* ==== Structs ==== */
@@ -73,10 +75,10 @@ typedef struct enemy_s {
 
 /* ==== Typedefs ==== */
 
-enum statNums {mageArmS, mageShldS, tripAtkS, parryAtkS, rdntSmiteS, hungerOfTheVoidS};
-enum classes {warrior, wizard, warlock, paladin, rogue};
+enum statNums {mageArmS, mageShldS, tripAtkS, parryAtkS, rdntSmiteS, hungerOfTheVoidS, azathothDreamS, searingLightS};
+enum classes {warrior, wizard, warlock, paladin};
 
-enum spells {fireBlt, sonicBlst, mageArm, mageShld, magicMsl, blessWpn, rdntSmite, voidHunger, yogSothothSight, cthulhuFire};
+enum spells {fireBlt, sonicBlst, mageArm, mageShld, magicMsl, blessWpn, rdntSmite, voidHunger, yogSothothSight, cthulhuFire, azathothDream, srngLight};
 enum skills {doubleStrk, tripAtk, selfDmg, parryAtk, scndWind, dvnGuidance, bldOffering};
 
 typedef int (*sklFunct) (playerS *player, enemyS *enemy); // define int (*coisa) (playerS *player, enemyS *enemy) como só sklFunct. É um ponteiro de função.

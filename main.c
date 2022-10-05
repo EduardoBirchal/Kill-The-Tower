@@ -4,13 +4,14 @@
 /* ==== Funções do turno do jogador ==== */
 
 // Imprime as opções do player
-void printOptions() {
+void printOptions(playerS *player, enemyS *enemy) {
     char options[OPTION_AMT][MAX_OPTION] = {"ATACAR", "HABILIDADES", "MAGIA", "INVENTARIO", "FECHAR JOGO"};
     int option = 0;
 
+    printInfo(*player, *enemy);
     printf("\n");
     for(int i=0; i<OPTION_AMT; i++) {
-        printf("%s\t", options[i]);
+        printf("\033[33m(%i)\033[0m %s%s", i+1, options[i], TAB); // O \t não dá um número consistente de espaços, então eu fiz uma string contante TAB que é só 6 espaços.
     }
     printf("\n");
 }
@@ -40,8 +41,7 @@ int readOption(playerS *player, enemyS *enemy) {
         case 2: 
             printInfo(*player, *enemy);
             if (playerSkl(player, enemy)) {
-                printInfo(*player, *enemy);
-                return 0;
+                return 1;
             }
             requestEnter();
             return 0;
@@ -51,8 +51,7 @@ int readOption(playerS *player, enemyS *enemy) {
         case 3: 
             printInfo(*player, *enemy);
             if (playerMag(player, enemy)) {
-                printInfo(*player, *enemy);
-                return 0;
+                return 1;
             }
             requestEnter();
             return 0;
@@ -61,8 +60,7 @@ int readOption(playerS *player, enemyS *enemy) {
         // Inventário
         case 4: 
             if (playerInv(player, enemy)) {
-                printInfo(*player, *enemy);
-                return 0;
+                return 1;
             }
             requestEnter();
             return 0;
@@ -70,7 +68,7 @@ int readOption(playerS *player, enemyS *enemy) {
 
         // Cancelar
         case 5: 
-            return 1;
+            return 2;
             break;
 
         // Opção inválido
@@ -83,9 +81,21 @@ int readOption(playerS *player, enemyS *enemy) {
 }
 
 int turnPlayer(playerS *player, enemyS *enemy) {
-    printOptions();
-    if(readOption(player, enemy)) {
-        return 1; // Retorna 1, fazendo com que o programa feche
+    while(1) {
+        printOptions(player, enemy);
+        switch (readOption(player, enemy))
+        {
+        case 0:
+            return 0;
+            break; // O player escolheu e executou uma opção.
+        
+        case 1:
+            break; // O player escolheu uma opção e cancelou.
+
+        case 2:
+            return 1;
+            break; // O player executou "Fechar Jogo".
+        }
     }
 
     return 0;
@@ -198,6 +208,7 @@ void chooseClass (playerS *player) {
             addSpell (player, voidHunger);
             addSpell (player, yogSothothSight);
             addSpell (player, cthulhuFire);
+            addSpell (player, azathothDream);
 
             addSkill (player, doubleStrk);
             addSkill (player, tripAtk);
@@ -224,6 +235,7 @@ void chooseClass (playerS *player) {
             addSpell (player, mageArm);
             addSpell (player, blessWpn);
             addSpell (player, rdntSmite);
+            addSpell (player, srngLight);
 
             addSkill (player, parryAtk);
             addSkill (player, tripAtk);
@@ -294,8 +306,8 @@ int main(int argc, char** argv) {
         updateHp(&player, &enemy);
         updateStatus(&player, &enemy);
         battleState = updateHp(&player, &enemy); // Faz o updateHp antes e depois de atualizar os status, pra nao mostrar HP negativo.
-        printInfo(player, enemy);
         if(battleState) {
+            printInfo(player, enemy); // Se alguém morreu, imprime a tela pra mostrar quem foi.
             if (battleState == 1) {
                 printSlow("O goblin cai no chao, derrotado.\n");
             }

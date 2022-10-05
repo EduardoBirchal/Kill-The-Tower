@@ -7,7 +7,7 @@
 #define MAX_SKILL 25
 #define MAX_DESC_SKILL 100
 
-#define NUM_SPELLS 10
+#define NUM_SPELLS 12
 #define MAX_SPELL 25
 #define MAX_DESC_SPELL 100
 
@@ -44,7 +44,7 @@ typedef struct spell_s {
 
         int hpMaxLen = digitNum(hpMax);
         int hpLen = digitNum(hp);
-        hpLen = hpLen + hpMaxLen + 4; // hpLen é o comprimento da string do valor do hp do player, que vai ser escrita depois do nome. O +4 é por causa do espaço, dos dois parênteses e da barra
+        hpLen = hpLen + hpMaxLen; // hpLen é o comprimento da string do valor do hp do player, que vai ser escrita depois do nome.
 
         printf("\033[0m\n");
         centerText(strlen("HP:") + hpLen, BORDER_LEN);
@@ -65,7 +65,7 @@ typedef struct spell_s {
 
         int manaMaxLen = digitNum(manaMax);
         int manaLen = digitNum(mana);
-        manaLen = manaLen + manaMaxLen + 4; 
+        manaLen = manaLen + manaMaxLen; 
 
         printf("\033[0m\n");
         centerText(strlen("Mana:") + manaLen, BORDER_LEN);
@@ -145,7 +145,7 @@ typedef struct spell_s {
             return 2;
         } 
         // Se for acima da armadura do inimigo, acerta
-        else if (atkRoll >= enemy->armor && player->class != rogue) { 
+        else if (atkRoll >= enemy->armor) { 
             printSlow(" \033[33;4mAcerto!\033[0m\n\n");
             dmgRoll = rollDice(player->dmgDice, player->dmgDiceNum, player->dmgMod, 0);
             printSlow("Rolagem de dano - \033[36mrolando ");
@@ -537,6 +537,38 @@ typedef struct spell_s {
         return 1;
     }
 
+    // Diminui o dano do inimigo.
+    int dreamOfAzathoth (playerS *player, enemyS *enemy) {
+        if(!player->status[azathothDreamS]) {
+            player->status[azathothDreamS] = true;
+            printSlow("Voce cria uma conexao entre a mente do inimigo e os sonhos do Grande Ancestral Azathoth, aflingindo-o com visoes perturbadoras e tornando dificil para a criatura discernir entre realidade e sonho. \033[33mDano do inimigo -");
+            printf("%i", player->magMod);
+            printSlow("!\033[0m\n\n");
+
+            enemy->dmgMod -= player->magMod;
+            return 1;
+        }
+        else {
+            printSlow("Esse feitico ja esta em efeito!\n\n");
+            return 0;
+        }
+
+    }
+
+    // Causa dano baixo constante.
+    int searingLight (playerS *player, enemyS *enemy) {
+        if(!player->status[searingLightS]) {
+            player->status[searingLightS] = true;
+            printSlow("Voce invoca a furia de sua divindade contra o inimigo, e um feixe de radiancia divina desce dos ceus sobre a criatura.\n\n");
+
+            return 1;
+        }
+        else {
+            printSlow("Esse feitico ja esta em efeito!\n\n");
+            return 0;
+        }
+    }
+
     /* ==== Criar o array de feitiços ==== */
 
     spellS spells[NUM_SPELLS] = {
@@ -586,7 +618,7 @@ typedef struct spell_s {
             &hungerOfTheVoid,
             "Fome do Vazio",
             "Invoca tentaculos alienigenas que causam dano continuo enquanto voce nao conjurar outro feitico.",
-            6
+            5
         },
         {
             &sightOfYogSothoth,
@@ -599,6 +631,18 @@ typedef struct spell_s {
             "Fogo de Cthulhu",
             "Causa dano alto.",
             7
+        },
+        {
+            &dreamOfAzathoth,
+            "Sonho de Azathoth",
+            "Diminui o dano do inimigo pelo resto do combate.",
+            6
+        },
+        {
+            &searingLight,
+            "Luz Queimante",
+            "Causa dano constante pelo resto do combate.",
+            5
         }
     };
 
@@ -731,7 +775,17 @@ typedef struct spell_s {
                     printf("\n\n");
                 }
                 
-                break;              
+                break;     
+
+            case searingLightS:
+                if (player->status[searingLightS] == true) {
+                    evento = rodarEvento(evento, *player, *enemy);
+
+                    printSlow("A coluna cintilante de luz persiste, queimando enquanto brilha.\n");
+                    enemy->hp -= player->magMod;
+                }
+                
+                break;           
             
             default:
                 break;
