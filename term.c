@@ -74,14 +74,10 @@ void printBorder () {
 
 // Imprime os atributos do player
 void playerInfo(playerS player) {
-    int hpMaxLen = digitNum(player.hpMax);
-    int hpLen = digitNum(player.hp);
-    hpLen = hpLen + hpMaxLen + 4; // hpLen é o comprimento da string do valor do hp do player, que vai ser escrita depois do nome. O +4 é por causa do espaço, dos dois parênteses e da barra
-
     // Imprime o nome
-    centerText(strlen(player.name) + hpLen, BORDER_LEN);
+    centerText(strlen(player.name), BORDER_LEN);
     printf("\033[1m ");
-    printf("%s (%i/%i)\n", player.name, player.hp, player.hpMax);
+    printf("%s\n", player.name);
     printf("\033[0m ");
 
     // Imprime o hp, mana e os atributos
@@ -96,17 +92,13 @@ void playerInfo(playerS player) {
 
 // Imprime os atributos do inimigo
 void enemyInfo(enemyS enemy) {
-    int hpMaxLen = digitNum(enemy.hpMax); //(int) log10f(enemy.hpMax) + 1;
-    int hpLen = digitNum(enemy.hp); //(int) log10f(enemy.hp) + 1;
-    hpLen = hpLen + hpMaxLen + 4; 
-
     // Imprime a margem de cima
     printBorder();
 
     // Imprime o nome
-    centerText(strlen(enemy.name) + hpLen, BORDER_LEN);
+    centerText(strlen(enemy.name), BORDER_LEN);
     printf("\033[1m ");
-    printf("%s (%i/%i)\n", enemy.name, enemy.hp, enemy.hpMax);
+    printf("%s\n", enemy.name);
     printf("\033[0m ");
 
     // Imprime o hp e os atributos

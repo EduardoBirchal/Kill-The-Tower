@@ -41,8 +41,14 @@ typedef struct spell_s {
                 printf("\033[42m ");
             }
         }
-        printf("\033[0m");
-        printf("\n\n");
+
+        int hpMaxLen = digitNum(hpMax);
+        int hpLen = digitNum(hp);
+        hpLen = hpLen + hpMaxLen + 4; // hpLen é o comprimento da string do valor do hp do player, que vai ser escrita depois do nome. O +4 é por causa do espaço, dos dois parênteses e da barra
+
+        printf("\033[0m\n");
+        centerText(strlen("HP:") + hpLen, BORDER_LEN);
+        printf("HP: %i/%i\n\n", hp, hpMax);
     }
 
     // Imprime uma barra de mana
@@ -56,8 +62,14 @@ typedef struct spell_s {
                 printf("\033[44m ");
             }
         }
-        printf("\033[0m");
-        printf("\n\n");
+
+        int manaMaxLen = digitNum(manaMax);
+        int manaLen = digitNum(mana);
+        manaLen = manaLen + manaMaxLen + 4; 
+
+        printf("\033[0m\n");
+        centerText(strlen("Mana:") + manaLen, BORDER_LEN);
+        printf("Mana: %i/%i\n\n", mana, manaMax);
     }
 
     // Conserta o HP pra não ficar negativo
