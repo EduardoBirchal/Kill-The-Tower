@@ -3,7 +3,7 @@
 
 /* ==== Defines ==== */
 
-#define NUM_SKILLS 7
+#define NUM_SKILLS 8
 #define MAX_SKILL 25
 #define MAX_DESC_SKILL 100
 
@@ -18,6 +18,9 @@ typedef struct skill_s {
     sklFunct funct;
     char name[MAX_SKILL];
     char desc[MAX_DESC_SKILL];
+
+    int maxCooldown;
+    int cooldown;
 } skillS;
 
 typedef struct spell_s {
@@ -47,7 +50,7 @@ typedef struct spell_s {
         hpLen = hpLen + hpMaxLen; // hpLen é o comprimento da string do valor do hp do player, que vai ser escrita depois do nome.
 
         printf("\033[0m\n");
-        centerText(strlen("HP:") + hpLen, BORDER_LEN);
+        centerText(strlen("HP: ") + hpLen, BORDER_LEN);
         printf("HP: %i/%i\n\n", hp, hpMax);
     }
 
@@ -68,7 +71,7 @@ typedef struct spell_s {
         manaLen = manaLen + manaMaxLen; 
 
         printf("\033[0m\n");
-        centerText(strlen("Mana:") + manaLen, BORDER_LEN);
+        centerText(strlen("Mana: ") + manaLen, BORDER_LEN);
         printf("Mana: %i/%i\n\n", mana, manaMax);
     }
 
@@ -238,7 +241,7 @@ typedef struct spell_s {
 
     // Recupera HP.
     int secondWind (playerS* player, enemyS *enemy) {
-        itemHeal(player, enemy, 6, 2, 2,
+        itemHeal(player, enemy, 6, 1, 2,
         "Voce recua e respira, recuperando seu folego e se sentindo descansado.\n\n");
 
         return 1;
@@ -273,47 +276,81 @@ typedef struct spell_s {
         return 1;
     }
 
+    int adrenalineSurge (playerS *player, enemyS *enemy) {
+        printSlow("Apesar de estar exausto, voce obriga seus musculos a continuarem por pura forca de vontade.\n\n");
+
+        for (int i=0; i<player->skillNum; i++) {
+            if(player->hp > player->knownSkills[i].cooldown && player->hp > 4) {
+                if(player->knownSkills[i].cooldown > 4) {
+                    player->hp -= player->knownSkills[i].cooldown;
+                }
+                else if (player->knownSkills[i].cooldown > 0){
+                    player->hp -= 4;
+                }
+                player->knownSkills[i].cooldown = 0;
+            }
+            else {
+                printSlow("Voce chegou ao seu limite. Se voce se exercesse mais ainda, voce morreria. (Nao tem HP suficiente para regenerar todas as habilidades)");
+                break;
+            }
+        }
+    }
+
     /* ==== Criar o array de habilidades ==== */
 
     skillS skills[NUM_SKILLS] = {
         {
             &doubleStrike, // Função de quando a habilidade é usada
             "Golpe Duplo", // Nome da habilidade
-            "Ataca duas vezes." // Descrição da habilidade
+            "Ataca duas vezes.", // Descrição da habilidade
+            5 // Cooldown da habilidade
         },
         {
             &tripAttack,
             "Rasteira",
-            "Da uma rasteira no alvo, fazendo-o cair e te dando vantagem no proximo ataque."
+            "Da uma rasteira no alvo, fazendo-o cair e te dando vantagem no proximo ataque.",
+            4
         },
         {
             &debugSelfDmg,
             "Auto-esfaquear",
-            "Da dano em si mesmo. Ai."
+            "Da dano em si mesmo. Ai.",
+            0
         },
 
         {
             &parryAttack,
             "Golpe Defensivo",
-            "Ataca e assume uma posicao defensiva, aumentando sua armadura no proximo turno."
+            "Ataca e assume uma posicao defensiva, aumentando sua armadura no proximo turno.",
+            2
         },
 
         {
             &secondWind,
             "Recuperar Folego",
-            "Descansa e se cura."
+            "Descansa e se cura.",
+            5
         },
 
         {
             &divineGuidance,
             "Orientacao Divina",
-            "Ataca e ganha um bonus na rolagem de ataque e de dano."
+            "Ataca e ganha um bonus na rolagem de ataque e de dano.",
+            3
         },
 
         {
             &bloodOffering,
             "Oferenda de Sangue",
-            "Sacrifica HP por Mana."
+            "Sacrifica HP por Mana.",
+            1
+        },
+
+        {
+            &adrenalineSurge,
+            "Surto de Adrenalina",
+            "Sacrifica HP e regenera todos os cooldowns.",
+            3
         }
     };
 
@@ -325,25 +362,43 @@ typedef struct spell_s {
 
         printf("\n");
         for(i=0; i<player->skillNum; i++) {
-            printf("\033[33m%i:\033[0m ", i+1);
-            puts(player->knownSkills[i].name);
+            if(player->knownSkills[i].cooldown == 0) {
+                printf("\033[33m%i:\033[0m ", i+1);
+                puts(player->knownSkills[i].name);
+            }
+            else {
+                printf("\033[90m%i: ", i+1);
+                fputs(player->knownSkills[i].name, stdout);
+                printf(" (%i turnos para recarregar)\033[0m\n", player->knownSkills[i].cooldown);
+            }
         }
         printf("\033[33m%i: \033[36mCancelar\033[0m\n", i+1);
     }
 
     // Lê a escolha de skill do player
-    int readSkill(playerS *player, enemyS *enemy) {
+    int playerSkl(playerS *player, enemyS *enemy) {
         int option = 1;
 
         while (1) {
+            printSkills(player);
+
             printf("\nEscolha uma habilidade:\n> "); // Lê a opção
             scanf("%i", &option);
             printf("\n");
 
-            if(option>0 && option<=player->skillNum) {                  // Se a opção é uma habilidade, usa ela.
-                printInfo(*player, *enemy);
-                if(player->knownSkills[option-1].funct (player, enemy)) break; // Se ele retornar 1, acaba o loop. habilidades retornam 0 se elas não funcionam 
-            }                                                     // (Exemplo: usa Rasteira quando ela já está em efeito)
+            if(option>0 && option<=player->skillNum) {    // Se a opção é uma habilidade, usa ela.
+                if(player->knownSkills[option-1].cooldown == 0) {
+                    printInfo(*player, *enemy);
+
+                    if(player->knownSkills[option-1].funct (player, enemy)) {
+                        player->knownSkills[option-1].cooldown = player->knownSkills[option-1].maxCooldown + 1; // Coloca o cooldown no máximo ao usar a habilidade.
+                        break;  // Se ele retornar 1, acaba o loop. Habilidades retornam 0 se elas não funcionam 
+                    }           // (Exemplo: usa Rasteira quando já está em efeito)
+                }                                                     
+                else {
+                    printf("Essa habilidade precisa recarregar!\n"); // Se está em cooldown, não usa a habilidade
+                }
+            }
             else if(option==player->skillNum+1) {  
                 return 1; // Se a opção for cancelar, volta pro menu
             } 
@@ -355,13 +410,11 @@ typedef struct spell_s {
         return 0;
     }
 
-    int playerSkl (playerS *player, enemyS *enemy) {
-        printSkills(player);
-        if(readSkill(player, enemy)) {
-            return 1; // Retorna 1, fazendo com que o menu imprima de novo
+    // Diminui os cooldowns de toda habilidade.
+    void updateCooldown (playerS *player) {
+        for(int i=0; i<player->skillNum; i++) {
+            if(player->knownSkills[i].cooldown>0) player->knownSkills[i].cooldown--;
         }
-
-        return 0;
     }
 
 
@@ -379,6 +432,7 @@ typedef struct spell_s {
         player->knownSkills = (skillS*) realloc(player->knownSkills, sizeof(skillS)*(player->skillNum)); // Realoca o vetor pra caber mais uma skill.
 
         player->knownSkills[player->skillNum-1] = skills[index];
+        player->knownSkills[player->skillNum-1].cooldown = 0; // Inicializa o cooldown como 0.
     }
 
 
@@ -447,7 +501,7 @@ typedef struct spell_s {
     // Aumenta a armadura do player. Não acumula.
     int mageArmor (playerS *player, enemyS *enemy) {
         if(player->status[mageArmS]) {
-            printSlow("Esse feitico ja esta em efeito!\n\n");
+            printf("Esse feitico ja esta em efeito!\n\n");
             return 0;
         } else {
             player->status[mageArmS] = true;
@@ -461,7 +515,7 @@ typedef struct spell_s {
     // Aumenta muito a armadura do player, por 1 turno. Não acumula.
     int mageShield (playerS *player, enemyS *enemy) {
         if(player->status[mageShldS]) {
-            printSlow("Esse feitico ja esta em efeito!\n\n");
+            printf("Esse feitico ja esta em efeito!\n\n");
             return 0;
         } else {
             player->status[mageShldS] = 2;
@@ -504,7 +558,7 @@ typedef struct spell_s {
     // Causa dano contínuo no inimigo até o player castar um feitiço
     int hungerOfTheVoid (playerS *player, enemyS *enemy) {
         if(player->status[hungerOfTheVoidS]) {
-            printSlow("Esse feitico ja esta em efeito!\n\n");
+            printf("Esse feitico ja esta em efeito!\n\n");
             return 0;
         }
         else {
@@ -549,7 +603,7 @@ typedef struct spell_s {
             return 1;
         }
         else {
-            printSlow("Esse feitico ja esta em efeito!\n\n");
+            printf("Esse feitico ja esta em efeito!\n\n");
             return 0;
         }
 
@@ -564,7 +618,7 @@ typedef struct spell_s {
             return 1;
         }
         else {
-            printSlow("Esse feitico ja esta em efeito!\n\n");
+            printf("Esse feitico ja esta em efeito!\n\n");
             return 0;
         }
     }
@@ -660,10 +714,11 @@ typedef struct spell_s {
         printf("\033[33m%i: \033[36mCancelar\033[0m\n", i+1);
     }
 
-    int readSpell(playerS *player, enemyS *enemy) {
+    int playerMag(playerS *player, enemyS *enemy) {
         int option = 1;
 
         while (1) {
+            printSpells(player);
             printf("\nEscolha um feitico:\n> "); // Lê a opção
             scanf("%i", &option);
             printf("\n");
@@ -692,15 +747,6 @@ typedef struct spell_s {
             else {
                 printf("Opcao invalida! (tem que ser um numero de 1 a %i).\n", player->spellNum+1); // Se não for válida, pede pra colocar outra
             }
-        }
-
-        return 0;
-    }
-
-    int playerMag (playerS *player, enemyS *enemy) {
-        printSpells(player);
-        if(readSpell(player, enemy)) {
-            return 1; // Retorna 1, fazendo com que o menu imprima de novo
         }
 
         return 0;

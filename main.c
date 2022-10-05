@@ -144,7 +144,7 @@ void chooseClass (playerS *player) {
             player->dmgMod = 5;
             player->hpMax = 25;
             player->magMod = -1;
-            player->manaMax = 10;
+            player->manaMax = 15;
 
             // Feitiços do player
             addSpell (player, fireBlt);
@@ -155,7 +155,7 @@ void chooseClass (playerS *player) {
             addSkill (player, tripAtk);
             addSkill (player, parryAtk);
             addSkill (player, scndWind);
-            addSkill (player, selfDmg);
+            addSkill (player, adrnlSurge);
             
             // Mensagens de ataque
             strcpy(player->hitString, "\n\nA lamina do seu machado atinge o inimigo, que falha em se esquivar e recua com um grito.\n\n");
@@ -173,7 +173,7 @@ void chooseClass (playerS *player) {
             player->dmgMod = -2;
             player->hpMax = 15;
             player->magMod = 6;
-            player->manaMax = 25;
+            player->manaMax = 30;
 
             addSpell (player, fireBlt);
             addSpell (player, sonicBlst);
@@ -183,7 +183,6 @@ void chooseClass (playerS *player) {
 
             addSkill (player, parryAtk);
             addSkill (player, scndWind);
-            addSkill (player, selfDmg);
 
             strcpy(player->hitString, "\n\nApesar da sua falta de treinamento marcial, voce consegue atingir a criatura com o seu cajado, fazendo-a recuar.\n\n");
             strcpy(player->critString, "\n\nVoce acerta o alvo com um giro do seu cajado, com um impacto brutal e o som de ossos quebrando.\n\n");
@@ -200,7 +199,7 @@ void chooseClass (playerS *player) {
             player->dmgMod = 2;
             player->hpMax = 15;
             player->magMod = 6;
-            player->manaMax = 20;
+            player->manaMax = 25;
 
             addSpell (player, mageArm);
             addSpell (player, voidHunger);
@@ -211,7 +210,6 @@ void chooseClass (playerS *player) {
             addSkill (player, doubleStrk);
             addSkill (player, tripAtk);
             addSkill (player, bldOffering);
-            addSkill (player, selfDmg);
             
             strcpy(player->hitString, "\n\nVoce invoca um feixe de energia sombria que dispara erraticamente pelo ar, atingindo o inimigo e queimando-o.\n\n");
             strcpy(player->critString, "\n\nCom uma palavra profana voce conjura um raio faiscante de sombra, que atinge o alvo em cheio e o empurra pra tras numa chuva de faiscas.\n\n");
@@ -228,7 +226,7 @@ void chooseClass (playerS *player) {
             player->dmgMod = 3;
             player->hpMax = 20;
             player->magMod = 3;
-            player->manaMax = 20;
+            player->manaMax = 25;
 
             addSpell (player, mageArm);
             addSpell (player, blessWpn);
@@ -239,7 +237,6 @@ void chooseClass (playerS *player) {
             addSkill (player, tripAtk);
             addSkill (player, dvnGuidance);
             addSkill (player, bldOffering);
-            addSkill (player, selfDmg);
 
             strcpy(player->hitString, "\n\nO golpe da sua espada acerta o alvo com um corte amplo, abrindo um ferimento e jorrando sangue por onde a lamina rasga.\n\n");
             strcpy(player->critString, "\n\nVoce acerta a criatura com o seu escudo numa investida e finca sua espada num ponto vital, causando um ferimento gravissimo.\n\n");
@@ -289,13 +286,15 @@ playerS createPlayer() {
 /* ==== Main ==== */
 
 int main(int argc, char** argv) {
+    srand(time(NULL));
+
     // Declarando variáveis
     int battleState = 0;
 
     // Declarando criaturas
     playerS player = createPlayer();
 
-    enemyS enemy = {96, 96, 1, 4, 2, 4, 2, 14, 1, "Ze Pequeno, o Anao Denso"};
+    enemyS enemy = {65, 65, 1, 4, 2, 4, 2, 12, 1, "Ze Pequeno, o Anao Denso"};
     for(int i=0; i<NUM_STATUSES; i++) { // Eu vou ser honesto, o jogo nunca acessa o array de status do inimigo, mas por algum motivo se eu não fizer esse loop, o programa dá segfault.
         enemy.status[i] = false;        // Eu não tenho ideia do porque isso aconteceu e porque esse loop conserta, mas tá aí.
     }
@@ -303,6 +302,7 @@ int main(int argc, char** argv) {
     while (1) {
         updateHp(&player, &enemy);
         updateStatus(&player, &enemy);
+        updateCooldown(&player);
         battleState = updateHp(&player, &enemy); // Faz o updateHp antes e depois de atualizar os status, pra nao mostrar HP negativo.
         if(battleState) {
             printInfo(player, enemy); // Se alguém morreu, imprime a tela pra mostrar quem foi.

@@ -79,7 +79,7 @@ enum statNums {mageArmS, mageShldS, tripAtkS, parryAtkS, rdntSmiteS, hungerOfThe
 enum classes {warrior, wizard, warlock, paladin};
 
 enum spells {fireBlt, sonicBlst, mageArm, mageShld, magicMsl, blessWpn, rdntSmite, voidHunger, yogSothothSight, cthulhuFire, azathothDream, srngLight};
-enum skills {doubleStrk, tripAtk, selfDmg, parryAtk, scndWind, dvnGuidance, bldOffering};
+enum skills {doubleStrk, tripAtk, selfDmg, parryAtk, scndWind, dvnGuidance, bldOffering, adrnlSurge};
 
 typedef int (*sklFunct) (playerS *player, enemyS *enemy); // define int (*coisa) (playerS *player, enemyS *enemy) como só sklFunct. É um ponteiro de função.
 typedef int bool;
@@ -139,11 +139,11 @@ typedef struct item_s { // Tá definido aqui porque depende do tipo sklFunct
     // Imprime a lista de habilidades.
     void printSkills(playerS *player);
 
-    // Lê a escolha de habilidade do player.
-    int readSkill(playerS *player, enemyS *enemy);
-
     // Imprime as habilidades e lê a escolha do player.
     int playerSkl (playerS *player, enemyS *enemy);
+
+    // Diminui os cooldowns de toda habilidade.
+    void updateCooldown (playerS *player);
 
     // Inicializa o vetor de skills do player.
     void initSkills (playerS *player);
@@ -180,9 +180,6 @@ typedef struct item_s { // Tá definido aqui porque depende do tipo sklFunct
 
     // Amplifica o dano do seu próximo ataque.
     int radiantSmite (playerS *player, enemyS *enemy);
-
-    // Imprime a lista de feitiços.
-    void printSpells(playerS *player);
 
     // Lê a escolha de feitiços do player.
     int readSpell(playerS *player, enemyS *enemy);
