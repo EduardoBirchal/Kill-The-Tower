@@ -204,11 +204,15 @@ typedef struct item_s { // Tá definido aqui porque depende do tipo sklFunct
 
 /* ==== Term - funções de terminal ==== */
 
-    // Imprime para apertar enter e não continua até o usuário apertar
-    void requestEnter();
 
     // Sleep que funciona em Windows e Linux
     void trueSleep(int ms);
+
+    // Lê o input em Linux e pega as setas do teclado em Windows. Dá pra fazer setas em Linux, mas precisa de ncurses e eu não tenho permissão de root pra instalar a API aqui no lab
+    int getOption();
+
+    // Imprime para apertar enter e não continua até o usuário apertar
+    void requestEnter();
 
     // Um regex que limpa o terminal, muitas vezes mais rápido que o system("clear") e é multiplataforma
     void clearTerm();

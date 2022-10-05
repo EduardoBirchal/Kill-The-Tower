@@ -1,10 +1,5 @@
 #include "gameFuncts.h"
 
-// Imprime para apertar enter e não continua até o usuário apertar
-void requestEnter() {
-    printf("Press ENTER to continue.");
-    if(getchar() == '\n') getchar(); // Primeiro getchar pega o \n da ultima mensagem
-}
 
 // Sleep que funciona em Windows e Linux
 void trueSleep(int ms) {
@@ -15,6 +10,34 @@ void trueSleep(int ms) {
         //sleep(1); // Sleep 1 segundo
         usleep(ms*1000);
     #endif
+}
+
+// Lê o input em Linux e pega as setas do teclado em Windows. Dá pra fazer setas em Linux, mas precisa de ncurses e eu não tenho permissão de root pra instalar a API aqui no lab
+int getOption() {
+    #ifdef _WIN32
+        // No windows, quando aperta uma setinha, retorna primeiro ESC, depois [, depois uma letra
+        char tecla = getch();
+        if (tecla == '\033') { // Se o primeiro valor é ESC (apertou a seta)
+            getch(); // Ignora o [
+
+            return getch(); // Retorna a seta apertada. A=Cima, B=Baixo, C=Direita, D=Esquerda
+        }
+        else {
+            return tecla; // Se não for seta, retorna a tecla apertada.
+        }  
+    #else
+        int option;
+        printf("\nEscolha uma opcao:\n> "); // Se não for, usa teclado.
+        scanf("%i", &option);
+        printf("\n");
+        return option;
+    #endif 
+}
+
+// Imprime para apertar enter e não continua até o usuário apertar
+void requestEnter() {
+    printf("Press ENTER to continue.");
+    if(getchar() == '\n') getchar(); // Primeiro getchar pega o \n da ultima mensagem
 }
 
 // Um regex que limpa o terminal, muitas vezes mais rápido que o system("clear") e é multiplataforma
@@ -47,7 +70,7 @@ void printSlow (char string[]) {
         printf("%c", string[i]);
         fflush(stdout); // Alguns sistemas operacionais colocam a string inteira num buffer e imprimem tudo de uma vez em vez de imprimir um char por vez
         if(string[i] != '\n') {
-            trueSleep(5); // Valor default = 25
+            trueSleep(15); // Valor default = 25
         }
     }
 }

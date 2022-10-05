@@ -11,7 +11,7 @@ void printOptions(playerS *player, enemyS *enemy) {
     printInfo(*player, *enemy);
     printf("\n");
     for(int i=0; i<OPTION_AMT; i++) {
-        printf("\033[33m(%i)\033[0m %s%s", i+1, options[i], TAB); // O \t não dá um número consistente de espaços, então eu fiz uma string contante TAB que é só 6 espaços.
+        printf("\033[33m(%i)\033[0m %s%s", i+1, options[i], TAB); // O \t não dá um número consistente de espaços, então eu fiz uma string contante TAB que é só 6 espaços. É feio, mas só custa um pouquinho de tempo de compilação.
     }
     printf("\n");
 }
@@ -21,9 +21,7 @@ int readOption(playerS *player, enemyS *enemy) {
     int option = 1;
 
     while (1) {
-        printf("\nEscolha uma opcao:\n> ");
-        scanf("%i", &option);
-        printf("\n");
+        option = getOption();
 
         switch (option)
         {

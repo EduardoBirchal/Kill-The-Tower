@@ -97,9 +97,9 @@ void setInvSlot (playerS *player, int slot, int item, int itemNum) {
 
 // Pra debug, enche o inventário com uma lista pré-pronta de itens.
 void fillInv (playerS *player) {
-    setInvSlot(player, 0, 0, 1);
+    setInvSlot(player, 0, 0, 4);
     setInvSlot(player, 1, 1, 1);
-    setInvSlot(player, 2, 2, 1);
+    setInvSlot(player, 2, 2, 2);
 }
 
 // Usa um item, diminuindo a quantidade do item no slot.
