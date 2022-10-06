@@ -5,7 +5,7 @@
 
 // Imprime as opções do player
 void printOptions(playerS *player, enemyS *enemy) {
-    char options[OPTION_AMT][MAX_OPTION] = {"ATACAR", "HABILIDADES", "MAGIA", "INVENTARIO", "FECHAR JOGO"};
+    char options[OPTION_AMT][MAX_OPTION] = {"ATACAR", "HABILIDADES", "MAGIA", "INVENTARIO", "OPCOES", "FECHAR JOGO"};
     int option = 0;
 
     printInfo(*player, *enemy);
@@ -64,8 +64,21 @@ int readOption(playerS *player, enemyS *enemy) {
             return 0;
             break;
 
+        // Opções
+        case 5:
+            printInfo(*player, *enemy);
+            if (playerConfig(player, enemy)) {
+                return 1;
+            }
+            requestEnter();
+            return 0;
+            break;
+
+            return 0;
+            break;
+
         // Cancelar
-        case 5: 
+        case 6: 
             return 2;
             break;
 
@@ -291,12 +304,12 @@ int main(int argc, char** argv) {
 
     // Declarando variáveis
     int battleState = 0;
+    static int showDesc = -1; // Se for 1, mostra as descrições das coisas.
 
     // Declarando criaturas
     playerS player = createPlayer();
 
-    enemyS enemy = createEnemy (2); // rand()%31
-    //enemyS enemy = {65, 65, 1, 4, 2, 4, 2, 12, 1, "Ze Pequeno, o Anao Denso"};
+    enemyS enemy = createEnemy ((rand()%3) + 1);
     
     for(int i=0; i<NUM_STATUSES; i++) { // Eu vou ser honesto, o jogo nunca acessa o array de status do inimigo, mas por algum motivo se eu não fizer esse loop, o programa dá segfault.
         enemy.status[i] = false;        // Eu não tenho ideia do porque isso aconteceu e porque esse loop conserta, mas tá aí.
@@ -310,7 +323,7 @@ int main(int argc, char** argv) {
         if(battleState) {
             printInfo(player, enemy); // Se alguém morreu, imprime a tela pra mostrar quem foi.
             if (battleState == 1) {
-                printSlow("O goblin cai no chao, derrotado.\n");
+                printSlow("O inimigo cai no chao, derrotado.\n");
             }
             else if (battleState == 2) {
                 printSlow("Voce sucumbe aos seus ferimentos e desmaia.\n");

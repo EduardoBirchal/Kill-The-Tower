@@ -28,14 +28,21 @@ enemyS createEnemy(int index) {
         }
     }
 
-    // Nome
+    // Pegando nome
     fgets(enemy.name, MAX_NAME, file);
-    printf("NOME = %s", enemy.name);
+    enemy.name[strcspn(enemy.name, "\n")] = 0; // Deleta o \n do nome.
 
+    // Pegando outros atributos
     fscanf(file, "%*s %i", &(enemy.hpMax));
+    fscanf(file, "%*s %i", &(enemy.dmgDiceNum));
+    fscanf(file, "%*s %i", &(enemy.dmgDice));
+    fscanf(file, "%*s %i", &(enemy.dmgMod));
+    fscanf(file, "%*s %i", &(enemy.atkMod));
+    fscanf(file, "%*s %i", &(enemy.atkNum));
+    fscanf(file, "%*s %i", &(enemy.armor));
+    fscanf(file, "%*s %i", &(enemy.magMod));
     
     fclose(file);
 
-    exit(1);
     return enemy;
 }

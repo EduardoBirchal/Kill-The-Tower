@@ -11,7 +11,7 @@ magMod 1
 
 ====
 Golem de Pedra
-HP 5
+HP 55
 dmgDiceNum 3
 dmgDice 4
 dmgMod 1
@@ -22,7 +22,7 @@ magMod 2
 
 ====
 Goblin Gordo
-HP 17 bolsonaro
+HP 17
 dmgDiceNum 1
 dmgDice 4
 dmgMod 2

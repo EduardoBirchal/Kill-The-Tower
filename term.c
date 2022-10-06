@@ -104,10 +104,10 @@ void playerInfo(playerS player) {
     printf("\033[0m ");
 
     // Imprime o hp, mana e os atributos
-    centerText(player.hpMax, BORDER_LEN);
+    centerText(player.hpMax+1, BORDER_LEN);
     printHp(player.hpMax, player.hp);
 
-    centerText(player.manaMax, BORDER_LEN);
+    centerText(player.manaMax+1, BORDER_LEN);
     printMana(player.manaMax, player.mana);
 
     printf("Rolagem de Ataque: \033[4m1d20%+i\033[0m\tRolagem de Dano: \033[4m%id%i%+i\033[0m\tArmadura: \033[4m%i\033[0m\n", player.atkMod, player.dmgDiceNum, player.dmgDice, player.dmgMod, player.armor);
@@ -125,7 +125,7 @@ void enemyInfo(enemyS enemy) {
     printf("\033[0m ");
 
     // Imprime o hp e os atributos
-    centerText(enemy.hpMax, BORDER_LEN);
+    centerText(enemy.hpMax+1, BORDER_LEN);
     printHp(enemy.hpMax, enemy.hp);
     printf("Rolagem de Ataque: \033[4m1d20%+i\033[0m\tRolagem de Dano: \033[4m%id%i%+i\033[0m\tArmadura: \033[4m%i\033[0m\n", enemy.atkMod, enemy.dmgDiceNum, enemy.dmgDice, enemy.dmgMod, enemy.armor);
 }
@@ -150,4 +150,57 @@ void printInfo (playerS player, enemyS enemy) {
 
     // Reabilita o cursor
     printf("\33[?25h");
+}
+
+// Imprime as opções do player
+void printConfig(playerS *player, enemyS *enemy) {
+    char options[CONFIG_AMT][MAX_OPTION] = {"VELOC. DO TEXTO", "MOSTRAR DESCS."};
+    int option = 0;
+
+    printInfo(*player, *enemy);
+    printf("\n");
+    for(int i=0; i<OPTION_AMT; i++) {
+        printf("\033[33m(%i)\033[0m %s%s", i+1, options[i], TAB);
+    }
+    printf("\n");
+}
+
+// Lê a opção que o player escolheu
+int readOption(playerS *player, enemyS *enemy) {
+    int option = 1;
+
+    while (1) {
+        option = getOption();
+
+        switch (option)
+        {
+        // Velocidade do texto
+        case 1: 
+            printf("Digite a velocidade desejada (0 a 5)");
+            
+            return 0;
+            break;
+
+        // Skills
+        case 2: 
+            printInfo(*player, *enemy);
+            if (playerSkl(player, enemy)) {
+                return 1;
+            }
+            requestEnter();
+            return 0;
+            break;
+
+        // Cancelar
+        case 6: 
+            return 2;
+            break;
+
+        // Opção inválido
+        default:
+            printInfo(*player, *enemy);
+            printf("Opcao invalida! (tem que ser um numero entre 1 e %i).\n", CONFIG_AMT);
+            break;
+        }
+    }
 }
