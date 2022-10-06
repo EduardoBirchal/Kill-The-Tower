@@ -276,3 +276,6 @@ typedef struct item_s { // Tá definido aqui porque depende do tipo sklFunct
 
     // Imprime o menu e lê a escolha de item.
     int playerInv (playerS *player, enemyS *enemy);
+
+
+enemyS createEnemy(int index);

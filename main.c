@@ -286,6 +286,7 @@ playerS createPlayer() {
 /* ==== Main ==== */
 
 int main(int argc, char** argv) {
+    // Semeando o rand()
     srand(time(NULL));
 
     // Declarando variáveis
@@ -294,7 +295,9 @@ int main(int argc, char** argv) {
     // Declarando criaturas
     playerS player = createPlayer();
 
-    enemyS enemy = {65, 65, 1, 4, 2, 4, 2, 12, 1, "Ze Pequeno, o Anao Denso"};
+    enemyS enemy = createEnemy (2); // rand()%31
+    //enemyS enemy = {65, 65, 1, 4, 2, 4, 2, 12, 1, "Ze Pequeno, o Anao Denso"};
+    
     for(int i=0; i<NUM_STATUSES; i++) { // Eu vou ser honesto, o jogo nunca acessa o array de status do inimigo, mas por algum motivo se eu não fizer esse loop, o programa dá segfault.
         enemy.status[i] = false;        // Eu não tenho ideia do porque isso aconteceu e porque esse loop conserta, mas tá aí.
     }

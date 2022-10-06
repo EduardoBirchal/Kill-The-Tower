@@ -1,0 +1,32 @@
+====
+Josef, Anao Barbaro
+HP 40
+dmgDiceNum 2
+dmgDice 6
+dmgMod 3
+atkMod 4
+atkNum 1
+arm 14
+magMod 1
+
+====
+Golem de Pedra
+HP 5
+dmgDiceNum 3
+dmgDice 4
+dmgMod 1
+atkMod 5
+atkNum 1
+arm 16
+magMod 2
+
+====
+Goblin Gordo
+HP 17 bolsonaro
+dmgDiceNum 1
+dmgDice 4
+dmgMod 2
+atkMod 4
+atkNum 2
+arm 12
+magMod -1
