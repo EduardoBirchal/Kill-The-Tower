@@ -70,7 +70,7 @@ void printSlow (char string[]) {
         printf("%c", string[i]);
         fflush(stdout); // Alguns sistemas operacionais colocam a string inteira num buffer e imprimem tudo de uma vez em vez de imprimir um char por vez
         if(string[i] != '\n') {
-            trueSleep(15); // Valor default = 25
+            trueSleep(TEXT_SPEED); // Valor default = 25
         }
     }
 }
@@ -163,44 +163,4 @@ void printConfig(playerS *player, enemyS *enemy) {
         printf("\033[33m(%i)\033[0m %s%s", i+1, options[i], TAB);
     }
     printf("\n");
-}
-
-// Lê a opção que o player escolheu
-int readOption(playerS *player, enemyS *enemy) {
-    int option = 1;
-
-    while (1) {
-        option = getOption();
-
-        switch (option)
-        {
-        // Velocidade do texto
-        case 1: 
-            printf("Digite a velocidade desejada (0 a 5)");
-            
-            return 0;
-            break;
-
-        // Skills
-        case 2: 
-            printInfo(*player, *enemy);
-            if (playerSkl(player, enemy)) {
-                return 1;
-            }
-            requestEnter();
-            return 0;
-            break;
-
-        // Cancelar
-        case 6: 
-            return 2;
-            break;
-
-        // Opção inválido
-        default:
-            printInfo(*player, *enemy);
-            printf("Opcao invalida! (tem que ser um numero entre 1 e %i).\n", CONFIG_AMT);
-            break;
-        }
-    }
 }

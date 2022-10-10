@@ -5,7 +5,7 @@
 
 // Imprime as opções do player
 void printOptions(playerS *player, enemyS *enemy) {
-    char options[OPTION_AMT][MAX_OPTION] = {"ATACAR", "HABILIDADES", "MAGIA", "INVENTARIO", "OPCOES", "FECHAR JOGO"};
+    char options[OPTION_AMT][MAX_OPTION] = {"ATACAR", "HABILIDADES", "MAGIA", "INVENTARIO", "FECHAR JOGO"};
     int option = 0;
 
     printInfo(*player, *enemy);
@@ -64,21 +64,8 @@ int readOption(playerS *player, enemyS *enemy) {
             return 0;
             break;
 
-        // Opções
-        case 5:
-            printInfo(*player, *enemy);
-            if (playerConfig(player, enemy)) {
-                return 1;
-            }
-            requestEnter();
-            return 0;
-            break;
-
-            return 0;
-            break;
-
         // Cancelar
-        case 6: 
+        case 5: 
             return 2;
             break;
 
@@ -304,7 +291,6 @@ int main(int argc, char** argv) {
 
     // Declarando variáveis
     int battleState = 0;
-    static int showDesc = -1; // Se for 1, mostra as descrições das coisas.
 
     // Declarando criaturas
     playerS player = createPlayer();

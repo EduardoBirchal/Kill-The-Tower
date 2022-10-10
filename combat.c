@@ -31,6 +31,8 @@ typedef struct spell_s {
     int cost;
 } spellS;
 
+static int showDesc = 1;
+
 
 /* ======= Combate ======= */
 
@@ -360,17 +362,21 @@ typedef struct spell_s {
     void printSkills(playerS *player) {
         int option = 0, i = 0;
 
-        printf("\n");
+        printf("\nDigite 0 para mostrar/parar de mostrar descricoes.\n\n");
         for(i=0; i<player->skillNum; i++) {
             if(player->knownSkills[i].cooldown == 0) {
                 printf("\033[33m%i:\033[0m ", i+1);
-                puts(player->knownSkills[i].name);
+                fputs(player->knownSkills[i].name, stdout);
             }
             else {
                 printf("\033[90m%i: ", i+1);
                 fputs(player->knownSkills[i].name, stdout);
-                printf(" (%i turnos para recarregar)\033[0m\n", player->knownSkills[i].cooldown);
+                printf(" (%i turnos para recarregar)\033[0m", player->knownSkills[i].cooldown);
             }
+            if(showDesc == 1) {
+                printf("\033[90m - %s\033[0m", player->knownSkills[i].desc);
+            }
+            printf("\n");
         }
         printf("\033[33m%i: \033[36mCancelar\033[0m\n", i+1);
     }
@@ -402,6 +408,11 @@ typedef struct spell_s {
             else if(option==player->skillNum+1) {  
                 return 1; // Se a opção for cancelar, volta pro menu
             } 
+            else if(option == 0) {
+                showDesc *= -1;
+                printInfo(*player, *enemy);
+                return playerSkl(player, enemy);
+            }
             else {
                 printf("Opcao invalida! (tem que ser um numero de 1 a %i).\n", player->skillNum+1); // Se não for válida, pede pra colocar outra
             }
@@ -434,7 +445,6 @@ typedef struct spell_s {
         player->knownSkills[player->skillNum-1] = skills[index];
         player->knownSkills[player->skillNum-1].cooldown = 0; // Inicializa o cooldown como 0.
     }
-
 
 /* ======= Feitiços ====== */
 
@@ -585,7 +595,7 @@ typedef struct spell_s {
     // Causa dano alto.
     int fireOfCthulhu (playerS *player, enemyS *enemy) {
         spellDmg (player, enemy, 8, 3,
-        "\n\nSeus olhos se enchem de escuridao, e um fluxo enorme de fogo e trevas soterra o inimigo, escaldando-o com calor necrotico.\n\n", 
+        "\n\nSeus olhos se enchem de escuridao, liberando um cone de fogo e trevas que envolve o inimigo por completo, queimando-o com fogo necrotico.\n\n", 
         " \033[33;4mFalha...\033[0m\n\nA criatura bloqueia o raio de chamas sombrias com seu escudo, e o fogo produz um cheiro forte de enxofre.\n\n");
 
         return 1;
@@ -705,11 +715,16 @@ typedef struct spell_s {
     void printSpells(playerS *player) {
         int option = 0, i = 0;
 
-        printf("\n");
+        printf("\nDigite 0 para mostrar/parar de mostrar descricoes.\n\n");
         for(i=0; i<player->spellNum; i++) {
             printf("\033[33m%i:\033[0m ", i+1);
             fputs(player->knownSpells[i].name, stdout);
-            printf(" \033[94m(%i mana)\033[0m\n", player->knownSpells[i].cost);
+            printf(" \033[94m(%i mana)\033[0m", player->knownSpells[i].cost);
+
+            if(showDesc == 1) {
+                printf("\033[90m - %s\033[0m", player->knownSpells[i].desc);
+            }
+            printf("\n");
         }
         printf("\033[33m%i: \033[36mCancelar\033[0m\n", i+1);
     }
@@ -744,6 +759,11 @@ typedef struct spell_s {
             else if(option==player->spellNum+1) {  
                 return 1; // Se a opção for cancelar, volta pro menu
             } 
+            else if(option == 0) {
+                showDesc *= -1;
+                printInfo(*player, *enemy);
+                return playerMag(player, enemy);
+            }
             else {
                 printf("Opcao invalida! (tem que ser um numero de 1 a %i).\n", player->spellNum+1); // Se não for válida, pede pra colocar outra
             }
@@ -813,9 +833,9 @@ typedef struct spell_s {
 
                     printSlow("Tentaculos do Longinquo se estendem pelo portal, dilacerando o inimigo com os dentes afiados de suas bocas disformes.\n");
 
-                    int dmgRoll = rollDice(4, 2, player->magMod, 0);
+                    int dmgRoll = rollDice(6, 1, player->magMod, 0);
                     printSlow("Rolagem de dano - \033[36mrolando ");
-                    printf("%id%i%+i", 2, 4, player->magMod);
+                    printf("%id%i%+i", 1, 6, player->magMod);
                     rollSlow(dmgRoll);
                     enemy->hp -= dmgRoll;
                     printf("\n\n");
