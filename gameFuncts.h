@@ -78,11 +78,11 @@ typedef struct enemy_s {
 
 /* ==== Typedefs ==== */
 
-enum statNums {mageArmS, mageShldS, tripAtkS, parryAtkS, rdntSmiteS, hungerOfTheVoidS, azathothDreamS, searingLightS};
+enum statNums {mageArmS, mageShldS, tripAtkS, parryAtkS, rdntSmiteS, hungerOfTheVoidS, azathothDreamS, searingLightS, precStrkS};
 enum classes {warrior, wizard, warlock, paladin};
 
 enum spells {fireBlt, sonicBlst, mageArm, mageShld, magicMsl, blessWpn, rdntSmite, voidHunger, yogSothothSight, cthulhuFire, azathothDream, srngLight};
-enum skills {doubleStrk, tripAtk, selfDmg, parryAtk, scndWind, dvnGuidance, bldOffering, adrnlSurge};
+enum skills {doubleStrk, tripAtk, selfDmg, parryAtk, scndWind, dvnGuidance, bldOffering, adrnlSurge, prcStrk, btlTrance};
 
 typedef int (*sklFunct) (playerS *player, enemyS *enemy); // define int (*coisa) (playerS *player, enemyS *enemy) como só sklFunct. É um ponteiro de função.
 typedef int bool;
@@ -281,4 +281,31 @@ typedef struct item_s { // Tá definido aqui porque depende do tipo sklFunct
     int playerInv (playerS *player, enemyS *enemy);
 
 
+/* ==== UI do player ==== */
+
+    // Imprime as opções do player
+    void printOptions(playerS *player, enemyS *enemy);
+
+    // Lê a opção que o player escolheu
+    int readOption(playerS *player, enemyS *enemy);
+
+    // Turno do player
+    int turnPlayer(playerS *player, enemyS *enemy);
+
+
+/* ==== Criação do player ==== */
+
+// Imprime as classes pro player escolher
+void printClasses();
+
+// Configura a classe do player
+void chooseClass (playerS *player);
+
+// Cria o player
+playerS createPlayer();
+
+
+/* ==== Inimigo ==== */
+
+// Cria o inimigo, lendo de um arquivo
 enemyS createEnemy(int index);

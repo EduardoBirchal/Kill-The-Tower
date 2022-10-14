@@ -3,7 +3,7 @@
 
 /* ==== Defines ==== */
 
-#define NUM_SKILLS 8
+#define NUM_SKILLS 10
 #define MAX_SKILL 25
 #define MAX_DESC_SKILL 100
 
@@ -15,7 +15,7 @@
 /* ==== Typedefs ==== */
 
 typedef struct skill_s {
-    sklFunct funct;
+    sklFunct funct; // sklFunct é um ponteiro de função. Esse tipo é usado para feitiços, habilidades e itens.
     char name[MAX_SKILL];
     char desc[MAX_DESC_SKILL];
 
@@ -31,59 +31,86 @@ typedef struct spell_s {
     int cost;
 } spellS;
 
-static int showDesc = 1;
+static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
 
 /* ======= Combate ======= */
 
-    // Imprime uma barra de vida
-    void printHp (int hpMax, int hp) {
+    // Imprime a barra de HP
+    void printHpBar (int hpMax, int hp) {
+        // Imprime em verde as células de HP cheio e o resto (hp vazio) imprime em verde escuro
         for(int i=1; i<=hpMax; i++) {
             if(i <= (hp)) {
-                printf("\033[102m "); // Imprime em verde as células de HP cheio e o resto (hp vazio) imprime em verde escuro
+                printf("\033[102m "); // Célula verde
             }
             else {
-                printf("\033[42m ");
+                printf("\033[42m "); // Célula verde escura
             }
         }
+    }
 
+    // Imprime a quantidade de HP embaixo da barra, por exemplo: 'HP: 6/10'
+    void printHpNum (int hpMax, int hp) {
+        // Calcula o comprimento da string
         int hpMaxLen = digitNum(hpMax);
         int hpLen = digitNum(hp);
-        hpLen = hpLen + hpMaxLen; // hpLen é o comprimento da string do valor do hp do player, que vai ser escrita depois do nome.
+        hpLen = hpLen + hpMaxLen; // hpLen é o comprimento da string do valor do HP
 
+        // Imprime a quantidade de HP
         printf("\033[0m\n");
-        centerText(strlen("HP: ") + hpLen, BORDER_LEN);
+        centerText(strlen("HP: ") + hpLen, BORDER_LEN); //  Centraliza o texto a ser imprimido
         printf("HP: %i/%i\n\n", hp, hpMax);
     }
 
-    // Imprime uma barra de mana
-    void printMana (int manaMax, int mana) {
-        printf(" ");
+    // Imprime uma barra de HP e a quantidade embaixo
+    void printHp (int hpMax, int hp) {
+        printHpBar(hpMax, hp);
+        printHpNum(hpMax, hp);
+    }
+
+    // Imprime a barra de mana
+    void printManaBar (int manaMax, int mana) {
+        // Imprime em azul as células de mana cheio e o resto (mana vazio) imprime em azul escuro
         for(int i=1; i<=manaMax; i++) {
             if(i <= (mana)) {
-                printf("\033[104m "); // Imprime em azul as células de mana cheio e o resto (mana vazio) imprime em azul escuro
+                printf("\033[104m "); // Célula azul
             }
             else {
-                printf("\033[44m ");
+                printf("\033[44m "); // Célula azul escuro
             }
         }
+    }
 
+    // Imprime a quantidade de mana embaixo da barra, por exemplo: 'Mana: 6/10'
+    void printManaNum (int manaMax, int mana) {
+        // Calcula o comprimento da string
         int manaMaxLen = digitNum(manaMax);
         int manaLen = digitNum(mana);
-        manaLen = manaLen + manaMaxLen; 
+        manaLen = manaLen + manaMaxLen; // manaLen é o comprimento da string do valor de mana
 
+        // Imprime a quantidade de HP
         printf("\033[0m\n");
         centerText(strlen("Mana: ") + manaLen, BORDER_LEN);
         printf("Mana: %i/%i\n\n", mana, manaMax);
     }
 
+    // Imprime uma barra de mana
+    void printMana (int manaMax, int mana) {
+        printManaBar(manaMax, mana);
+        printManaNum(manaMax, mana);
+    }
+
     // Conserta o HP pra não ficar negativo
     int updateHp (playerS *player, enemyS *enemy) {
-        if(enemy->hp < 0) enemy->hp = 0;
+        // Normaliza HP do inimigo
+        if(enemy->hp < 0) enemy->hp = 0; 
         if(enemy->hp > enemy->hpMax) enemy->hp = enemy->hpMax;
+
+        // Normaliza HP do player
         if(player->hp < 0) player->hp = 0;
         if(player->hp > player->hpMax) player->hp = player->hpMax;
 
+        // Normaliza mana do player
         if(player->mana < 0) player->mana = 0;
         if(player->mana > player->manaMax) player->mana = player->manaMax;
 
@@ -278,6 +305,7 @@ static int showDesc = 1;
         return 1;
     }
 
+    // Toma dano e recupera os cooldowns de tudo.
     int adrenalineSurge (playerS *player, enemyS *enemy) {
         printSlow("Apesar de estar exausto, voce obriga seus musculos a continuarem por pura forca de vontade.\n\n");
 
@@ -298,9 +326,38 @@ static int showDesc = 1;
         }
     }
 
+    // Acerta o ataque sem precisar rolar.
+    int precisionStrike (playerS *player, enemyS *enemy) {
+        printSlow("Com um movimento gracioso, voce se posiciona para aproveitar uma brecha na defesa do alvo.\n");
+        int dmgRoll = rollDice(player->dmgDice, player->dmgDiceNum, player->dmgMod, 0);
+        printSlow("Rolagem de dano - \033[36mrolando ");
+        printf("%id%i%+i", player->dmgDiceNum, player->dmgDice, player->dmgMod);
+        rollSlow(dmgRoll);
+        printSlow(player->hitString);
+    }
+
+    // Dá um boost de dano e ataque mas coloca todas as habilidades em cooldown por 4 turnos.
+    int battleTrance (playerS *player, enemyS *enemy) {
+        printSlow("Esquecendo toda a tecnica, voce confia o controle do seu corpo inteiramente aos seus instintos.\n");
+
+        player->atkMod += 3;
+        player->dmgMod += 3;
+
+        for (int i=0; i<player->skillNum; i++) {
+            if(player->knownSkills[i].maxCooldown > 4) {
+                player->knownSkills[i].cooldown = player->knownSkills[i].maxCooldown;
+            }
+            else {
+                player->knownSkills[i].cooldown = 4;
+            }
+        }
+
+        player->status[precStrkS] = 4;
+    }
+
     /* ==== Criar o array de habilidades ==== */
 
-    skillS skills[NUM_SKILLS] = {
+    const skillS skills[NUM_SKILLS] = {
         {
             &doubleStrike, // Função de quando a habilidade é usada
             "Golpe Duplo", // Nome da habilidade
@@ -353,7 +410,21 @@ static int showDesc = 1;
             "Surto de Adrenalina",
             "Sacrifica HP e regenera todos os cooldowns.",
             3
-        }
+        },
+
+        {
+            &precisionStrike,
+            "Ataque Preciso",
+            "Acerta um ataque sem precisar rolar, mas nao pode ser critico.",
+            6
+        },
+
+        {
+            &battleTrance,
+            "Instinto Brutal",
+            "Ganha um aumento de ataque e dano por 4 turnos, mas coloca todas as habilidades em cooldown.",
+            7
+        },
     };
 
     /* ==== Imprimir menu de habilidades ==== */
@@ -373,7 +444,7 @@ static int showDesc = 1;
                 fputs(player->knownSkills[i].name, stdout);
                 printf(" (%i turnos para recarregar)\033[0m", player->knownSkills[i].cooldown);
             }
-            if(showDesc == 1) {
+            if(showDesc) {
                 printf("\033[90m - %s\033[0m", player->knownSkills[i].desc);
             }
             printf("\n");
@@ -409,7 +480,7 @@ static int showDesc = 1;
                 return 1; // Se a opção for cancelar, volta pro menu
             } 
             else if(option == 0) {
-                showDesc *= -1;
+                showDesc = !showDesc;
                 printInfo(*player, *enemy);
                 return playerSkl(player, enemy);
             }
@@ -635,7 +706,7 @@ static int showDesc = 1;
 
     /* ==== Criar o array de feitiços ==== */
 
-    spellS spells[NUM_SPELLS] = {
+    const spellS spells[NUM_SPELLS] = {
         {
             &fireBolt, // Função de quando o feitiço é conjurado
             "Dardo de Fogo", // Nome do feitiço
@@ -721,7 +792,7 @@ static int showDesc = 1;
             fputs(player->knownSpells[i].name, stdout);
             printf(" \033[94m(%i mana)\033[0m", player->knownSpells[i].cost);
 
-            if(showDesc == 1) {
+            if(showDesc) {
                 printf("\033[90m - %s\033[0m", player->knownSpells[i].desc);
             }
             printf("\n");
@@ -760,7 +831,8 @@ static int showDesc = 1;
                 return 1; // Se a opção for cancelar, volta pro menu
             } 
             else if(option == 0) {
-                showDesc *= -1;
+                showDesc = !showDesc;
+                
                 printInfo(*player, *enemy);
                 return playerMag(player, enemy);
             }
@@ -853,6 +925,16 @@ static int showDesc = 1;
                 
                 break;           
             
+            case precStrkS:
+                if (player->status[precStrkS] == 1) {
+                    player->atkMod -= 3;
+                    player->dmgMod -= 3;
+                } 
+
+                if (player->status[precStrkS] > 0) player->status[precStrkS]--;
+                
+                break;
+
             default:
                 break;
             }
@@ -862,4 +944,292 @@ static int showDesc = 1;
             printf("Press ENTER to continue.");
             getchar(); // Se usasse a função requestEnter, ela ia pedir enter duas vezes, porque ela tem dois getchar pra pegar o \n da msg anterior primeiro
         }              // já que os eventos acontecem depois de algum outro requestEnter, tem que usar só um getchar
+    }
+
+
+/* ==== UI do player ==== */
+
+    // Imprime as opções do player
+    void printOptions(playerS *player, enemyS *enemy) {
+        char options[OPTION_AMT][MAX_OPTION] = {"ATACAR", "HABILIDADES", "MAGIA", "INVENTARIO", "FECHAR JOGO"};
+        int option = 0;
+
+        printInfo(*player, *enemy);
+        printf("\n");
+        for(int i=0; i<OPTION_AMT; i++) {
+            printf("\033[33m(%i)\033[0m %s%s", i+1, options[i], TAB); // O \t não dá um número consistente de espaços, então eu fiz uma string contante TAB que é só 6 espaços. É feio, mas só custa um pouquinho de tempo de compilação.
+        }
+        printf("\n");
+    }
+    
+    // Lê a opção que o player escolheu
+    int readOption(playerS *player, enemyS *enemy) {
+        int option = 1;
+
+        while (1) {
+            option = getOption();
+
+            switch (option)
+            {
+            // Ataque
+            case 1: 
+                printInfo(*player, *enemy);
+                for(int i=0; i<player->atkNum; i++) {
+                    playerAtk(player, enemy);
+                }
+                requestEnter();
+                return 0;
+                break;
+
+            // Skills
+            case 2: 
+                printInfo(*player, *enemy);
+                if (playerSkl(player, enemy)) {
+                    return 1;
+                }
+                requestEnter();
+                return 0;
+                break;
+
+            // Magia
+            case 3: 
+                printInfo(*player, *enemy);
+                if (playerMag(player, enemy)) {
+                    return 1;
+                }
+                requestEnter();
+                return 0;
+                break;
+
+            // Inventário
+            case 4: 
+                if (playerInv(player, enemy)) {
+                    return 1;
+                }
+                requestEnter();
+                return 0;
+                break;
+
+            // Cancelar
+            case 5: 
+                return 2;
+                break;
+
+            // Opção inválido
+            default:
+                printInfo(*player, *enemy);
+                printf("Opcao invalida! (tem que ser um numero entre 1 e %i).\n", OPTION_AMT);
+                break;
+            }
+        }
+    }
+
+    // Turno do player
+    int turnPlayer(playerS *player, enemyS *enemy) {
+        while(1) {
+            printOptions(player, enemy);
+            switch (readOption(player, enemy))
+            {
+            case 0:
+                return 0;
+                break; // O player escolheu e executou uma opção.
+            
+            case 1:
+                break; // O player escolheu uma opção e cancelou.
+
+            case 2:
+                return 1;
+                break; // O player executou "Fechar Jogo".
+            }
+        }
+
+        return 0;
+    }
+
+
+/* ==== Criação do player ==== */
+
+    // Imprime as classes pro player escolher
+    void printClasses() {
+        clearTerm();
+
+        centerText (strlen("Escolha sua classe:"), BORDER_LEN);
+        char nomes[NUM_CLASSES][MAX_ITEM] = {"Guerreiro", "Mago", "Bruxo", "Paladino"}; // Lista dos nomes das classes
+        char descricoes[NUM_CLASSES][MAX_DESC_CLASS] = {
+        "Especialista em combate. Tem poucas magias, mas muitas habilidades e dano alto.",
+        "Arcanista com uma variedade de feiticos uteis e poderosos.",
+        "Usa poderes profanos vindos de um pacto com criaturas extraplanares.",
+        "Guerreiro que canaliza o poder de uma divindade para se fortalecer em combate."}; // Lista das descrições das classes
+
+        printf("\033[1mEscolha sua classe:\033[0m\n\n");
+
+        for(int i=0; i<NUM_CLASSES; i++) {
+            printf("\033[33m%i: \033[0m", i+1);
+            fputs(nomes[i], stdout);
+            printf(" - \033[32m");
+            puts(descricoes[i]);
+            printf("\033[0m");
+        }
+    }
+
+    // Configura a classe do player
+    void chooseClass (playerS *player) {
+        int escolha;
+        printClasses();
+
+        while (1) {
+            printf("> ");
+            scanf("%i", &escolha);
+            escolha--; // O enum começa em 0, então diminui em 1.
+
+            switch (escolha)
+            {
+            case warrior:
+                // Stats do player
+                player->armor = 18;
+                player->atkMod = 6;
+                player->atkNum = 1;
+                player->dmgDice = 6;
+                player->dmgDiceNum = 2;
+                player->dmgMod = 5;
+                player->hpMax = 25;
+                player->magMod = -1;
+                player->manaMax = 15;
+
+                // Feitiços do player
+                addSpell (player, fireBlt);
+                addSpell (player, mageShld);
+
+                // Skills do player
+                addSkill (player, doubleStrk);
+                addSkill (player, tripAtk);
+                addSkill (player, parryAtk);
+                addSkill (player, scndWind);
+                addSkill (player, adrnlSurge);
+                
+                // Mensagens de ataque
+                strcpy(player->hitString, "\n\nA lamina do seu machado atinge o inimigo, que falha em se esquivar e recua com um grito.\n\n");
+                strcpy(player->critString, "\n\nGirando sua arma com as duas maos, voce faz um corte letal no alvo, causando dano massivo.\n\n");
+                strcpy(player->missString, "\n\nO oponente desvia agilmente do seu golpe, saltando para o lado. A lamina encontra apenas terra.\n\n");
+
+                break;
+            
+            case wizard:
+                player->armor = 14;
+                player->atkMod = 0;
+                player->atkNum = 1;
+                player->dmgDice = 6;
+                player->dmgDiceNum = 1;
+                player->dmgMod = -2;
+                player->hpMax = 15;
+                player->magMod = 6;
+                player->manaMax = 30;
+
+                addSpell (player, fireBlt);
+                addSpell (player, sonicBlst);
+                addSpell (player, mageArm);
+                addSpell (player, mageShld);
+                addSpell (player, magicMsl);
+
+                addSkill (player, parryAtk);
+                addSkill (player, scndWind);
+
+                strcpy(player->hitString, "\n\nApesar da sua falta de treinamento marcial, voce consegue atingir a criatura com o seu cajado, fazendo-a recuar.\n\n");
+                strcpy(player->critString, "\n\nVoce acerta o alvo com um giro do seu cajado, com um impacto brutal e o som de ossos quebrando.\n\n");
+                strcpy(player->missString, "\n\nVoce golpeia pra frente com a ponta do bastao, mas a armadura do inimigo absorve o impacto do ataque.\n\n");
+                
+                break;
+
+            case warlock:
+                player->armor = 12;
+                player->atkMod = 0;
+                player->atkNum = 1;
+                player->dmgDice = 8;
+                player->dmgDiceNum = 1;
+                player->dmgMod = 2;
+                player->hpMax = 15;
+                player->magMod = 6;
+                player->manaMax = 25;
+
+                addSpell (player, mageArm);
+                addSpell (player, voidHunger);
+                addSpell (player, yogSothothSight);
+                addSpell (player, cthulhuFire);
+                addSpell (player, azathothDream);
+
+                addSkill (player, doubleStrk);
+                addSkill (player, tripAtk);
+                addSkill (player, bldOffering);
+                
+                strcpy(player->hitString, "\n\nVoce invoca um feixe de energia sombria que dispara erraticamente pelo ar, atingindo o inimigo e queimando-o.\n\n");
+                strcpy(player->critString, "\n\nCom uma palavra profana voce conjura um raio faiscante de sombra, que atinge o alvo em cheio e o empurra pra tras numa chuva de faiscas.\n\n");
+                strcpy(player->missString, "\n\nNo calor da batalha, voce nao consegue se concentrar para evocar as energias extraplanares do seu patrono, e o raio se dissipa com um chiado.\n\n");
+
+                break;
+
+            case paladin:
+                player->armor = 16;
+                player->atkMod = 5;
+                player->atkNum = 1;
+                player->dmgDice = 8;
+                player->dmgDiceNum = 1;
+                player->dmgMod = 3;
+                player->hpMax = 20;
+                player->magMod = 3;
+                player->manaMax = 25;
+
+                addSpell (player, mageArm);
+                addSpell (player, blessWpn);
+                addSpell (player, rdntSmite);
+                addSpell (player, srngLight);
+
+                addSkill (player, parryAtk);
+                addSkill (player, tripAtk);
+                addSkill (player, dvnGuidance);
+                addSkill (player, bldOffering);
+
+                strcpy(player->hitString, "\n\nO golpe da sua espada acerta o alvo com um corte amplo, abrindo um ferimento e jorrando sangue por onde a lamina rasga.\n\n");
+                strcpy(player->critString, "\n\nVoce acerta a criatura com o seu escudo numa investida e finca sua espada num ponto vital, causando um ferimento gravissimo.\n\n");
+                strcpy(player->missString, "\n\nO som de metal com metal ressoa pelo campo de batalha quando o seu golpe e bloqueado pelo escudo do inimigo.\n\n");
+                
+                break;
+            
+            default:
+                printf("Opcao invalida! (tem que ser um numero entre 1 e %i).\n", NUM_CLASSES);
+                continue;
+                break;
+            }
+
+            break;
+        }
+
+        player->class = escolha;
+    }
+
+    // Cria o player
+    playerS createPlayer() {
+        playerS player;
+
+        // Inicializando os arrays
+        initSpells(&player);
+        initSkills(&player);
+        initInv(&player);
+        fillInv(&player);
+
+        // Escolhendo a classe
+        chooseClass (&player);
+
+        // Inicializando os atributos
+        player.advantage = 0;
+        player.hp = player.hpMax;
+        player.mana = player.manaMax;
+        strcpy(player.name, "Voce");
+        
+
+        // Inicializando os status
+        for(int i=0; i<NUM_STATUSES; i++) { 
+            player.status[i] = false;
+        }
+
+        return player;
     }

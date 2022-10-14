@@ -16,7 +16,7 @@ enemyS createEnemy(int index) {
 
     // A string "====" marca o início de um inimigo no arquivo. Esse loop lê os "====" até chegar no [index]o inimigo. Se ele não achar, dá erro.
     while (linesDetected < index) {
-        if (fgets(stringScan, 6, file)) { // AVISO PARA EU DO FUTURO: ****N  U  N  C  A**** USE FSCANF COM %S!!!!!!!!!!!!!!
+        if (fgets(stringScan, 6, file)) {
             if (strstr(stringScan, "====") != 0) {
                 linesDetected++;
             }
@@ -43,6 +43,10 @@ enemyS createEnemy(int index) {
     fscanf(file, "%*s %i", &(enemy.magMod));
     
     fclose(file);
+
+    for(int i=0; i<NUM_STATUSES; i++) { // Eu vou ser honesto, o jogo nunca acessa o array de status do inimigo, mas por algum motivo se eu não fizer esse loop, o programa dá segfault.
+        enemy.status[i] = false;        // Eu não tenho ideia do porque isso aconteceu e porque esse loop conserta, mas tá aí.
+    }
 
     return enemy;
 }
