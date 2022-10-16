@@ -446,7 +446,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
         {
             &battleTrance,
-            "Instinto Brutal",
+            "Instinto de Batalha",
             "Ganha um aumento de ataque e dano por 4 turnos, mas coloca todas as habilidades em cooldown.",
             7
         },
