@@ -1,6 +1,6 @@
 ====
 Josef, Anao Barbaro
-HP 40
+HP 96
 dmgDiceNum 2
 dmgDice 6
 dmgMod 3
@@ -11,7 +11,7 @@ magMod 1
 
 ====
 Golem de Pedra
-HP 55
+HP 96
 dmgDiceNum 3
 dmgDice 4
 dmgMod 1
@@ -22,7 +22,7 @@ magMod 2
 
 ====
 Goblin Gordo
-HP 17
+HP 96
 dmgDiceNum 1
 dmgDice 4
 dmgMod 2

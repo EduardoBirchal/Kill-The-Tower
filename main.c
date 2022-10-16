@@ -12,7 +12,6 @@ int main(int argc, char** argv) {
 
     // Declarando criaturas
     playerS player = createPlayer();
-
     enemyS enemy = createEnemy ((rand()%3) + 1);
     
 

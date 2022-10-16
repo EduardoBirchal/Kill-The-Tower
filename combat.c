@@ -102,15 +102,15 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
     // Conserta o HP pra não ficar negativo
     int updateHp (playerS *player, enemyS *enemy) {
-        // Normaliza HP do inimigo
+        // Conserta HP do inimigo
         if(enemy->hp < 0) enemy->hp = 0; 
         if(enemy->hp > enemy->hpMax) enemy->hp = enemy->hpMax;
 
-        // Normaliza HP do player
+        // Conserta HP do player
         if(player->hp < 0) player->hp = 0;
         if(player->hp > player->hpMax) player->hp = player->hpMax;
 
-        // Normaliza mana do player
+        // Conserta mana do player
         if(player->mana < 0) player->mana = 0;
         if(player->mana > player->manaMax) player->mana = player->manaMax;
 
@@ -119,34 +119,93 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
         return 0;
     }
 
-    // Rola [num] dados de [size] lados
+    // Rola [num] dados de [size] lados, com vantagem igual a [adv], e soma [mod] ao total
     int rollDice(int size, int num, int mod, int adv) {
         int total;
         int roll = 0;
 
         for(int j=0; j<num; j++) {
-            roll += 1 + rand()%size;
+            roll += 1 + rand()%size; // Rola o dado
+
             //printf("\t%io dado: %i\n", j+1, roll); // Só usar pra debug.
         }
         total = roll;
 
+        if(adv) printf("\033[92m(Rolando com vantagem x%i)\033[0m\n", adv);
+        
+        // Rola com vantagem, ou seja, rola [adv] vezes e escolhe o maior resultado
         for(int i=0; i<adv; i++) {
             roll = 0;
+
             for(int j=0; j<num; j++) {
-                roll += 1 + rand()%size;
+                roll += 1 + rand()%size; // Rola o dado
+
                 //printf("\t%io dado: %i\n", j+1, roll); // Só usar pra debug.
             }
-            if (roll>total) total=roll;
+            if (roll>total) total=roll; // Substitui o total se essa rolagem foi maior que as outras rolagens
         }
 
-        return total+mod;
+        return total+mod; // Adiciona o modificador ao total
+    }
+
+    // Dá o dano de Radiant Smite se o player tiver usado
+    int rdntSmiteDmg(playerS *player, enemyS *enemy) {
+        if (player->status[rdntSmiteS]) {
+            player->status[rdntSmiteS] = false;
+            int rdntRoll = rollDice(6, 2, 0, 0);
+
+            printSlow("Rolagem de dano (Golpe Radiante) - \033[36mrolando ");
+            printf("%id%i", 2, 6);
+            rollSlow(rdntRoll);
+
+            enemy->hp -= rdntRoll;
+
+            printSlow("Voce canaliza toda a energia divina acumulada para a sua lamina, liberando-a num pulso reverberante de poder radiante.\n\n");
+        }
+    }
+
+    // Acerto crítico do player
+    int playerCrit(playerS *player, enemyS *enemy) {
+        // Rola o dado
+        int dmgRoll = rollDice(player->dmgDice, player->dmgDiceNum*2, player->dmgMod*2, 0);
+
+        // Imprime as coisas
+        printSlow("Rolagem de dano - \033[36mrolando ");
+        printf("%id%i%+i", player->dmgDiceNum*2, player->dmgDice, player->dmgMod*2);
+        rollSlow(dmgRoll);
+        printSlow(player->critString);
+
+        // Se o player usou Radiant Smite, dá o dano extra
+        rdntSmiteDmg(player, enemy);
+
+        // Dá o dano
+        enemy->hp -= dmgRoll;
+    }
+
+    // Acerto não-crítico do player
+    int playerHit(playerS *player, enemyS *enemy) {
+        // Rola o dado
+        int dmgRoll = rollDice(player->dmgDice, player->dmgDiceNum, player->dmgMod, 0);
+
+        // Imprime as coisas
+        printSlow("Rolagem de dano - \033[36mrolando ");
+        printf("%id%i%+i", player->dmgDiceNum, player->dmgDice, player->dmgMod);
+        rollSlow(dmgRoll);
+        printSlow(player->hitString);
+
+        // Se o player usou Radiant Smite, dá o dano extra
+        rdntSmiteDmg(player, enemy);
+
+        // Dá o dano
+        enemy->hp -= dmgRoll;
     }
 
     // Faz o ataque do player
     int playerAtk(playerS *player, enemyS *enemy) {
-        int atkRoll = rollDice(20, 1, player->atkMod, player->advantage); // Rola o ataque
-        int dmgRoll = 0;
+        // Rola o ataque
+        int atkRoll = rollDice(20, 1, player->atkMod, player->advantage);
 
+        // Imprime a rolagem
         printSlow("Rolagem de ataque - \033[36mrolando ");
         printf("1d20%+i", player->atkMod);
         rollSlow(atkRoll);
@@ -154,55 +213,21 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
         // Se for 17 natural pra cima, é um acerto crítico
         if(atkRoll-player->atkMod > 17) {
             printSlow(" \033[33;4mAcerto Critico!\033[0m Dados de dano dobrados pra esse ataque.\n\n");
-            dmgRoll = rollDice(player->dmgDice, player->dmgDiceNum*2, player->dmgMod*2, 0);
-            printSlow("Rolagem de dano - \033[36mrolando ");
-            printf("%id%i%+i", player->dmgDiceNum*2, player->dmgDice, player->dmgMod*2);
-            rollSlow(dmgRoll);
-            printSlow(player->critString);
 
-            if (player->status[rdntSmiteS]) {
-                player->status[rdntSmiteS] = false;
-                int rdntRoll = rollDice(6, 2, 0, 0);
-
-                printSlow("Voce canaliza toda a energia divina acumulada para a sua lamina, liberando-a num pulso reverberante de poder radiante.\n");
-                printSlow("Rolagem de dano (Golpe Radiante) - \033[36mrolando ");
-                printf("%id%i", 2, 6);
-                rollSlow(rdntRoll);
-                printf("\n\n");
-
-                enemy->hp -= rdntRoll;
-            }
-
-            enemy->hp -= dmgRoll;
+            playerCrit(player, enemy);
             return 2;
         } 
         // Se for acima da armadura do inimigo, acerta
         else if (atkRoll >= enemy->armor) { 
             printSlow(" \033[33;4mAcerto!\033[0m\n\n");
-            dmgRoll = rollDice(player->dmgDice, player->dmgDiceNum, player->dmgMod, 0);
-            printSlow("Rolagem de dano - \033[36mrolando ");
-            printf("%id%i%+i", player->dmgDiceNum, player->dmgDice, player->dmgMod);
-            rollSlow(dmgRoll);
-            printSlow(player->hitString);
-
-            if (player->status[rdntSmiteS]) {
-                player->status[rdntSmiteS] = false;
-                int rdntRoll = rollDice(6, 2, 0, 0);
-
-                printSlow("Rolagem de dano (Golpe Radiante) - \033[36mrolando ");
-                printf("%id%i", 2, 6);
-                rollSlow(rdntRoll);
-
-                enemy->hp -= rdntRoll;
-
-                printSlow("Voce canaliza toda a energia divina acumulada para a sua lamina, liberando-a num pulso reverberante de poder radiante.\n\n");
-            }
-
-            enemy->hp -= dmgRoll;
+            
+            playerHit(player, enemy);
             return 1;
         }
+        // Senão, erra
         else {
             printSlow(" \033[33;4mFalha...\033[0m");
+
             printSlow(player->missString);
             return 0;
         }
@@ -309,16 +334,19 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
     int adrenalineSurge (playerS *player, enemyS *enemy) {
         printSlow("Apesar de estar exausto, voce obriga seus musculos a continuarem por pura forca de vontade.\n\n");
 
+        // Repete o loop pra cada skill que o player tem
         for (int i=0; i<player->skillNum; i++) {
+            // Se o player não vai morrer ao tomar o dano da skill, dá o dano
             if(player->hp > player->knownSkills[i].cooldown && player->hp > 4) {
-                if(player->knownSkills[i].cooldown > 4) {
-                    player->hp -= player->knownSkills[i].cooldown;
+                if(player->knownSkills[i].cooldown > 4) { 
+                    player->hp -= player->knownSkills[i].cooldown; // Se o cooldown é maior que 4, toma o dano do cooldown
                 }
-                else if (player->knownSkills[i].cooldown > 0){
+                else if (player->knownSkills[i].cooldown > 0){     // Senão, dá 4 de dano
                     player->hp -= 4;
                 }
-                player->knownSkills[i].cooldown = 0;
+                player->knownSkills[i].cooldown = 0; // Reseta o cooldown da skill
             }
+            // Se o player fosse morrer ao tomar o dano, cancela a skill
             else {
                 printSlow("Voce chegou ao seu limite. Se voce se exercesse mais ainda, voce morreria. (Nao tem HP suficiente para regenerar todas as habilidades)");
                 break;
@@ -329,11 +357,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
     // Acerta o ataque sem precisar rolar.
     int precisionStrike (playerS *player, enemyS *enemy) {
         printSlow("Com um movimento gracioso, voce se posiciona para aproveitar uma brecha na defesa do alvo.\n");
-        int dmgRoll = rollDice(player->dmgDice, player->dmgDiceNum, player->dmgMod, 0);
-        printSlow("Rolagem de dano - \033[36mrolando ");
-        printf("%id%i%+i", player->dmgDiceNum, player->dmgDice, player->dmgMod);
-        rollSlow(dmgRoll);
-        printSlow(player->hitString);
+        playerHit(player, enemy);
     }
 
     // Dá um boost de dano e ataque mas coloca todas as habilidades em cooldown por 4 turnos.
@@ -343,6 +367,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
         player->atkMod += 3;
         player->dmgMod += 3;
 
+        // Coloca o cooldown de cada skill em no mínimo 4
         for (int i=0; i<player->skillNum; i++) {
             if(player->knownSkills[i].maxCooldown > 4) {
                 player->knownSkills[i].cooldown = player->knownSkills[i].maxCooldown;
@@ -352,7 +377,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
             }
         }
 
-        player->status[precStrkS] = 4;
+        player->status[btlTranceS] = 4;
     }
 
     /* ==== Criar o array de habilidades ==== */
@@ -925,14 +950,13 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
                 
                 break;           
             
-            case precStrkS:
-                if (player->status[precStrkS] == 1) {
+            case btlTranceS:
+                if (player->status[btlTranceS] == 1) {
                     player->atkMod -= 3;
                     player->dmgMod -= 3;
-                } 
+                }
 
-                if (player->status[precStrkS] > 0) player->status[precStrkS]--;
-                
+                if (player->status[btlTranceS] > 0) player->status[btlTranceS]--;
                 break;
 
             default:
@@ -1090,7 +1114,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
                 player->atkMod = 6;
                 player->atkNum = 1;
                 player->dmgDice = 6;
-                player->dmgDiceNum = 2;
+                player->dmgDiceNum = 0;
                 player->dmgMod = 5;
                 player->hpMax = 25;
                 player->magMod = -1;
@@ -1106,6 +1130,8 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
                 addSkill (player, parryAtk);
                 addSkill (player, scndWind);
                 addSkill (player, adrnlSurge);
+                addSkill (player, prcStrk);
+                addSkill (player, btlTrance);
                 
                 // Mensagens de ataque
                 strcpy(player->hitString, "\n\nA lamina do seu machado atinge o inimigo, que falha em se esquivar e recua com um grito.\n\n");

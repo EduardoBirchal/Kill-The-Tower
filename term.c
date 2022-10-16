@@ -14,7 +14,7 @@ void trueSleep(int ms) {
 
 // Lê o input em Linux e pega as setas do teclado em Windows. Dá pra fazer setas em Linux, mas precisa de ncurses e eu não tenho permissão de root pra instalar a API aqui no lab
 int getOption() {
-    #ifdef _WIN32
+    /*#ifdef _WIN32
         // No windows, quando aperta uma setinha, retorna primeiro ESC, depois [, depois uma letra
         char tecla = getch();
         if (tecla == '\033') { // Se o primeiro valor é ESC (apertou a seta)
@@ -25,13 +25,13 @@ int getOption() {
         else {
             return tecla; // Se não for seta, retorna a tecla apertada.
         }  
-    #else
+    #else*/
         int option;
         printf("\nEscolha uma opcao:\n> "); // Se não for, usa teclado.
         scanf("%i", &option);
         printf("\n");
         return option;
-    #endif 
+    //#endif 
 }
 
 // Imprime para apertar enter e não continua até o usuário apertar
