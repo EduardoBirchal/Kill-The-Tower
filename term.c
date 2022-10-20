@@ -1,3 +1,9 @@
+/**
+* @file: term
+* @brief: Funções gerais de terminal
+* @author: Eduardo Santos Birchal
+*/
+
 #include "gameFuncts.h"
 
 
@@ -70,13 +76,17 @@ void printSlow (char string[]) {
         printf("%c", string[i]);
         fflush(stdout); // Alguns sistemas operacionais colocam a string inteira num buffer e imprimem tudo de uma vez em vez de imprimir um char por vez
         if(string[i] != '\n') {
-            trueSleep(TEXT_SPEED); // Valor default = 25
+            #ifdef _WIN32
+                trueSleep(TEXT_SPEED/10); // O Windows imprime muito mais devagar que o linux, então eu diminui o tempo em 10
+            #else
+                trueSleep(TEXT_SPEED);
+            #endif
         }
     }
 }
 
 // Imprime o resultado de um dado devagar
-void rollSlow (int result) {
+void printRollResult (int result) {
     printSlow("...");
     fflush(stdout);
     trueSleep(800);

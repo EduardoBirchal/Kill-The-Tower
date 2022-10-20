@@ -1,3 +1,9 @@
+/**
+* @file: gameFuncts
+* @brief: Arquivo header de funções, defines e typedefs
+* @author: Eduardo Santos Birchal
+*/
+
 /* ==== Includes ==== */
 
 #include <stdio.h>
@@ -32,11 +38,11 @@
 #define MAX_DESC_ITEM 75
 
 #define NUM_CLASSES 4
-#define MAX_NARRATE 160
+#define MAX_NARRATE 200
 #define MAX_DESC_CLASS 160
 
 #define TAB "      "
-#define TEXT_SPEED 1
+#define TEXT_SPEED 15
 
 #define CONFIG_AMT 2
 
@@ -73,6 +79,12 @@ typedef struct enemy_s {
     int hpMax, hp, dmgDiceNum, dmgDice, dmgMod, atkMod, atkNum, armor, magMod;
     char name[MAX_NAME];
     int status[NUM_STATUSES];
+
+    int advantage;
+
+    char hitString[MAX_NARRATE];
+    char missString[MAX_NARRATE];
+    char critString[MAX_NARRATE];
 } enemyS;
 
 
@@ -106,7 +118,7 @@ typedef struct item_s { // Tá definido aqui porque depende do tipo sklFunct
     void printMana (int manaMax, int mana);
 
     // Conserta o HP pra não ficar negativo
-    int updateHp (playerS *player, enemyS *enemy);
+    int updateValues (playerS *player, enemyS *enemy);
 
     // Rola [num] dados de [size] lados
     int rollDice(int size, int num, int mod, int adv);
@@ -227,7 +239,7 @@ typedef struct item_s { // Tá definido aqui porque depende do tipo sklFunct
     void printSlow (char string[]);
 
     // Imprime o resultado de um dado devagar
-    void rollSlow (int result);
+    void printRollResult (int result);
 
     // Imprime uma margem
     void printBorder ();
@@ -309,3 +321,6 @@ playerS createPlayer();
 
 // Cria o inimigo, lendo de um arquivo
 enemyS createEnemy(int index);
+
+// Um ataque do inimigo
+int enemyAtk(playerS *player, enemyS *enemy);

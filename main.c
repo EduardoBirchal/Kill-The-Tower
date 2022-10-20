@@ -1,3 +1,9 @@
+/**
+* @file: main
+* @brief: Arquivo principal do jogo
+* @author: Eduardo Santos Birchal
+*/
+
 #include "gameFuncts.h"
 
 
@@ -16,10 +22,10 @@ int main(int argc, char** argv) {
     
 
     while (1) {
-        updateHp(&player, &enemy);
+        updateValues(&player, &enemy);
         updateStatus(&player, &enemy);
         updateCooldown(&player);
-        battleState = updateHp(&player, &enemy); // Faz o updateHp antes e depois de atualizar os status, pra nao mostrar HP negativo.
+        battleState = updateValues(&player, &enemy); // Faz o updateValues antes e depois de atualizar os status, pra nao mostrar HP nem mana negativo.
         if(battleState) {
             printInfo(player, enemy); // Se alguém morreu, imprime a tela pra mostrar quem foi.
             if (battleState == 1) {
@@ -31,12 +37,13 @@ int main(int argc, char** argv) {
             break;
         }
         if (turnPlayer(&player, &enemy)) {
-            free (player.inventory);
             break;
         }
+        enemyAtk(&player, &enemy);
         //turnEnemy(&player, &enemy);
     }
     printf("\n");
 
+    free (player.inventory);
     return EXIT_SUCCESS;
 }

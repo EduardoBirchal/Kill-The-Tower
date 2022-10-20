@@ -1,3 +1,9 @@
+/**
+* @file: combat
+* @brief: Funções que rodam durante o combate
+* @author: Eduardo Santos Birchal
+*/
+
 #include "gameFuncts.h"
 
 
@@ -100,22 +106,24 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
         printManaNum(manaMax, mana);
     }
 
+    // Coloca o número dentro de um máximo e um mínimo
+    int checkRange (int num, int min, int max) {
+        if (num > max) num = max;
+        if (num < min) num = min;
+
+        return num;
+    }
+
     // Conserta o HP pra não ficar negativo
-    int updateHp (playerS *player, enemyS *enemy) {
-        // Conserta HP do inimigo
-        if(enemy->hp < 0) enemy->hp = 0; 
-        if(enemy->hp > enemy->hpMax) enemy->hp = enemy->hpMax;
+    int updateValues (playerS *player, enemyS *enemy) {
+        enemy->hp = checkRange(enemy->hp, 0, enemy->hpMax); // Conserta HP do inimigo
+        player->hp = checkRange(player->hp, 0, player->hpMax); // Conserta HP do player
+        player->mana = checkRange(player->mana, 0, player->manaMax); // Conserta mana do player
 
-        // Conserta HP do player
-        if(player->hp < 0) player->hp = 0;
-        if(player->hp > player->hpMax) player->hp = player->hpMax;
-
-        // Conserta mana do player
-        if(player->mana < 0) player->mana = 0;
-        if(player->mana > player->manaMax) player->mana = player->manaMax;
-
-        if(enemy->hp == 0) return 1; // Retorna >0 se alguem morreu
+        // Retorna >0 se alguem morreu
+        if(enemy->hp == 0) return 1; 
         if(player->hp == 0) return 2;
+
         return 0;
     }
 
@@ -156,7 +164,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
             printSlow("Rolagem de dano (Golpe Radiante) - \033[36mrolando ");
             printf("%id%i", 2, 6);
-            rollSlow(rdntRoll);
+            printRollResult(rdntRoll);
 
             enemy->hp -= rdntRoll;
 
@@ -172,7 +180,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
         // Imprime as coisas
         printSlow("Rolagem de dano - \033[36mrolando ");
         printf("%id%i%+i", player->dmgDiceNum*2, player->dmgDice, player->dmgMod*2);
-        rollSlow(dmgRoll);
+        printRollResult(dmgRoll);
         printSlow(player->critString);
 
         // Se o player usou Radiant Smite, dá o dano extra
@@ -190,7 +198,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
         // Imprime as coisas
         printSlow("Rolagem de dano - \033[36mrolando ");
         printf("%id%i%+i", player->dmgDiceNum, player->dmgDice, player->dmgMod);
-        rollSlow(dmgRoll);
+        printRollResult(dmgRoll);
         printSlow(player->hitString);
 
         // Se o player usou Radiant Smite, dá o dano extra
@@ -208,7 +216,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
         // Imprime a rolagem
         printSlow("Rolagem de ataque - \033[36mrolando ");
         printf("1d20%+i", player->atkMod);
-        rollSlow(atkRoll);
+        printRollResult(atkRoll);
         
         // Se for 17 natural pra cima, é um acerto crítico
         if(atkRoll-player->atkMod > 17) {
@@ -244,7 +252,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
         printSlow("Rolagem de cura - \033[36mrolando ");
         printf("%id%i%+i", healDieNum, healDie, healMod);
-        rollSlow(healRoll);
+        printRollResult(healRoll);
         printSlow(str);
 
         player->hp += healRoll;
@@ -460,15 +468,18 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
         printf("\nDigite 0 para mostrar/parar de mostrar descricoes.\n\n");
         for(i=0; i<player->skillNum; i++) {
+            // Se a skill não está em cooldown, imprime ela normalmente
             if(player->knownSkills[i].cooldown == 0) {
                 printf("\033[33m%i:\033[0m ", i+1);
                 fputs(player->knownSkills[i].name, stdout);
             }
+            // Se ela estiver em cooldown, impime ela em cinza + o tempo de cooldown
             else {
                 printf("\033[90m%i: ", i+1);
                 fputs(player->knownSkills[i].name, stdout);
                 printf(" (%i turnos para recarregar)\033[0m", player->knownSkills[i].cooldown);
             }
+            // Imprime a descrição, se showDesc for verdadeiro
             if(showDesc) {
                 printf("\033[90m - %s\033[0m", player->knownSkills[i].desc);
             }
@@ -552,7 +563,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
         printSlow("Rolagem de ataque magico - \033[36mrolando ");
         printf("1d20%+i", player->magMod);
-        rollSlow(atkRoll);
+        printRollResult(atkRoll);
 
         return atkRoll;
     }
@@ -567,7 +578,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
             dmgRoll = rollDice(dmgDie, dmgDieNum, player->magMod, 0);
             printSlow("Rolagem de dano - \033[36mrolando ");
             printf("%id%i%+i", dmgDieNum, dmgDie, player->magMod);
-            rollSlow(dmgRoll);
+            printRollResult(dmgRoll);
             printSlow(strHit);
             enemy->hp -= dmgRoll;
 
@@ -638,7 +649,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
         printSlow("Rolagem de dano - \033[36mrolando ");
         printf("%id%i%+i", 3, 4, 1);
-        rollSlow(dmgRoll);
+        printRollResult(dmgRoll);
         printSlow("\n\nTres dardos de energia se materializam, se curvando pelo ar e liberando pulsos de forca arcana ao atingirem o alvo.\n\n");
         enemy->hp -= dmgRoll;
 
@@ -813,10 +824,11 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
         printf("\nDigite 0 para mostrar/parar de mostrar descricoes.\n\n");
         for(i=0; i<player->spellNum; i++) {
-            printf("\033[33m%i:\033[0m ", i+1);
-            fputs(player->knownSpells[i].name, stdout);
-            printf(" \033[94m(%i mana)\033[0m", player->knownSpells[i].cost);
+            printf("\033[33m%i:\033[0m ", i+1); // Número
+            fputs(player->knownSpells[i].name, stdout); // Nome
+            printf(" \033[94m(%i mana)\033[0m", player->knownSpells[i].cost); // Mana
 
+            // Imprime a descrição se showDesc é verdadeiro
             if(showDesc) {
                 printf("\033[90m - %s\033[0m", player->knownSpells[i].desc);
             }
@@ -933,7 +945,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
                     int dmgRoll = rollDice(6, 1, player->magMod, 0);
                     printSlow("Rolagem de dano - \033[36mrolando ");
                     printf("%id%i%+i", 1, 6, player->magMod);
-                    rollSlow(dmgRoll);
+                    printRollResult(dmgRoll);
                     enemy->hp -= dmgRoll;
                     printf("\n\n");
                 }
@@ -1114,7 +1126,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
                 player->atkMod = 6;
                 player->atkNum = 1;
                 player->dmgDice = 6;
-                player->dmgDiceNum = 0;
+                player->dmgDiceNum = 2;
                 player->dmgMod = 5;
                 player->hpMax = 25;
                 player->magMod = -1;
@@ -1132,6 +1144,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
                 addSkill (player, adrnlSurge);
                 addSkill (player, prcStrk);
                 addSkill (player, btlTrance);
+                addSkill (player, selfDmg);
                 
                 // Mensagens de ataque
                 strcpy(player->hitString, "\n\nA lamina do seu machado atinge o inimigo, que falha em se esquivar e recua com um grito.\n\n");

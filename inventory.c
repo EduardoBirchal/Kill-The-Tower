@@ -1,3 +1,9 @@
+/**
+* @file: inventory
+* @brief: Funções de controle do inventário
+* @author: Eduardo Santos Birchal
+*/
+
 #include "gameFuncts.h"
 
 

@@ -1,9 +1,21 @@
+/**
+* @file: enemy
+* @brief: Funções de controle do inimigo
+* @author: Eduardo Santos Birchal
+*/
 #include "gameFuncts.h"
 
+// Pega uma string de um arquivo
+void getStringFromFile(FILE* file, int max, char* string) {
+    fgets(string, max, file);
+    string[strcspn(string, "\n")] = 0;
+}
+
+// Cria o inimigo
 enemyS createEnemy(int index) {
     FILE *file;
-    int linesDetected=0;
-    char stringScan[6];
+    int linesDetected = 0; // linesDetected guarda o número de linhas puladas até chegar no inimigo certo no arquivo
+    char stringScan[6]; // A string que foi lida para ser comparada
 
     enemyS enemy;
 
@@ -28,25 +40,107 @@ enemyS createEnemy(int index) {
         }
     }
 
-    // Pegando nome
-    fgets(enemy.name, MAX_NAME, file);
-    enemy.name[strcspn(enemy.name, "\n")] = 0; // Deleta o \n do nome.
+    getStringFromFile(file, MAX_NAME, enemy.name);          // Pegando nome
 
     // Pegando outros atributos
-    fscanf(file, "%*s %i", &(enemy.hpMax));
-    fscanf(file, "%*s %i", &(enemy.dmgDiceNum));
-    fscanf(file, "%*s %i", &(enemy.dmgDice));
-    fscanf(file, "%*s %i", &(enemy.dmgMod));
-    fscanf(file, "%*s %i", &(enemy.atkMod));
-    fscanf(file, "%*s %i", &(enemy.atkNum));
-    fscanf(file, "%*s %i", &(enemy.armor));
-    fscanf(file, "%*s %i", &(enemy.magMod));
-    
+    fscanf(file, "%*s %i", &(enemy.hpMax));                 // Máximo de HP
+    fscanf(file, "%*s %i", &(enemy.dmgDiceNum));            // Número de dados de dano
+    fscanf(file, "%*s %i", &(enemy.dmgDice));               // Tamanho dos dados de dano
+    fscanf(file, "%*s %i", &(enemy.dmgMod));                // Modificador de dano
+    fscanf(file, "%*s %i", &(enemy.atkMod));                // Modificador de ataque
+    fscanf(file, "%*s %i", &(enemy.atkNum));                // Número de ataques por turno
+    fscanf(file, "%*s %i", &(enemy.armor));                 // Armadura
+    fscanf(file, "%*s %i", &(enemy.magMod));                // Modificador de magia
+
+    // Pegando strings de ataque
+    fscanf(file, "%*c");
+    getStringFromFile(file, MAX_NARRATE, enemy.hitString);  // String de acerto
+    getStringFromFile(file, MAX_NARRATE, enemy.missString); // String de falha
+    getStringFromFile(file, MAX_NARRATE, enemy.critString); // String de crítico
+
+    // Fechando o arquivo
     fclose(file);
 
-    for(int i=0; i<NUM_STATUSES; i++) { // Eu vou ser honesto, o jogo nunca acessa o array de status do inimigo, mas por algum motivo se eu não fizer esse loop, o programa dá segfault.
-        enemy.status[i] = false;        // Eu não tenho ideia do porque isso aconteceu e porque esse loop conserta, mas tá aí.
+    // Inicializa o vetor de status do inimigo
+    for(int i=0; i<NUM_STATUSES; i++) {
+        enemy.status[i] = false;     
     }
+    
+    enemy.advantage = 0;
+    enemy.hp = enemy.hpMax;
 
     return enemy;
+}
+
+// Acerto crítico do inimigo
+int enemyCrit(playerS *player, enemyS *enemy) {
+    // Rola o dado
+    int dmgRoll = rollDice(enemy->dmgDice, enemy->dmgDiceNum*2, enemy->dmgMod*2, 0);
+
+    // Imprime as coisas
+    printSlow("Rolagem de dano - \033[36mrolando ");
+    printf("%id%i%+i", enemy->dmgDiceNum*2, enemy->dmgDice, enemy->dmgMod*2);
+    printRollResult(dmgRoll);
+    printf("\n\n");
+    printSlow(enemy->critString);
+    printf("\n\n");
+
+    // Dá o dano
+    player->hp -= dmgRoll;
+}
+
+// Acerto não-crítico do inimigo
+int enemyHit(playerS *player, enemyS *enemy) {
+    // Rola o dado
+    int dmgRoll = rollDice(enemy->dmgDice, enemy->dmgDiceNum, enemy->dmgMod, 0);
+
+    // Imprime as coisas
+    printSlow("Rolagem de dano - \033[36mrolando ");
+    printf("%id%i%+i", enemy->dmgDiceNum, enemy->dmgDice, enemy->dmgMod);
+    printRollResult(dmgRoll);
+    printf("\n\n");
+    printSlow(enemy->hitString);
+    printf("\n\n");
+
+    // Dá o dano
+    player->hp -= dmgRoll;
+}
+
+// Um ataque do inimigo
+int enemyAtk(playerS *player, enemyS *enemy) {
+    printInfo(*player, *enemy);
+    // Rola o ataque
+    int atkRoll = rollDice(20, 1, enemy->atkMod, enemy->advantage);
+
+    // Imprime a rolagem
+    printSlow("Rolagem de ataque do inimigo - \033[36mrolando ");
+    printf("1d20%+i", enemy->atkMod);
+    printRollResult(atkRoll);
+    
+    // Se for 17 natural pra cima, é um acerto crítico
+    if(atkRoll-enemy->atkMod > 17) {
+        printSlow(" \033[33;4mAcerto Critico!\033[0m Dados de dano dobrados pra esse ataque.\n\n");
+
+        enemyCrit(player, enemy);
+        requestEnter();
+        return 2;
+    } 
+    // Se for acima da armadura do player, acerta
+    else if (atkRoll >= player->armor) { 
+        printSlow(" \033[33;4mAcerto!\033[0m\n\n");
+        
+        enemyHit(player, enemy);
+        requestEnter();
+        return 1;
+    }
+    // Senão, erra
+    else {
+        printSlow(" \033[33;4mFalha!\033[0m\n\n");
+
+        printSlow(enemy->missString);
+        printf("\n\n");
+
+        requestEnter();
+        return 0;
+    }
 }
