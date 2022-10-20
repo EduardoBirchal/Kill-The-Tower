@@ -16,7 +16,7 @@ int itemDmg (playerS* player, enemyS *enemy, int dmgDie, int dmgDieNum, int dmgM
 
     printSlow("Rolagem de dano - \033[36mrolando ");
     printf("%id%i%+i", dmgDieNum, dmgDie, dmgMod);
-    rollSlow(dmgRoll);
+    printRollResult(dmgRoll);
     printSlow(strHit);
     enemy->hp -= dmgRoll;
 }
@@ -27,7 +27,7 @@ int itemHeal (playerS* player, enemyS *enemy, int healDie, int healDieNum, int h
 
     printSlow("Rolagem de cura - \033[36mrolando ");
     printf("%id%i%+i", healDieNum, healDie, healMod);
-    rollSlow(healRoll);
+    printRollResult(healRoll);
     printSlow(str);
 
     player->hp += healRoll;

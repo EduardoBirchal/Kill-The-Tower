@@ -108,7 +108,6 @@ int enemyHit(playerS *player, enemyS *enemy) {
 
 // Um ataque do inimigo
 int enemyAtk(playerS *player, enemyS *enemy) {
-    printInfo(*player, *enemy);
     // Rola o ataque
     int atkRoll = rollDice(20, 1, enemy->atkMod, enemy->advantage);
 
@@ -124,7 +123,7 @@ int enemyAtk(playerS *player, enemyS *enemy) {
         enemyCrit(player, enemy);
         requestEnter();
         return 2;
-    } 
+    }
     // Se for acima da armadura do player, acerta
     else if (atkRoll >= player->armor) { 
         printSlow(" \033[33;4mAcerto!\033[0m\n\n");
@@ -141,6 +140,41 @@ int enemyAtk(playerS *player, enemyS *enemy) {
         printf("\n\n");
 
         requestEnter();
+        return 0;
+    }
+}
+
+
+
+// Rola o ataque pra um feitiço.
+int enemySkillAtk (enemyS *enemy) {
+    int atkRoll = rollDice(20, 1, enemy->magMod, enemy->advantage);
+
+    printSlow("Rolagem de ataque magico - \033[36mrolando ");
+    printf("1d20%+i", enemy->magMod);
+    printRollResult(atkRoll);
+
+    return atkRoll;
+}
+
+// Um feitiço de dano genérico. Retorna se acertou ou errou, pra efeitos adicionais.
+int enemySkillDmg (playerS* player, enemyS *enemy, int dmgDie, int dmgDieNum, char* strHit, char* strMiss) {
+    int dmgRoll = 0;
+    int atkRoll = enemySkillAtk (enemy);
+
+    if (atkRoll >= enemy->armor) { // Se acertou, dá dano e imprime 'strHit'.
+        printSlow(" \033[33;4mAcerto!\033[0m\n\n");
+        dmgRoll = rollDice(dmgDie, dmgDieNum, enemy->magMod, 0);
+        printSlow("Rolagem de dano - \033[36mrolando ");
+        printf("%id%i%+i", dmgDieNum, dmgDie, enemy->magMod);
+        printRollResult(dmgRoll);
+        printSlow(strHit);
+        enemy->hp -= dmgRoll;
+
+        return 1;
+    }
+    else { // Senão, imprime 'strMiss'.
+        printSlow(strMiss);
         return 0;
     }
 }

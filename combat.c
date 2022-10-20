@@ -1013,7 +1013,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
                 for(int i=0; i<player->atkNum; i++) {
                     playerAtk(player, enemy);
                 }
-                requestEnter();
+                printBorder();
                 return 0;
                 break;
 
@@ -1023,7 +1023,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
                 if (playerSkl(player, enemy)) {
                     return 1;
                 }
-                requestEnter();
+                printBorder();
                 return 0;
                 break;
 
@@ -1033,7 +1033,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
                 if (playerMag(player, enemy)) {
                     return 1;
                 }
-                requestEnter();
+                printBorder();
                 return 0;
                 break;
 
@@ -1042,11 +1042,11 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
                 if (playerInv(player, enemy)) {
                     return 1;
                 }
-                requestEnter();
+                printBorder();
                 return 0;
                 break;
 
-            // Cancelar
+            // Fechar Jogo
             case 5: 
                 return 2;
                 break;
