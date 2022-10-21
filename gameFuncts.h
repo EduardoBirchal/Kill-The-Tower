@@ -76,7 +76,7 @@ typedef struct player_s {
 } playerS;
 
 typedef struct enemy_s {
-    int hpMax, hp, dmgDiceNum, dmgDice, dmgMod, atkMod, atkNum, armor, magMod;
+    int hpMax, hp, dmgDiceNum, dmgDice, dmgMod, atkMod, atkNum, armor, skillMod;
     char name[MAX_NAME];
     int status[NUM_STATUSES];
 
@@ -96,8 +96,8 @@ enum classes {warrior, wizard, warlock, paladin};
 enum spells {fireBlt, sonicBlst, mageArm, mageShld, magicMsl, blessWpn, rdntSmite, voidHunger, yogSothothSight, cthulhuFire, azathothDream, srngLight};
 enum skills {doubleStrk, tripAtk, selfDmg, parryAtk, scndWind, dvnGuidance, bldOffering, adrnlSurge, prcStrk, btlTrance};
 
-typedef int (*sklFunct) (playerS *player, enemyS *enemy); // define int (*coisa) (playerS *player, enemyS *enemy) como só sklFunct. É um ponteiro de função.
 typedef int bool;
+typedef bool (*sklFunct) (playerS *player, enemyS *enemy); // define bool (*coisa) (playerS *player, enemyS *enemy) como só sklFunct. É um ponteiro de função.
 
 typedef struct item_s { // Tá definido aqui porque depende do tipo sklFunct
     sklFunct funct;
@@ -240,6 +240,9 @@ typedef struct item_s { // Tá definido aqui porque depende do tipo sklFunct
 
     // Imprime o resultado de um dado devagar
     void printRollResult (int result);
+
+    // Imprime o resultado de um dado de dano, caso não tenha narração pro ataque
+    void printDamageResult (int result);
 
     // Imprime uma margem
     void printBorder ();

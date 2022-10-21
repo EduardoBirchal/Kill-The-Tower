@@ -262,15 +262,15 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
     /* ==== Lista de habilidades ==== */
 
     // Ataca duas vezes.
-    int doubleStrike (playerS* player, enemyS *enemy) {
+    bool doubleStrike (playerS* player, enemyS *enemy) {
         playerAtk(player, enemy);
         playerAtk(player, enemy);
         
-        return 1;
+        return true;
     }
 
     // Ataca e ganha vantagem nos ataques no turno seguinte.
-    int tripAttack (playerS* player, enemyS *enemy) {
+    bool tripAttack (playerS* player, enemyS *enemy) {
         if (playerAtk(player, enemy)) {
             player->status[tripAtkS] = true;
             player->advantage++;
@@ -278,19 +278,19 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
             printSlow("O seu ataque faz o inimigo cair no chao, vulneravel. \033[33mVantagem +1!\033[0m\n\n");
         }
 
-        return 1;
+        return true;
     }
 
     // Dá dano no player, pra debug.
-    int debugSelfDmg (playerS* player, enemyS *enemy) {
+    bool debugSelfDmg (playerS* player, enemyS *enemy) {
         player->hp -= 10;
         printSlow("Ai.\n\n");
 
-        return 1;
+        return true;
     }
 
     // Ataca e ganha um bônus de armadura no turno seguinte.
-    int parryAttack (playerS* player, enemyS *enemy) {
+    bool parryAttack (playerS* player, enemyS *enemy) {
         playerAtk(player, enemy);
 
         player->status[parryAtkS] = 2;
@@ -298,19 +298,19 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
         printSlow("Voce posiciona sua arma para bloquear o proximo ataque. \033[33mArmadura +3!\033[0m\n\n");
 
-        return 1;
+        return true;
     }
 
     // Recupera HP.
-    int secondWind (playerS* player, enemyS *enemy) {
+    bool secondWind (playerS* player, enemyS *enemy) {
         itemHeal(player, enemy, 6, 1, 2,
         "Voce recua e respira, recuperando seu folego e se sentindo descansado.\n\n");
 
-        return 1;
+        return true;
     }
 
     // Ataca com um bônus de ataque e dano.
-    int divineGuidance (playerS* player, enemyS *enemy) {
+    bool divineGuidance (playerS* player, enemyS *enemy) {
         player->atkMod += 5;
         player->dmgMod += 5;
         printSlow("Voce se concentra na sua divindade, deixando conhecimento divino guiar seu ataque. \033[33mAtaque e dano +5!\033[0m\n\n");
@@ -320,11 +320,11 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
         player->atkMod -= 5;
         player->dmgMod -= 5;
 
-        return 1;
+        return true;
     }
 
     // Recebe dano e recupera mana.
-    int bloodOffering (playerS* player, enemyS *enemy) {
+    bool bloodOffering (playerS* player, enemyS *enemy) {
         int sacrifice;  
 
         printf("\nQuanto de HP sacrificar? (1 de HP recupera 3 Mana)\n\n> ");
@@ -335,11 +335,11 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
         printSlow("Voce corta o seu braco, deixando sangue sair. O sangue evapora ao tocar o chao, e voce sente energia magica fluindo para suas reservas.\n\n");
     
-        return 1;
+        return true;
     }
 
     // Toma dano e recupera os cooldowns de tudo.
-    int adrenalineSurge (playerS *player, enemyS *enemy) {
+    bool adrenalineSurge (playerS *player, enemyS *enemy) {
         printSlow("Apesar de estar exausto, voce obriga seus musculos a continuarem por pura forca de vontade.\n\n");
 
         // Repete o loop pra cada skill que o player tem
@@ -360,16 +360,20 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
                 break;
             }
         }
+
+        return true;
     }
 
     // Acerta o ataque sem precisar rolar.
-    int precisionStrike (playerS *player, enemyS *enemy) {
+    bool precisionStrike (playerS *player, enemyS *enemy) {
         printSlow("Com um movimento gracioso, voce se posiciona para aproveitar uma brecha na defesa do alvo.\n");
         playerHit(player, enemy);
+
+        return true;
     }
 
     // Dá um boost de dano e ataque mas coloca todas as habilidades em cooldown por 4 turnos.
-    int battleTrance (playerS *player, enemyS *enemy) {
+    bool battleTrance (playerS *player, enemyS *enemy) {
         printSlow("Esquecendo toda a tecnica, voce confia o controle do seu corpo inteiramente aos seus instintos.\n");
 
         player->atkMod += 3;
@@ -386,6 +390,8 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
         }
 
         player->status[btlTranceS] = 4;
+
+        return true;
     }
 
     /* ==== Criar o array de habilidades ==== */
@@ -462,6 +468,16 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
     /* ==== Imprimir menu de habilidades ==== */
 
+    bool useSkill(playerS *player, enemyS *enemy, int option) {
+        if(player->knownSkills[option-1].funct (player, enemy)) {
+            player->knownSkills[option-1].cooldown = player->knownSkills[option-1].maxCooldown + 1; // Coloca o cooldown no máximo ao usar a habilidade.
+            return true;  // Se ela retornar true, acaba o loop. Habilidades retornam 0 se elas não funcionam 
+        }                 // (Exemplo: usa Rasteira quando já está em efeito)
+        else {
+            return false;
+        }
+    }
+
     // Imprime o menu de skills
     void printSkills(playerS *player) {
         int option = 0, i = 0;
@@ -502,11 +518,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
             if(option>0 && option<=player->skillNum) {    // Se a opção é uma habilidade, usa ela.
                 if(player->knownSkills[option-1].cooldown == 0) {
                     printInfo(*player, *enemy);
-
-                    if(player->knownSkills[option-1].funct (player, enemy)) {
-                        player->knownSkills[option-1].cooldown = player->knownSkills[option-1].maxCooldown + 1; // Coloca o cooldown no máximo ao usar a habilidade.
-                        break;  // Se ele retornar 1, acaba o loop. Habilidades retornam 0 se elas não funcionam 
-                    }           // (Exemplo: usa Rasteira quando já está em efeito)
+                    if (useSkill(player, enemy, option)) break;
                 }                                                     
                 else {
                     printf("Essa habilidade precisa recarregar!\n"); // Se está em cooldown, não usa a habilidade
@@ -594,16 +606,16 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
     /* ==== Lista de feitiços ==== */
 
     // Um feitiço simples, que dá uma boa quantidade de dano.
-    int fireBolt (playerS* player, enemyS *enemy) {
+    bool fireBolt (playerS* player, enemyS *enemy) {
         spellDmg (player, enemy, 8, 2,
         "\n\nO dardo de fogo acerta a criatura, estalando e criando um estouro de chamas.\n\n", 
         " \033[33;4mFalha...\033[0m\n\nO alvo se abaixa para fora do caminho do projetil, que dispara por cima dele e se dissipa numa nuvem de brasas.\n\n");
 
-        return 1;
+        return true;
     }
 
     // Dá dano médio e diminui armadura.
-    int sonicBlast (playerS* player, enemyS *enemy) {
+    bool sonicBlast (playerS* player, enemyS *enemy) {
         int result = spellDmg (player, enemy, 8, 1,
         "\n\nO pulso sonico colide com o alvo, com um impacto pesado. O som ressoante rasga um buraco em sua armadura de couro. \033[33mArmadura do inimigo -1!\033[0m\n\n", 
         " \033[33;4mFalha...\033[0m\n\nO feixe atinge o escudo de bronze da criatura, estourando num zumbido estrondoso.\n\n");
@@ -612,39 +624,39 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
             enemy->armor--;
         }
 
-        return 1;
+        return true;
     }
 
     // Aumenta a armadura do player. Não acumula.
-    int mageArmor (playerS *player, enemyS *enemy) {
+    bool mageArmor (playerS *player, enemyS *enemy) {
         if(player->status[mageArmS]) {
             printf("Esse feitico ja esta em efeito!\n\n");
-            return 0;
+            return false;
         } else {
             player->status[mageArmS] = true;
             player->armor += 2;
             printSlow("Voce conjura uma armadura translucida de energia protetiva em volta de si. \033[33mArmadura +2!\033[0m\n\n");
         }
 
-        return 1;
+        return true;
     }
 
     // Aumenta muito a armadura do player, por 1 turno. Não acumula.
-    int mageShield (playerS *player, enemyS *enemy) {
+    bool mageShield (playerS *player, enemyS *enemy) {
         if(player->status[mageShldS]) {
             printf("Esse feitico ja esta em efeito!\n\n");
-            return 0;
+            return false;
         } else {
             player->status[mageShldS] = 2;
             player->armor += 5;
             printSlow("Com uma runa protetora, voce conjura um escudo flutuante de energia arcana. \033[33mArmadura +5!\033[0m\n\n");
         }
 
-        return 1;
+        return true;
     }
 
     // Dá dano baixo e acerta sempre, sem precisar rolar ataque.
-    int magicMissile (playerS *player, enemyS *enemy) {
+    bool magicMissile (playerS *player, enemyS *enemy) {
         int dmgRoll = rollDice(4, 3, 1, 0);
 
         printSlow("Rolagem de dano - \033[36mrolando ");
@@ -653,27 +665,27 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
         printSlow("\n\nTres dardos de energia se materializam, se curvando pelo ar e liberando pulsos de forca arcana ao atingirem o alvo.\n\n");
         enemy->hp -= dmgRoll;
 
-        return 1;
+        return true;
     }
 
     // Aumenta o dano da arma permanentemente.
-    int blessWeapon (playerS *player, enemyS *enemy) {
+    bool blessWeapon (playerS *player, enemyS *enemy) {
         player->dmgMod += 2;
         printSlow("Com uma oracao voce abencoa sua arma, manipulando as forcas do destino para favorecer sua lamina. \033[33mDano +2!\033[0m\n\n");
 
-        return 1;
+        return true;
     }
 
     // Amplifica o dano do seu próximo ataque.
-    int radiantSmite (playerS *player, enemyS *enemy) {
+    bool radiantSmite (playerS *player, enemyS *enemy) {
         player->status[rdntSmiteS] = true;
         printSlow("Voce se concentra e canaliza as energias da sua divindade. Seu corpo comeca a emitir centelhas de poder divino, que voce sente fluir pelas suas veias. \033[33mDano do proximo ataque +2d6!\033[0m\n\n");
 
-        return 1;
+        return true;
     }
 
     // Causa dano contínuo no inimigo até o player castar um feitiço
-    int hungerOfTheVoid (playerS *player, enemyS *enemy) {
+    bool hungerOfTheVoid (playerS *player, enemyS *enemy) {
         if(player->status[hungerOfTheVoidS]) {
             printf("Esse feitico ja esta em efeito!\n\n");
             return 0;
@@ -683,11 +695,11 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
             player->status[hungerOfTheVoidS] = true;
         }
 
-        return 1;
+        return true;
     }
 
     // Diminui o custo dos feitiços do player.
-    int sightOfYogSothoth (playerS *player, enemyS *enemy) {
+    bool sightOfYogSothoth (playerS *player, enemyS *enemy) {
         printSlow("Por um instante voce consegue ver com olhos transcendentes, entendendo um pedaco da natureza do mundo e aprofundando a sua comunhao com os Grandes Ancestrais. \033[33mCusto dos feiticos -1!\033[0m\n\n");
 
         for (int i=0; i<player->spellNum; i++) {
@@ -696,20 +708,20 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
             }
         }
 
-        return 1;
+        return true;
     }
 
     // Causa dano alto.
-    int fireOfCthulhu (playerS *player, enemyS *enemy) {
+    bool fireOfCthulhu (playerS *player, enemyS *enemy) {
         spellDmg (player, enemy, 8, 3,
         "\n\nSeus olhos se enchem de escuridao, liberando um cone de fogo e trevas que envolve o inimigo por completo, queimando-o com fogo necrotico.\n\n", 
         " \033[33;4mFalha...\033[0m\n\nA criatura bloqueia o raio de chamas sombrias com seu escudo, e o fogo produz um cheiro forte de enxofre.\n\n");
 
-        return 1;
+        return true;
     }
 
     // Diminui o dano do inimigo.
-    int dreamOfAzathoth (playerS *player, enemyS *enemy) {
+    bool dreamOfAzathoth (playerS *player, enemyS *enemy) {
         if(!player->status[azathothDreamS]) {
             player->status[azathothDreamS] = true;
             printSlow("Voce cria uma conexao entre a mente do inimigo e os sonhos do Grande Ancestral Azathoth, aflingindo-o com visoes perturbadoras e tornando dificil para a criatura discernir entre realidade e sonho. \033[33mDano do inimigo -");
@@ -717,26 +729,26 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
             printSlow("!\033[0m\n\n");
 
             enemy->dmgMod -= player->magMod;
-            return 1;
+            return true;
         }
         else {
             printf("Esse feitico ja esta em efeito!\n\n");
-            return 0;
+            return false;
         }
 
     }
 
     // Causa dano baixo constante.
-    int searingLight (playerS *player, enemyS *enemy) {
+    bool searingLight (playerS *player, enemyS *enemy) {
         if(!player->status[searingLightS]) {
             player->status[searingLightS] = true;
             printSlow("Voce invoca a furia de sua divindade contra o inimigo, e um feixe de radiancia divina desce dos ceus sobre a criatura.\n\n");
 
-            return 1;
+            return true;
         }
         else {
             printf("Esse feitico ja esta em efeito!\n\n");
-            return 0;
+            return false;
         }
     }
 
@@ -819,6 +831,26 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
     /* ==== Imprimir menu de feitiços ==== */
 
+    bool castSpell(playerS *player, enemyS *enemy, int option) {
+        if(player->mana >= player->knownSpells[option-1].cost) {
+            printInfo(*player, *enemy);
+
+            if (player->status[hungerOfTheVoidS]) { // Se o player estava se concentrando em H. of Hadar, quebra a concentração.
+                player->status[hungerOfTheVoidS] = false;
+                printSlow("Voce se concentra em outro feitico, e o portal para o vacuo fecha.\n");
+            }
+
+            if(player->knownSpells[option-1].funct (player, enemy)) {
+                player->mana -= player->knownSpells[option-1].cost;
+                return true;  // Se o feitiço retornar true, retacaba o loop. Feitiços retornam 0 se eles não funcionam 
+            }                 // (Exemplo: conjura Armadura Arcana quando ela já está em efeito)
+        }                                                     
+        else {
+            printf("Voce nao tem mana o suficiente para usar esse feitico!\n"); // Se não tem mana suficiente, não usa o feitiço
+            return false;
+        }
+    }
+
     void printSpells(playerS *player) {
         int option = 0, i = 0;
 
@@ -847,22 +879,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
             printf("\n");
 
             if(option>0 && option<=player->spellNum) {    // Se a opção é um feitiço, conjura ele.
-                if(player->mana >= player->knownSpells[option-1].cost) {
-                    printInfo(*player, *enemy);
-
-                    if (player->status[hungerOfTheVoidS]) { // Se o player estava se concentrando em H. of Hadar, quebra a concentração.
-                        player->status[hungerOfTheVoidS] = false;
-                        printSlow("Voce se concentra em outro feitico, e o portal para o vacuo fecha.\n");
-                    }
-
-                    if(player->knownSpells[option-1].funct (player, enemy)) {
-                        player->mana -= player->knownSpells[option-1].cost;
-                        break;  // Se ele retornar 1, acaba o loop. Feitiços retornam 0 se eles não funcionam 
-                    }           // (Exemplo: conjura Armadura Arcana quando ela já está em efeito)
-                }                                                     
-                else {
-                    printf("Voce nao tem mana o suficiente para usar esse feitico!\n"); // Se não tem mana suficiente, não usa o feitiço
-                }
+                if (castSpell(player, enemy, option)) break;
             }
             else if(option==player->spellNum+1) {  
                 return 1; // Se a opção for cancelar, volta pro menu
@@ -1144,7 +1161,6 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
                 addSkill (player, adrnlSurge);
                 addSkill (player, prcStrk);
                 addSkill (player, btlTrance);
-                addSkill (player, selfDmg);
                 
                 // Mensagens de ataque
                 strcpy(player->hitString, "\n\nA lamina do seu machado atinge o inimigo, que falha em se esquivar e recua com um grito.\n\n");

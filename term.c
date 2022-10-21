@@ -95,9 +95,20 @@ void printRollResult (int result) {
     trueSleep(150);
 }
 
+// Imprime o resultado de um dado de dano, caso não tenha narração pro ataque
+void printDamageResult (int result) {
+    printSlow("...");
+    fflush(stdout);
+    trueSleep(800);
+    printf(" %i\033[0m ", result);
+    printSlow("de dano.");
+    fflush(stdout);
+    trueSleep(150);
+}
+
 // Imprime uma margem
 void printBorder () {
-    printf("\033[93m ");
+    printf("\033[93m");
     for(int i=0; i<BORDER_LEN; i++) { // Imprime "-" até chegar no BORDER_LEN
         printf("-");
     }
