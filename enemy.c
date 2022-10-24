@@ -6,16 +6,18 @@
 #include "gameFuncts.h"
 
 
-/* ==== Typedefs ==== */
+/* ==== Typedefs e Defines ==== */
+
+#define NUM_ENEMY_SKILLS 3
 
 typedef struct enemySkill_s {
     sklFunct funct; // sklFunct é um ponteiro de função. Esse tipo é usado para feitiços, habilidades e itens.
     char name[MAX_ENEMY_SKILL];
 
     int maxCooldown;
-    int cooldown;
-
     bool signature; // Se uma skill é signature, ela é específica ao inimigo e tem uma descrição narrativa.
+
+    int cooldown;
 } enemySkillS;
 
 
@@ -56,22 +58,22 @@ typedef struct enemySkill_s {
             }
         }
 
-        getStringFromFile(file, MAX_NAME, enemy.name);          // Pegando nome
-
-        // Pegando outros atributos
-        fscanf(file, "%*s %i", &(enemy.hpMax));                 // Máximo de HP
-        fscanf(file, "%*s %i", &(enemy.dmgDiceNum));            // Número de dados de dano
-        fscanf(file, "%*s %i", &(enemy.dmgDice));               // Tamanho dos dados de dano
-        fscanf(file, "%*s %i", &(enemy.dmgMod));                // Modificador de dano
-        fscanf(file, "%*s %i", &(enemy.atkMod));                // Modificador de ataque
-        fscanf(file, "%*s %i", &(enemy.atkNum));                // Número de ataques por turno
-        fscanf(file, "%*s %i", &(enemy.armor));                 // Armadura
-        fscanf(file, "%*s %i", &(enemy.skillMod));              // Modificador de habilidade
-
-        // Pegando strings de ataque
-        fgetc(file);                                            // Pega um \n pra não atrapalhar os fgets
-
-        getStringFromFile(file, MAX_ENEMY_SKILL, enemy.atkName);    // Nome do ataque básico
+        getStringFromFile(file, MAX_NAME, enemy.name);           // Pegando nome
+ 
+        // Pegando outros atributos 
+        fscanf(file, "%*s %i", &(enemy.hpMax));                  // Máximo de HP
+        fscanf(file, "%*s %i", &(enemy.dmgDiceNum));             // Número de dados de dano
+        fscanf(file, "%*s %i", &(enemy.dmgDice));                // Tamanho dos dados de dano
+        fscanf(file, "%*s %i", &(enemy.dmgMod));                 // Modificador de dano
+        fscanf(file, "%*s %i", &(enemy.atkMod));                 // Modificador de ataque
+        fscanf(file, "%*s %i", &(enemy.atkNum));                 // Número de ataques por turno
+        fscanf(file, "%*s %i", &(enemy.armor));                  // Armadura
+        fscanf(file, "%*s %i", &(enemy.skillMod));               // Modificador de habilidade
+ 
+        // Pegando strings de ataque 
+        fgetc(file);                                             // Pega um \n pra não atrapalhar os fgets
+ 
+        getStringFromFile(file, MAX_ENEMY_SKILL, enemy.atkName); // Nome do ataque básico
 
         // Fechando o arquivo
         fclose(file);
@@ -90,6 +92,7 @@ typedef struct enemySkill_s {
 
 /* ==== Funções gerais de habilidade ==== */
 
+    // Anuncia o ataque do inimigo
     void announceAtk(enemyS *enemy) {
         printf("\033[91m");
         printSlow(enemy->name);
@@ -135,7 +138,7 @@ typedef struct enemySkill_s {
 
         // Imprime a rolagem
         announceAtk(enemy);
-        
+
         printSlow("Rolagem de ataque do inimigo - \033[36mrolando ");
         printf("1d20%+i", enemy->atkMod);
         printRollResult(atkRoll);
@@ -176,6 +179,7 @@ typedef struct enemySkill_s {
         return atkRoll;
     }
 
+    // Dá dano de uma skill
     int enemySkillDmg (playerS* player, enemyS *enemy, int dmgDie, int dmgDieNum) {
         int dmgRoll = rollDice(dmgDie, dmgDieNum, enemy->skillMod, 0);
 
@@ -203,6 +207,7 @@ typedef struct enemySkill_s {
         }
     }
 
+    // Uma skill de cura genérica
     int enemySkillHeal (enemyS *enemy, int healDieNum, int healDie, int healMod) {
         int healRoll = rollDice(healDieNum, healDie, healMod, 0);
 
@@ -214,6 +219,7 @@ typedef struct enemySkill_s {
         return healRoll;
     }
 
+    // Anuncia a skill do inimigo
     void announceSkill (enemyS *enemy, enemySkillS skill) {
         printf("\033[91m");
         printSlow(enemy->name);
@@ -243,6 +249,7 @@ typedef struct enemySkill_s {
         return true;
     }
 
+    // Dá dano e cura metade do dano causado
     bool leechAttackE (playerS *player, enemyS *enemy) {
         int healAmt = enemySkillAtkDmg(player, enemy, 2, 6);
 
@@ -256,3 +263,26 @@ typedef struct enemySkill_s {
         
         return true;
     }
+
+/* ==== Array de habilidades ==== */
+
+    const enemySkillS skillsE[NUM_ENEMY_SKILLS] = {
+        {
+            &fireBoltE,         // Função
+            "Dardo de Fogo",    // Nome
+            3,                  // Cooldown
+            false,              // É signature
+        },
+        {
+            &regenerateE,
+            "Regenerar",
+            4,
+            false,
+        },
+        {
+            &leechAttackE,
+            "Roubar Vitalidade",
+            2,
+            false,
+        }
+    };

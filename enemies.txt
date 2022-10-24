@@ -1,3 +1,11 @@
+Lista de skills:
+
+1 - Fire Bolt
+2 - Regenerate
+3 - Leech Attack
+
+Lista de inimigos:
+
 ====
 Cultista de Crocs
 HP 30

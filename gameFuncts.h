@@ -98,6 +98,8 @@ enum classes {warrior, wizard, warlock, paladin};
 enum spells {fireBlt, sonicBlst, mageArm, mageShld, magicMsl, blessWpn, rdntSmite, voidHunger, yogSothothSight, cthulhuFire, azathothDream, srngLight};
 enum skills {doubleStrk, tripAtk, selfDmg, parryAtk, scndWind, dvnGuidance, bldOffering, adrnlSurge, prcStrk, btlTrance};
 
+enum enemySkills {eFireBlt, eRegenerate, eleechAtk};
+
 typedef int bool;
 typedef bool (*sklFunct) (playerS *player, enemyS *enemy); // define bool (*coisa) (playerS *player, enemyS *enemy) como só sklFunct. É um ponteiro de função.
 
