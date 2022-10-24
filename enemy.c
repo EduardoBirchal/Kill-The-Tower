@@ -5,20 +5,18 @@
 */
 #include "gameFuncts.h"
 
-#define MAX_ENEMY_SKILL 25
-
 
 /* ==== Typedefs ==== */
 
-typedef struct skill_s {
+typedef struct enemySkill_s {
     sklFunct funct; // sklFunct é um ponteiro de função. Esse tipo é usado para feitiços, habilidades e itens.
     char name[MAX_ENEMY_SKILL];
 
     int maxCooldown;
     int cooldown;
 
-    bool 
-} skillS;
+    bool signature; // Se uma skill é signature, ela é específica ao inimigo e tem uma descrição narrativa.
+} enemySkillS;
 
 
 /* ==== Criação do inimigo ==== */
@@ -71,10 +69,9 @@ typedef struct skill_s {
         fscanf(file, "%*s %i", &(enemy.skillMod));              // Modificador de habilidade
 
         // Pegando strings de ataque
-        fscanf(file, "%*c");
-        getStringFromFile(file, MAX_NARRATE, enemy.hitString);  // String de acerto
-        getStringFromFile(file, MAX_NARRATE, enemy.missString); // String de falha
-        getStringFromFile(file, MAX_NARRATE, enemy.critString); // String de crítico
+        fgetc(file);                                            // Pega um \n pra não atrapalhar os fgets
+
+        getStringFromFile(file, MAX_ENEMY_SKILL, enemy.atkName);    // Nome do ataque básico
 
         // Fechando o arquivo
         fclose(file);
@@ -93,6 +90,14 @@ typedef struct skill_s {
 
 /* ==== Funções gerais de habilidade ==== */
 
+    void announceAtk(enemyS *enemy) {
+        printf("\033[91m");
+        printSlow(enemy->name);
+        printSlow("\033[0m usa \033[91m");
+        printSlow(enemy->atkName);
+        printSlow("\033[0m!\n\n");
+    }
+
     // Acerto crítico do inimigo
     int enemyCrit(playerS *player, enemyS *enemy) {
         // Rola o dado
@@ -101,9 +106,7 @@ typedef struct skill_s {
         // Imprime as coisas
         printSlow("Rolagem de dano - \033[36mrolando ");
         printf("%id%i%+i", enemy->dmgDiceNum*2, enemy->dmgDice, enemy->dmgMod*2);
-        printDamageResult(dmgRoll);
-        printf("\n\n");
-        printSlow(enemy->critString);
+        printCustomResult(dmgRoll, "dano");
         printf("\n\n");
 
         // Dá o dano
@@ -118,9 +121,7 @@ typedef struct skill_s {
         // Imprime as coisas
         printSlow("Rolagem de dano - \033[36mrolando ");
         printf("%id%i%+i", enemy->dmgDiceNum, enemy->dmgDice, enemy->dmgMod);
-        printDamageResult(dmgRoll);
-        printf("\n\n");
-        printSlow(enemy->hitString);
+        printCustomResult(dmgRoll, "dano");
         printf("\n\n");
 
         // Dá o dano
@@ -133,6 +134,8 @@ typedef struct skill_s {
         int atkRoll = rollDice(20, 1, enemy->atkMod, enemy->advantage);
 
         // Imprime a rolagem
+        announceAtk(enemy);
+        
         printSlow("Rolagem de ataque do inimigo - \033[36mrolando ");
         printf("1d20%+i", enemy->atkMod);
         printRollResult(atkRoll);
@@ -166,33 +169,90 @@ typedef struct skill_s {
     int enemySkillAtk (enemyS *enemy) {
         int atkRoll = rollDice(20, 1, enemy->skillMod, enemy->advantage);
 
-        printSlow("Rolagem de ataque magico - \033[36mrolando ");
+        printSlow("Rolagem de ataque - \033[36mrolando ");
         printf("1d20%+i", enemy->skillMod);
         printRollResult(atkRoll);
 
         return atkRoll;
     }
 
-    // Uma habilidade de dano genérica. Retorna se acertou ou errou, pra efeitos adicionais.
-    int enemySkillDmg (playerS* player, enemyS *enemy, int dmgDie, int dmgDieNum, char* strHit, char* strMiss) {
-        int dmgRoll = 0;
+    int enemySkillDmg (playerS* player, enemyS *enemy, int dmgDie, int dmgDieNum) {
+        int dmgRoll = rollDice(dmgDie, dmgDieNum, enemy->skillMod, 0);
+
+        printSlow("Rolagem de dano - \033[36mrolando ");
+        printf("%id%i%+i", dmgDieNum, dmgDie, enemy->skillMod);
+        printCustomResult(dmgRoll, "dano");
+        
+        enemy->hp -= dmgRoll;
+        return dmgRoll;
+    }
+
+    // Uma habilidade de dano genérica. Retorna o dano, pra efeitos adicionais.
+    int enemySkillAtkDmg (playerS* player, enemyS *enemy, int dmgDieNum, int dmgDie) {
         int atkRoll = enemySkillAtk (enemy);
 
-        if (atkRoll >= enemy->armor) { // Se acertou, dá dano e imprime 'strHit'.
+        if (atkRoll >= player->armor) { // Se acertou, dá dano e retorna true
             printSlow(" \033[33;4mAcerto!\033[0m\n\n");
-            dmgRoll = rollDice(dmgDie, dmgDieNum, enemy->skillMod, 0);
-            printSlow("Rolagem de dano - \033[36mrolando ");
-            printf("%id%i%+i", dmgDieNum, dmgDie, enemy->skillMod);
-            printRollResult(dmgRoll);
-            printSlow(strHit);
-            enemy->hp -= dmgRoll;
 
-            return 1;
+            return enemySkillDmg(player, enemy, dmgDie, dmgDieNum);
         }
-        else { // Senão, imprime 'strMiss'.
-            printSlow(strMiss);
+        else { // Senão, retorna 0
+            printSlow(" \033[33;4mFalha! O ataque erra!\033[0m\n\n");
+
             return 0;
         }
     }
 
-    void announceSkill (enemyS *enemy, enemySkillS skill)
+    int enemySkillHeal (enemyS *enemy, int healDieNum, int healDie, int healMod) {
+        int healRoll = rollDice(healDieNum, healDie, healMod, 0);
+
+        printSlow("Rolagem de cura - \033[36mrolando ");
+        printf("%id%i%+i", healDieNum, healDie, healMod);
+        printRollResult(healRoll);
+
+        enemy->hp += healRoll;
+        return healRoll;
+    }
+
+    void announceSkill (enemyS *enemy, enemySkillS skill) {
+        printf("\033[91m");
+        printSlow(enemy->name);
+        printSlow("\033[0m usa ");
+
+        if(skill.signature) printf("\033[33m"); // Se for uma skill signature, coloca ela em amarelo em vez de vermelho claro
+        else printf("\033[91m");
+
+        printSlow(skill.name);
+        printSlow("\033[0m!\n\n");
+    }
+
+
+/* ==== Funções de habilidades genéricas ==== */
+
+    // Dá dano médio
+    bool fireBoltE (playerS *player, enemyS *enemy) { // Toda skill de inimigo tem 'E' no final, pra diferenciar das de player
+        enemySkillAtkDmg (player, enemy, 3, 8);
+
+        return true;
+    }
+
+    // Cura o usuário
+    bool regenerateE (playerS *player, enemyS *enemy) {
+        enemySkillHeal (enemy, 2, 4, enemy->skillMod);
+
+        return true;
+    }
+
+    bool leechAttackE (playerS *player, enemyS *enemy) {
+        int healAmt = enemySkillAtkDmg(player, enemy, 2, 6);
+
+        if (healAmt) {
+            printSlow("O inimigo recebe ");
+            printf("\033[36m%i\033[0m", healAmt/2);
+            printSlow("de cura!\n\n");
+
+            enemy->hp += healAmt/2;
+        }
+        
+        return true;
+    }

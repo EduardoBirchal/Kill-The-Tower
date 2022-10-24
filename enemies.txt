@@ -8,9 +8,7 @@ atkMod 4
 atkNum 1
 arm 14
 magMod 1
-A figura encapuzada avanca em sua direcao e faz um corte doloroso com uma adaga de ritual.
-O cultista tenta acertar com a faca serrilhada, mas voce consegue desviar do golpe a tempo.
-Voce nao consegue bloquear o ataque do inimigo, e eh acertado em cheio com uma facada letal.
+Faca de Ritual
 
 ====
 Golem de Pedra
@@ -22,9 +20,7 @@ atkMod 5
 atkNum 1
 arm 16
 magMod 2
-O automato levanta o seu punho enorme e te acerta com um soco pesado que te faz recuar.
-Voce consegue ser mais rapido que o ataque do construto, e sai do caminho do seu braco de pedra.
-O golem te ataca com brutalidade fria, atingindo seu peitoral com um soco poderoso que te lanca para tras.
+Soco
 
 ====
 Goblin Gordo
@@ -36,6 +32,4 @@ atkMod 4
 atkNum 2
 arm 12
 magMod -1
-O goblin faz um corte amplo com a espada dele, derramando sangue.
-Ele eh muito gordo e erra :(
-Se abaixando para o seu ponto cego, a criatura consegue te atingir num ponto vital com um ataque vicioso.
+Espada Curta

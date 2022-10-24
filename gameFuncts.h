@@ -46,12 +46,16 @@
 
 #define CONFIG_AMT 2
 
+#define MAX_ENEMY_SKILL 25
+
 
 /* ==== Structs ==== */
 
 struct item_s; // itemS depende de playerS e playerS depende de itemS, então eu dei forward declaration. Mesma coisa pra spell_s e skill_s
 struct spell_s;
 struct skill_s;
+
+struct enemySkill_s;
 
 typedef struct player_s {
     int hpMax, hp, dmgDiceNum, dmgDice, dmgMod, atkMod, atkNum, armor, magMod, manaMax, mana;
@@ -77,14 +81,12 @@ typedef struct player_s {
 
 typedef struct enemy_s {
     int hpMax, hp, dmgDiceNum, dmgDice, dmgMod, atkMod, atkNum, armor, skillMod;
-    char name[MAX_NAME];
+    char name[MAX_NAME], atkName[MAX_ENEMY_SKILL];
     int status[NUM_STATUSES];
-
     int advantage;
 
-    char hitString[MAX_NARRATE];
-    char missString[MAX_NARRATE];
-    char critString[MAX_NARRATE];
+    struct enemySkill_s *knownSkills;
+    int skillNum;
 } enemyS;
 
 
@@ -99,13 +101,6 @@ enum skills {doubleStrk, tripAtk, selfDmg, parryAtk, scndWind, dvnGuidance, bldO
 typedef int bool;
 typedef bool (*sklFunct) (playerS *player, enemyS *enemy); // define bool (*coisa) (playerS *player, enemyS *enemy) como só sklFunct. É um ponteiro de função.
 
-typedef struct item_s { // Tá definido aqui porque depende do tipo sklFunct
-    sklFunct funct;
-    char name[MAX_ITEM];
-    char desc[MAX_DESC_ITEM];
-
-    int num; // O número de itens no slot. Se for 0, o slot está vazio.
-} itemS;
 
 /* ==== Funções ==== */
 
@@ -208,6 +203,7 @@ typedef struct item_s { // Tá definido aqui porque depende do tipo sklFunct
     // Adiciona um feitiço no vetor de feitiços do player.
     void addSpell (playerS *player, int index);
 
+
 /* ==== Status - as funções de cada status do player ==== */
 
     // Checa o array de status do player e faz os efeitos de cada status
@@ -241,8 +237,8 @@ typedef struct item_s { // Tá definido aqui porque depende do tipo sklFunct
     // Imprime o resultado de um dado devagar
     void printRollResult (int result);
 
-    // Imprime o resultado de um dado de dano, caso não tenha narração pro ataque
-    void printDamageResult (int result);
+    // Imprime o resultado de um dado e anuncia de que é esse dado. Por exemplo, se [string] for "dano", imprime "[result] de dano"
+    void printCustomResult (int result, char string[]);
 
     // Imprime uma margem
     void printBorder ();

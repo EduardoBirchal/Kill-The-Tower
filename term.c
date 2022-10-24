@@ -95,13 +95,15 @@ void printRollResult (int result) {
     trueSleep(150);
 }
 
-// Imprime o resultado de um dado de dano, caso não tenha narração pro ataque
-void printDamageResult (int result) {
+// Imprime o resultado de um dado e anuncia de que é esse dado. Por exemplo, se [string] for "dano", imprime "[result] de dano"
+void printCustomResult (int result, char string[]) {
     printSlow("...");
     fflush(stdout);
     trueSleep(800);
     printf(" %i\033[0m ", result);
-    printSlow("de dano.");
+    printSlow("de ");
+    printSlow(string);
+    printSlow("!\n\n");
     fflush(stdout);
     trueSleep(150);
 }

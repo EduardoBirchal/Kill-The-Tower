@@ -6,6 +6,38 @@
 
 #include "gameFuncts.h"
 
+/*
+
+COISAS PRA FAZER:
+
+Interface
+    - Imprimir strings só dentro da margem
+    - Fazer toda barra de vida ser do mesmo tamanho/sempre caber na margem
+    - Menu principal
+    - Customizar nome
+    - Traduzir pra inglês
+Inimigo
+    - Skills do Inimigo <-- Fazendo
+    - Inventário do Inimigo
+    - IA do Inimigo
+Player
+    - Sistema de levels
+    - Equipamento
+Dungeon
+    - Fazer múltiplas salas da dungeon
+    - Imprimir o mapa da dungeon
+    Recompensas
+        - XP
+        - Itens
+        - Dinheiro
+        - Skills e feitiços
+        - Equipamento
+    - Lojas
+    - Fazer o player voltar pro menu ao morrer
+    - Boss no fim do andar
+    - Múltiplos andares?
+
+*/
 
 /* ==== Main ==== */
 

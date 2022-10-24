@@ -9,6 +9,14 @@
 
 #define NUM_ITEMS 3
 
+typedef struct item_s { // Tá definido aqui porque depende do tipo sklFunct
+    sklFunct funct;
+    char name[MAX_ITEM];
+    char desc[MAX_DESC_ITEM];
+
+    int num; // O número de itens no slot. Se for 0, o slot está vazio.
+} itemS;
+
 
 // Um item de dano genérico.
 int itemDmg (playerS* player, enemyS *enemy, int dmgDie, int dmgDieNum, int dmgMod, char* strHit) {
