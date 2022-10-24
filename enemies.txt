@@ -16,6 +16,8 @@ atkMod 4
 atkNum 1
 arm 14
 magMod 1
+skillNum 3
+1 3 2
 Faca de Ritual
 
 ====

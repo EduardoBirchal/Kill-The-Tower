@@ -29,11 +29,25 @@ typedef struct enemySkill_s {
         string[strcspn(string, "\n")] = 0;
     }
 
+    // Pega um array de números no arquivo, separados por espaço
+    void getArrayFromFile(FILE* file, int size, int *array) {
+        int currentInt;
+        char currentChar;
+
+        // Lê números até encher o array ou até currentChar não ser espaço
+        for (int i=0; i<size; i++) {
+            fscanf(file, "%i%c", &currentInt, &currentChar);
+
+            if (currentChar != ' ') break;
+            else array[i] = currentInt;
+        }
+    }
+
     // Cria o inimigo
     enemyS createEnemy(int index) {
         FILE *file;
-        int linesDetected = 0; // linesDetected guarda o número de linhas puladas até chegar no inimigo certo no arquivo
-        char stringScan[6]; // A string que foi lida para ser comparada
+        int linesDetected = 0; // linesDetected guarda o número de linhas puladas até chegar no inimigo certo no arquivo.
+        char stringScan[6]; // stringScan é a string que foi lida para ser comparada
 
         enemyS enemy;
 
