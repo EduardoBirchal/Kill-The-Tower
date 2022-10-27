@@ -58,8 +58,10 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
     // Imprime a barra de HP
     void printHpBar (int hpMax, int hp) {
         // Imprime em verde as células de HP cheio e o resto (hp vazio) imprime em verde escuro
-        for(int i=1; i<=hpMax; i++) {
-            if(i <= (hp)) {
+        for(int i=1; i<=96; i++) {
+            double res = 96.0 / (double) hpMax;
+            res = ceil(res);
+            if(i <= (hp*res)) {
                 printf("\033[102m "); // Célula verde
             }
             else {
@@ -1158,7 +1160,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
                 player->dmgDice = 6;
                 player->dmgDiceNum = 2;
                 player->dmgMod = 5;
-                player->hpMax = 25;
+                player->hpMax = 35;
                 player->magMod = -1;
                 player->manaMax = 15;
 
@@ -1189,7 +1191,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
                 player->dmgDice = 6;
                 player->dmgDiceNum = 1;
                 player->dmgMod = -2;
-                player->hpMax = 15;
+                player->hpMax = 25;
                 player->magMod = 6;
                 player->manaMax = 30;
 
@@ -1215,7 +1217,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
                 player->dmgDice = 8;
                 player->dmgDiceNum = 1;
                 player->dmgMod = 2;
-                player->hpMax = 15;
+                player->hpMax = 25;
                 player->magMod = 6;
                 player->manaMax = 25;
 
@@ -1242,7 +1244,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
                 player->dmgDice = 8;
                 player->dmgDiceNum = 1;
                 player->dmgMod = 3;
-                player->hpMax = 20;
+                player->hpMax = 30;
                 player->magMod = 3;
                 player->manaMax = 25;
 

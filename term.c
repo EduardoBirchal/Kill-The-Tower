@@ -6,6 +6,8 @@
 
 #include "gameFuncts.h"
 
+static int cursorPos = 1;
+
 
 // Sleep que funciona em Windows e Linux
 void trueSleep(int ms) {
@@ -73,14 +75,24 @@ int digitNum (int num) {
 // Imprime uma mensagem devagar
 void printSlow (char string[]) {
     for(int i=0; string[i]!='\0'; i++) {
-        printf("%c", string[i]);
+        if (!(string[i] == ' ' && cursorPos == 1)) printf("%c", string[i]); // Se o caracter for um espaço e cursorPos for 1 (o cursor estiver no início da margem), não imprime o caracter
         fflush(stdout); // Alguns sistemas operacionais colocam a string inteira num buffer e imprimem tudo de uma vez em vez de imprimir um char por vez
+        
         if(string[i] != '\n') {
+            cursorPos++; // Aumenta a posição do cursor quando imprime um caracter que não é \n
             #ifdef _WIN32
                 trueSleep(TEXT_SPEED/10); // O Windows imprime muito mais devagar que o linux, então eu diminui o tempo em 10
             #else
                 trueSleep(TEXT_SPEED);
             #endif
+        }
+        else {
+            cursorPos = 1; // Se der um \n, o cursor volta pro início, então muda pra 1
+        }
+
+        if(cursorPos >= BORDER_LEN) {
+            printf("\n");
+            cursorPos = 1;
         }
     }
 }

@@ -223,8 +223,8 @@ typedef struct enemySkill_s {
         printSlow(enemy->name);
         printSlow("\033[0m usa ");
 
-        if(skill.signature) printf("\033[33m"); // Se for uma skill signature, coloca ela em amarelo em vez de vermelho claro
-        else printf("\033[91m");
+        if(skill.signature) printf("\033[33m"); // Se for uma skill signature, coloca ela em amarelo em vez de magenta
+        else printf("\033[35m");
 
         printSlow(skill.name);
         printSlow("\033[0m!\n\n");

@@ -11,13 +11,14 @@
 COISAS PRA FAZER:
 
 Interface
-    - Imprimir strings só dentro da margem
     - Fazer toda barra de vida ser do mesmo tamanho/sempre caber na margem
     - Menu principal
     - Customizar nome
     - Traduzir pra inglês
 Inimigo
     - Sistema de mana <-- FAZENDO
+    - Sistema de cooldown
+    - turnEnemy em vez de só mandar o inimigo agir direto
     - Mais skills
     - IA do Inimigo
 Player
