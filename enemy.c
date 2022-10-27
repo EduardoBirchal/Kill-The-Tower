@@ -15,99 +15,17 @@ typedef struct enemySkill_s {
     char name[MAX_ENEMY_SKILL];
 
     int maxCooldown;
+    int manaCost;
     bool signature; // Se uma skill é signature, ela é específica ao inimigo e tem uma descrição narrativa.
 
     int cooldown;
 } enemySkillS;
 
 
-/* ==== Criação do inimigo ==== */
-
-    // Pega uma string de um arquivo
-    void getStringFromFile(FILE* file, int max, char* string) {
-        fgets(string, max, file);
-        string[strcspn(string, "\n")] = 0;
-    }
-
-    // Pega um array de números no arquivo, separados por espaço
-    void getArrayFromFile(FILE* file, int size, int *array) {
-        int currentInt;
-        char currentChar;
-
-        // Lê números até encher o array ou até currentChar não ser espaço
-        for (int i=0; i<size; i++) {
-            fscanf(file, "%i%c", &currentInt, &currentChar);
-
-            if (currentChar != ' ') break;
-            else array[i] = currentInt;
-        }
-    }
-
-    // Cria o inimigo
-    enemyS createEnemy(int index) {
-        FILE *file;
-        int linesDetected = 0; // linesDetected guarda o número de linhas puladas até chegar no inimigo certo no arquivo.
-        char stringScan[6]; // stringScan é a string que foi lida para ser comparada
-
-        enemyS enemy;
-
-        // Abrindo o arquivo
-        file = fopen("enemies.txt", "r");
-        if (file == NULL) {
-            printf("\033[91mERRO: \033[0mArquivo 'enemies.txt' nao encontrado! Fechando programa...\n\n");
-            exit(1);
-        }
-
-        // A string "====" marca o início de um inimigo no arquivo. Esse loop lê os "====" até chegar no [index]o inimigo. Se ele não achar, dá erro.
-        while (linesDetected < index) {
-            if (fgets(stringScan, 6, file)) {
-                if (strstr(stringScan, "====") != 0) {
-                    linesDetected++;
-                }
-            }
-            else {
-                printf("\033[91mERRO: \033[0mInimigo %i nao encontrado no arquivo! Fechando programa...\n\n", index);
-                fclose(file);
-                exit(1);
-            }
-        }
-
-        getStringFromFile(file, MAX_NAME, enemy.name);           // Pegando nome
- 
-        // Pegando outros atributos 
-        fscanf(file, "%*s %i", &(enemy.hpMax));                  // Máximo de HP
-        fscanf(file, "%*s %i", &(enemy.dmgDiceNum));             // Número de dados de dano
-        fscanf(file, "%*s %i", &(enemy.dmgDice));                // Tamanho dos dados de dano
-        fscanf(file, "%*s %i", &(enemy.dmgMod));                 // Modificador de dano
-        fscanf(file, "%*s %i", &(enemy.atkMod));                 // Modificador de ataque
-        fscanf(file, "%*s %i", &(enemy.atkNum));                 // Número de ataques por turno
-        fscanf(file, "%*s %i", &(enemy.armor));                  // Armadura
-        fscanf(file, "%*s %i", &(enemy.skillMod));               // Modificador de habilidade
- 
-        // Pegando strings de ataque 
-        fgetc(file);                                             // Pega um \n pra não atrapalhar os fgets
- 
-        getStringFromFile(file, MAX_ENEMY_SKILL, enemy.atkName); // Nome do ataque básico
-
-        // Fechando o arquivo
-        fclose(file);
-
-        // Inicializa o vetor de status do inimigo
-        for(int i=0; i<NUM_STATUSES; i++) {
-            enemy.status[i] = false;     
-        }
-        
-        enemy.advantage = 0;
-        enemy.hp = enemy.hpMax;
-
-        return enemy;
-    }
-
-
 /* ==== Funções gerais de habilidade ==== */
 
     // Anuncia o ataque do inimigo
-    void announceAtk(enemyS *enemy) {
+    void announceAtkE(enemyS *enemy) {
         printf("\033[91m");
         printSlow(enemy->name);
         printSlow("\033[0m usa \033[91m");
@@ -151,7 +69,7 @@ typedef struct enemySkill_s {
         int atkRoll = rollDice(20, 1, enemy->atkMod, enemy->advantage);
 
         // Imprime a rolagem
-        announceAtk(enemy);
+        announceAtkE(enemy);
 
         printSlow("Rolagem de ataque do inimigo - \033[36mrolando ");
         printf("1d20%+i", enemy->atkMod);
@@ -182,6 +100,9 @@ typedef struct enemySkill_s {
         }
     }
 
+
+/* ==== Funções de habilidades genéricas ==== */
+
     // Rola o ataque pra uma habilidade que não é um ataque básico.
     int enemySkillAtk (enemyS *enemy) {
         int atkRoll = rollDice(20, 1, enemy->skillMod, enemy->advantage);
@@ -201,7 +122,7 @@ typedef struct enemySkill_s {
         printf("%id%i%+i", dmgDieNum, dmgDie, enemy->skillMod);
         printCustomResult(dmgRoll, "dano");
         
-        enemy->hp -= dmgRoll;
+        player->hp -= dmgRoll;
         return dmgRoll;
     }
 
@@ -227,27 +148,14 @@ typedef struct enemySkill_s {
 
         printSlow("Rolagem de cura - \033[36mrolando ");
         printf("%id%i%+i", healDieNum, healDie, healMod);
-        printRollResult(healRoll);
+        printCustomResult(healRoll, "cura");
 
         enemy->hp += healRoll;
         return healRoll;
     }
 
-    // Anuncia a skill do inimigo
-    void announceSkill (enemyS *enemy, enemySkillS skill) {
-        printf("\033[91m");
-        printSlow(enemy->name);
-        printSlow("\033[0m usa ");
 
-        if(skill.signature) printf("\033[33m"); // Se for uma skill signature, coloca ela em amarelo em vez de vermelho claro
-        else printf("\033[91m");
-
-        printSlow(skill.name);
-        printSlow("\033[0m!\n\n");
-    }
-
-
-/* ==== Funções de habilidades genéricas ==== */
+/* ==== Skills não-signature ==== */
 
     // Dá dano médio
     bool fireBoltE (playerS *player, enemyS *enemy) { // Toda skill de inimigo tem 'E' no final, pra diferenciar das de player
@@ -270,13 +178,15 @@ typedef struct enemySkill_s {
         if (healAmt) {
             printSlow("O inimigo recebe ");
             printf("\033[36m%i\033[0m", healAmt/2);
-            printSlow("de cura!\n\n");
+            printSlow(" de cura!\n\n");
 
             enemy->hp += healAmt/2;
         }
         
         return true;
     }
+
+    // 
 
 /* ==== Array de habilidades ==== */
 
@@ -285,18 +195,123 @@ typedef struct enemySkill_s {
             &fireBoltE,         // Função
             "Dardo de Fogo",    // Nome
             3,                  // Cooldown
+            0,                  // Custo de mana (só skills poderosas custam mana)
             false,              // É signature
         },
         {
             &regenerateE,
             "Regenerar",
             4,
+            7,
             false,
         },
         {
             &leechAttackE,
             "Roubar Vitalidade",
             2,
+            0,
             false,
         }
     };
+
+
+/* ==== Funções de uso de habilidade ==== */
+
+    // Anuncia a skill do inimigo
+    void announceSkillE (enemyS *enemy, enemySkillS skill) {
+        printf("\033[91m");
+        printSlow(enemy->name);
+        printSlow("\033[0m usa ");
+
+        if(skill.signature) printf("\033[33m"); // Se for uma skill signature, coloca ela em amarelo em vez de vermelho claro
+        else printf("\033[91m");
+
+        printSlow(skill.name);
+        printSlow("\033[0m!\n\n");
+    }
+
+    // Anuncia e usa uma skill
+    void useSkillE (playerS *player, enemyS *enemy, int index) {
+        announceSkillE (enemy, enemy->knownSkills[index]);
+        enemy->knownSkills[index].funct(player, enemy);
+        requestEnter();
+    }
+
+    // Aloca e preenche o vetor de skills do inimigo
+    void initSkillsE (enemyS *enemy) {
+        enemy->knownSkills = malloc(sizeof(enemySkillS) * enemy->skillNum);  // Aloca o vetor de habilidades  
+
+        for (int i=0; i<enemy->skillNum; i++) {
+            enemy->knownSkills[i] = skillsE[enemy->skillCodes[i]]; // Pega o código na posição 'i' em skillCodes e coloca a skill correspondente ao código em knownSkills
+        }
+    }
+
+
+/* ==== Criação do inimigo ==== */
+
+    // Cria o inimigo
+    enemyS createEnemy(int index) {
+        FILE *file;
+        int linesDetected = 0; // linesDetected guarda o número de linhas puladas até chegar no inimigo certo no arquivo.
+        char stringScan[6]; // stringScan é a string que foi lida para ser comparada
+
+        enemyS enemy;
+
+        // Abrindo o arquivo
+        file = fopen("enemies.txt", "r");
+        if (file == NULL) {
+            printf("\033[91mERRO: \033[0mArquivo 'enemies.txt' nao encontrado! Fechando programa...\n\n");
+            exit(1);
+        }
+
+        // A string "====" marca o início de um inimigo no arquivo. Esse loop lê os "====" até chegar no [index]o inimigo. Se ele não achar, dá erro.
+        while (linesDetected < index) {
+            if (fgets(stringScan, 6, file)) {
+                if (strstr(stringScan, "====") != 0) {
+                    linesDetected++;
+                }
+            }
+            else {
+                printf("\033[91mERRO: \033[0mInimigo %i nao encontrado no arquivo! Fechando programa...\n\n", index);
+                fclose(file);
+                exit(1);
+            }
+        }
+
+        getStringFromFile(file, MAX_NAME, enemy.name);                     // Pegando nome
+        
+        // Pegando outros atributos            
+        fscanf(file, "%*s %i", &(enemy.hpMax));                            // Máximo de HP
+        fscanf(file, "%*s %i", &(enemy.dmgDiceNum));                       // Número de dados de dano
+        fscanf(file, "%*s %i", &(enemy.dmgDice));                          // Tamanho dos dados de dano
+        fscanf(file, "%*s %i", &(enemy.dmgMod));                           // Modificador de dano
+        fscanf(file, "%*s %i", &(enemy.atkMod));                           // Modificador de ataque
+        fscanf(file, "%*s %i", &(enemy.atkNum));                           // Número de ataques por turno
+        fscanf(file, "%*s %i", &(enemy.armor));                            // Armadura
+        fscanf(file, "%*s %i", &(enemy.skillMod));                         // Modificador de habilidade
+        fscanf(file, "%*s %i", &(enemy.skillNum));                         // Número de habilidades
+        fscanf(file, "%*s %i", &(enemy.manaMax));                          // Máximo de Mana
+
+        enemy.skillCodes = malloc(sizeof(int) * enemy.skillNum);           // Aloca o vetor de códigos de habilidades
+
+        getArrayFromFile(file, enemy.skillNum, enemy.skillCodes);          // Códigos de habilidades     
+        initSkillsE(&enemy);
+
+        fgetc(file);                                                       // Pega um \n pra não atrapalhar os fgets
+ 
+        getStringFromFile(file, MAX_ENEMY_SKILL, enemy.atkName);           // Nome do ataque básico
+
+        // Fechando o arquivo
+        fclose(file);
+
+        // Inicializa o vetor de status do inimigo
+        for(int i=0; i<NUM_STATUSES; i++) {
+            enemy.status[i] = false;     
+        }
+        
+        enemy.advantage = 0;
+        enemy.hp = enemy.hpMax;
+        enemy.mana = enemy.manaMax;
+
+        return enemy;
+    }

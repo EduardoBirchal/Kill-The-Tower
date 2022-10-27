@@ -1,45 +1,52 @@
 Lista de skills:
 
-1 - Fire Bolt
-2 - Regenerate
-3 - Leech Attack
+0 - Fire Bolt
+1 - Regenerate
+2 - Leech Attack
 
 Lista de inimigos:
 
 ====
 Cultista de Crocs
-HP 30
+HP 50
 dmgDiceNum 2
 dmgDice 6
 dmgMod 3
 atkMod 4
 atkNum 1
-arm 14
-magMod 1
+arm 12
+skillMod 1
 skillNum 3
-1 3 2
+mana 20
+skills 0 2 1
 Faca de Ritual
 
 ====
 Golem de Pedra
-HP 55
+HP 65
 dmgDiceNum 3
 dmgDice 4
 dmgMod 1
 atkMod 5
 atkNum 1
-arm 16
-magMod 2
+arm 15
+skillMod 2
+skillNum 2
+mana 20
+skills 0 1
 Soco
 
 ====
 Goblin Gordo
-HP 20
+HP 40
 dmgDiceNum 1
 dmgDice 4
 dmgMod 2
 atkMod 4
 atkNum 2
 arm 12
-magMod -1
+skillMod -1
+skillNum 2
+mana 15
+skills 2 1
 Espada Curta

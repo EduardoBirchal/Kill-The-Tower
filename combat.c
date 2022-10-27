@@ -42,6 +42,19 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
 /* ======= Combate ======= */
 
+    // Libera tudo do player
+    void freePlayer(playerS player) {
+        free (player.inventory);
+        free (player.knownSkills);
+        free (player.knownSpells);
+    }
+
+    // Libera tudo do inimigo 
+    void freeEnemy(enemyS enemy) {
+        free (enemy.knownSkills);
+        free (enemy.skillCodes);
+    }
+
     // Imprime a barra de HP
     void printHpBar (int hpMax, int hp) {
         // Imprime em verde as células de HP cheio e o resto (hp vazio) imprime em verde escuro
@@ -1139,7 +1152,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
             {
             case warrior:
                 // Stats do player
-                player->armor = 18;
+                player->armor = 14;
                 player->atkMod = 6;
                 player->atkNum = 1;
                 player->dmgDice = 6;
@@ -1170,7 +1183,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
                 break;
             
             case wizard:
-                player->armor = 14;
+                player->armor = 10;
                 player->atkMod = 0;
                 player->atkNum = 1;
                 player->dmgDice = 6;
@@ -1196,7 +1209,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
                 break;
 
             case warlock:
-                player->armor = 12;
+                player->armor = 11;
                 player->atkMod = 0;
                 player->atkNum = 1;
                 player->dmgDice = 8;
@@ -1223,7 +1236,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
                 break;
 
             case paladin:
-                player->armor = 16;
+                player->armor = 14;
                 player->atkMod = 5;
                 player->atkNum = 1;
                 player->dmgDice = 8;

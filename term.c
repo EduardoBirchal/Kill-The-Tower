@@ -148,8 +148,12 @@ void enemyInfo(enemyS enemy) {
     printf("\033[0m ");
 
     // Imprime o hp e os atributos
-    centerText(enemy.hpMax+1, BORDER_LEN);
+    centerText(enemy.hpMax, BORDER_LEN);
     printHp(enemy.hpMax, enemy.hp);
+
+    centerText(enemy.manaMax-1, BORDER_LEN);
+    printMana(enemy.manaMax, enemy.mana);
+
     printf("Rolagem de Ataque: \033[4m1d20%+i\033[0m\tRolagem de Dano: \033[4m%id%i%+i\033[0m\tArmadura: \033[4m%i\033[0m\n", enemy.atkMod, enemy.dmgDiceNum, enemy.dmgDice, enemy.dmgMod, enemy.armor);
 }
 
@@ -186,4 +190,30 @@ void printConfig(playerS *player, enemyS *enemy) {
         printf("\033[33m(%i)\033[0m %s%s", i+1, options[i], TAB);
     }
     printf("\n");
+}
+
+// Pega uma string de um arquivo e tira o \n
+void getStringFromFile(FILE* file, int max, char* string) {
+    fgets(string, max, file);
+    string[strcspn(string, "\n")] = 0;
+}
+
+// Pega um array de números no arquivo, separados por espaço
+void getArrayFromFile(FILE* file, int size, int *array) {
+    int currentInt;
+    char currentChar;
+
+    fscanf(file, "%*s "); // Lê a string que diz o que o array representa e joga ela fora
+
+    // Lê números até encher o array (com um espaço sobrando) ou até currentChar não ser espaço
+    for (int i=0; i<size-1; i++) {
+        fscanf(file, "%i%c", &currentInt, &currentChar);
+
+        if (currentChar != ' ') break;
+        else array[i] = currentInt;
+    }
+
+    // Lê o último int, mas não um char, pra não interferir com a leitura do nome do ataque básico do inimigo
+    fscanf(file, "%i", &currentInt); 
+    array[size-1] = currentInt;
 }

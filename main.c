@@ -17,8 +17,8 @@ Interface
     - Customizar nome
     - Traduzir pra inglês
 Inimigo
-    - Skills do Inimigo <-- Fazendo
-    - Inventário do Inimigo
+    - Sistema de mana <-- FAZENDO
+    - Mais skills
     - IA do Inimigo
 Player
     - Sistema de levels
@@ -50,7 +50,7 @@ int main(int argc, char** argv) {
 
     // Declarando criaturas
     playerS player = createPlayer();
-    enemyS enemy = createEnemy ((rand()%3) + 1);
+    enemyS enemy = createEnemy((rand()%3) + 1);
     
 
     while (1) {
@@ -71,11 +71,16 @@ int main(int argc, char** argv) {
         if (turnPlayer(&player, &enemy)) {
             break;
         }
-        enemyAtk(&player, &enemy);
+        
+        useSkillE(&player, &enemy, ((rand()%enemy.skillNum)));
         //turnEnemy(&player, &enemy);
     }
     printf("\n");
 
-    free (player.inventory);
+
+    // Libera arrays alocados
+    freePlayer(player);
+    freeEnemy(enemy);
+
     return EXIT_SUCCESS;
 }

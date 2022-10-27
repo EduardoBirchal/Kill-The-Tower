@@ -80,12 +80,13 @@ typedef struct player_s {
 } playerS;
 
 typedef struct enemy_s {
-    int hpMax, hp, dmgDiceNum, dmgDice, dmgMod, atkMod, atkNum, armor, skillMod;
+    int hpMax, hp, dmgDiceNum, dmgDice, dmgMod, atkMod, atkNum, armor, skillMod, manaMax, mana;
     char name[MAX_NAME], atkName[MAX_ENEMY_SKILL];
     int status[NUM_STATUSES];
     int advantage;
 
     struct enemySkill_s *knownSkills;
+    int *skillCodes;
     int skillNum;
 } enemyS;
 
@@ -107,6 +108,12 @@ typedef bool (*sklFunct) (playerS *player, enemyS *enemy); // define bool (*cois
 /* ==== Funções ==== */
 
 /* ==== Combate - funções de combate ==== */
+
+    // Libera tudo do player
+    void freePlayer(playerS player);
+
+    // Libera tudo do inimigo 
+    void freeEnemy(enemyS enemy);
 
     // Imprime uma barra de vida
     void printHp (int hpMax, int hp);
@@ -254,6 +261,12 @@ typedef bool (*sklFunct) (playerS *player, enemyS *enemy); // define bool (*cois
     // Imprime o menu de atributos
     void printInfo (playerS player, enemyS enemy);
 
+    // Pega uma string de um arquivo e tira o \n
+    void getStringFromFile(FILE* file, int max, char* string);
+
+    // Pega um array de números no arquivo, separados por espaço
+    void getArrayFromFile(FILE* file, int size, int *array);
+
 
 /* ==== Inventory - funções de inventário do player ==== */
 
@@ -308,20 +321,47 @@ typedef bool (*sklFunct) (playerS *player, enemyS *enemy); // define bool (*cois
 
 /* ==== Criação do player ==== */
 
-// Imprime as classes pro player escolher
-void printClasses();
+    // Imprime as classes pro player escolher
+    void printClasses();
 
-// Configura a classe do player
-void chooseClass (playerS *player);
+    // Configura a classe do player
+    void chooseClass (playerS *player);
 
-// Cria o player
-playerS createPlayer();
+    // Cria o player
+    playerS createPlayer();
 
 
 /* ==== Inimigo ==== */
 
-// Cria o inimigo, lendo de um arquivo
-enemyS createEnemy(int index);
+// Anuncia o ataque do inimigo
+void announceAtkE(enemyS *enemy);
+
+// Acerto crítico do inimigo
+int enemyCrit(playerS *player, enemyS *enemy);
+
+// Acerto não-crítico do inimigo
+int enemyHit(playerS *player, enemyS *enemy);
 
 // Um ataque do inimigo
 int enemyAtk(playerS *player, enemyS *enemy);
+
+// Rola o ataque pra uma habilidade que não é um ataque básico.
+int enemySkillAtk (enemyS *enemy);
+
+// Dá dano de uma skill
+int enemySkillDmg (playerS* player, enemyS *enemy, int dmgDie, int dmgDieNum);
+
+// Uma habilidade de dano genérica. Retorna o dano, pra efeitos adicionais.
+int enemySkillAtkDmg (playerS* player, enemyS *enemy, int dmgDieNum, int dmgDie);
+
+// Uma skill de cura genérica
+int enemySkillHeal (enemyS *enemy, int healDieNum, int healDie, int healMod);
+
+// Anuncia e usa uma skill
+void useSkillE (playerS *player, enemyS *enemy, int index);
+
+// Aloca e preenche o vetor de skills do inimigo
+void initSkillsE (enemyS *enemy);
+
+// Cria o inimigo
+enemyS createEnemy(int index);
