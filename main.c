@@ -11,7 +11,6 @@
 COISAS PRA FAZER:
 
 Interface
-    - Fazer toda barra de vida ser do mesmo tamanho/sempre caber na margem
     - Menu principal
     - Customizar nome
     - Traduzir pra inglês
@@ -73,7 +72,7 @@ int main(int argc, char** argv) {
             break;
         }
         
-        useSkillE(&player, &enemy, ((rand()%enemy.skillNum)));
+        //useSkillE(&player, &enemy, ((rand()%enemy.skillNum)));
         //turnEnemy(&player, &enemy);
     }
     printf("\n");

@@ -58,14 +58,14 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
     // Imprime a barra de HP
     void printHpBar (int hpMax, int hp) {
         // Imprime em verde as células de HP cheio e o resto (hp vazio) imprime em verde escuro
-        for(int i=1; i<=96; i++) {
-            double res = 96.0 / (double) hpMax;
+        for(int i=1; i<=BAR_SIZE; i++) {
+            double res = (double) BAR_SIZE / (double) hpMax;
             res = ceil(res);
             if(i <= (hp*res)) {
                 printf("\033[102m "); // Célula verde
             }
             else {
-                printf("\033[42m "); // Célula verde escura
+                printf("\033[42m "); // Célula verde escuro
             }
         }
     }
@@ -85,6 +85,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
     // Imprime uma barra de HP e a quantidade embaixo
     void printHp (int hpMax, int hp) {
+        centerText(BAR_SIZE, BORDER_LEN);
         printHpBar(hpMax, hp);
         printHpNum(hpMax, hp);
     }
@@ -92,8 +93,10 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
     // Imprime a barra de mana
     void printManaBar (int manaMax, int mana) {
         // Imprime em azul as células de mana cheio e o resto (mana vazio) imprime em azul escuro
-        for(int i=1; i<=manaMax; i++) {
-            if(i <= (mana)) {
+        for(int i=1; i<=BAR_SIZE; i++) {
+            double res = (double) BAR_SIZE / (double) manaMax;
+            res = ceil(res);
+            if(i <= (mana*res)) {
                 printf("\033[104m "); // Célula azul
             }
             else {
@@ -117,6 +120,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
     // Imprime uma barra de mana
     void printMana (int manaMax, int mana) {
+        centerText(BAR_SIZE-1, BORDER_LEN);
         printManaBar(manaMax, mana);
         printManaNum(manaMax, mana);
     }
@@ -298,7 +302,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
     // Dá dano no player, pra debug.
     bool debugSelfDmg (playerS* player, enemyS *enemy) {
-        player->hp -= 10;
+        player->hp -= 5;
         printSlow("Ai.\n\n");
 
         return true;
@@ -1230,6 +1234,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
                 addSkill (player, doubleStrk);
                 addSkill (player, tripAtk);
                 addSkill (player, bldOffering);
+                addSkill (player, selfDmg);
                 
                 strcpy(player->hitString, "\n\nVoce invoca um feixe de energia sombria que dispara erraticamente pelo ar, atingindo o inimigo e queimando-o.\n\n");
                 strcpy(player->critString, "\n\nCom uma palavra profana voce conjura um raio faiscante de sombra, que atinge o alvo em cheio e o empurra pra tras numa chuva de faiscas.\n\n");

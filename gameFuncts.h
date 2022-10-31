@@ -43,6 +43,7 @@
 
 #define TAB "      "
 #define TEXT_SPEED 15
+#define BAR_SIZE 64
 
 #define CONFIG_AMT 2
 
