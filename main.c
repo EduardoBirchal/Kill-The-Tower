@@ -15,9 +15,6 @@ Interface
     - Customizar nome
     - Traduzir pra inglês
 Inimigo
-    - Sistema de mana <-- FAZENDO
-    - Sistema de cooldown
-    - turnEnemy em vez de só mandar o inimigo agir direto
     - Mais skills
     - IA do Inimigo
 Player
@@ -36,6 +33,9 @@ Dungeon
     - Fazer o player voltar pro menu ao morrer
     - Boss no fim do andar
     - Múltiplos andares?
+Bugs
+    - Escudo Arcano te dá -1 de vantagem
+    - Barra de vida não imprime direito (HP tá menos que a metade mas a barrinha tá além da metade)
 
 */
 
@@ -72,8 +72,7 @@ int main(int argc, char** argv) {
             break;
         }
         
-        //useSkillE(&player, &enemy, ((rand()%enemy.skillNum)));
-        //turnEnemy(&player, &enemy);
+        turnEnemy(&player, &enemy);
     }
     printf("\n");
 

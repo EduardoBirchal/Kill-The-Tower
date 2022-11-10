@@ -8,7 +8,10 @@
 
 /* ==== Typedefs e Defines ==== */
 
-#define NUM_ENEMY_SKILLS 3
+#define NUM_ENEMY_SKILLS 5
+#define NUM_ENEMY_ACTIONS 5
+
+enum enemyActions {damage, heal, defend, buff, debuff};
 
 typedef struct enemySkill_s {
     sklFunct funct; // sklFunct é um ponteiro de função. Esse tipo é usado para feitiços, habilidades e itens.
@@ -17,6 +20,8 @@ typedef struct enemySkill_s {
     int maxCooldown;
     int manaCost;
     bool signature; // Se uma skill é signature, ela é específica ao inimigo e tem uma descrição narrativa.
+
+    int actionWeights[NUM_ENEMY_ACTIONS]; // Os pesos pra cada ação. Uma skill de dar dano e diminuir ataque teria, por exemplo, 2 no índice damage e 1 no índice debuff
 
     int cooldown;
 } enemySkillS;
@@ -186,7 +191,27 @@ typedef struct enemySkill_s {
         return true;
     }
 
-    // 
+    // Aumenta a armadura em +1
+    bool fortifyE (playerS *player, enemyS *enemy) {
+        enemy->armor++;
+        printSlow("\033[33mArmadura do inimigo +2!\033[0m\n\n");
+
+        return true;
+    }
+
+    // Ataca e aplica um efeito de veneno se acertar
+    bool poisonAtkE (playerS *player, enemyS *enemy) {
+        if (enemySkillAtkDmg(player, enemy, 2, 6)) {
+            int psnRoll = rollDice(1, 6, 1, 0);
+
+            printSlow("Rolagem de veneno - \033[36mrolando ");
+            printf("%id%i%+i", 1, 6, 1);
+            printCustomResult(psnRoll, "veneno");
+
+            player->status[poisonedS] = psnRoll;
+        }
+    }
+
 
 /* ==== Array de habilidades ==== */
 
@@ -209,6 +234,20 @@ typedef struct enemySkill_s {
             &leechAttackE,
             "Roubar Vitalidade",
             2,
+            0,
+            false,
+        },
+        {
+            &fortifyE,
+            "Fortificar",
+            2,
+            5,
+            false,
+        },
+        {
+            &poisonAtkE,
+            "Ataque Venenoso",
+            4,
             0,
             false,
         }
@@ -305,7 +344,7 @@ typedef struct enemySkill_s {
         fclose(file);
 
         // Inicializa o vetor de status do inimigo
-        for(int i=0; i<NUM_STATUSES; i++) {
+        for(int i=0; i<NUM_ENEMY_STATUSES; i++) {
             enemy.status[i] = false;     
         }
         
@@ -314,4 +353,70 @@ typedef struct enemySkill_s {
         enemy.mana = enemy.manaMax;
 
         return enemy;
+    }
+
+
+/* ==== IA do inimigo ==== */
+
+    // Retorna a segurança do inimigo ou player em relação a HP, numa escala de -5 a 5
+    int calcHpSafety (int max, int current) {
+        double safety = (double) current / (double) max; // Ganha uma fração entre o HP máximo e o atual
+
+        safety *= 10;  // Multiplica por 10, movendo ela uma casa decimal pra frente 
+        round(safety); // Arredonda pra ficar na escala, ficando no mínimo 0 e no máximo 10
+        safety -= 5;   // Subtrai 5 pra ficar entre -5 e 5
+
+        return (int) safety;
+    }
+
+    // Retorna a segurança do inimigo em relação a ser acertado por ataques, numa escala de -5 a 5
+    int calcHitSafety (int armor, int atkMod, int magMod, int atkNum) {
+        int highestMod = (atkMod < magMod) ? atkMod : magMod; // Pega o maior modificador entre o de magia e o de ataque, já que o player provavelmente vai usar o maior
+
+        double safety = armor - highestMod; // Chance, em 20, do inimigo ser acertado em um ataque 
+        
+        round(safety/2);       // Divide por 2 pra ficar chance em 10 e arredonda
+        round(safety/atkNum);  // Divide pelo número de ataques pra ganhar a chance de ser acertado em um turno
+        safety -= 5;           // Subtrai 5 pra ficar entre -5 e 5
+
+        return (int) safety;
+    }
+
+    // Retorna o quão recomendável é pro inimigo tomar a ação dano, numa escala de -5 a 5
+    int damageWeight (playerS *player, enemyS *enemy) {
+        int enemySafety = calcHpSafety (enemy->hpMax, enemy->hp) + calcHitSafety (enemy->armor, player->atkMod, player-> magMod, player->atkNum);
+        int playerSafety = calcHitSafety (player->armor, enemy->atkMod, enemy->skillMod, enemy->atkNum);
+
+        return (enemySafety-playerSafety)/3; // Divide por 3 porque a escala original é -15 a 15
+    }
+
+    int healWeight (playerS *player, enemyS *enemy) {
+
+    }
+
+    int decideActionEnemy (playerS *player, enemyS *enemy) {
+
+    }
+
+    // Executa as funções do turno do inimigo
+    void turnEnemy (playerS *player, enemyS *enemy) {
+        int option;
+
+        printInfo(*player, *enemy);
+        printf("Acao do inimigo: ");
+        scanf("%i", &option);
+
+        switch (option) //(decideActionEnemy(player, enemy))
+        {
+        case 0:
+            enemyAtk(player, enemy);
+            break;
+        
+        case 1:
+            useSkillE(player, enemy, ((rand()%enemy->skillNum)));
+            break;
+
+        default:
+            break;
+        } 
     }

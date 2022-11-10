@@ -137,14 +137,24 @@ int useItem (playerS *player, enemyS *enemy, int item) {
 /* ==== Imprimir menu de itens ==== */
 
 // Imprime o menu de itens.
-void printItems(playerS *player) {
+void printItems(playerS *player, enemyS *enemy) {
     int option = 0, i = 0;
+
+    printInfo(*player, *enemy);
+    printf("\nDigite 0 para mostrar/parar de mostrar descricoes.\n\n");
 
     for(i=0; i<player->invFill; i++) {
         printf("\033[33m%i:\033[0m ", i+1);
         fputs(player->inventory[i].name, stdout);
-        printf(" \033[36m(x%i)\033[0m\n", player->inventory[i].num);
+        printf(" \033[36m(x%i)\033[0m", player->inventory[i].num);
+
+        // Imprime a descrição, se showDesc for verdadeiro
+        if(showDesc) {
+            printf("\033[90m - %s\033[0m", player->inventory[i].desc);
+        }
+        printf("\n");
     }
+
     printf("\033[33m%i: \033[36mCancelar\033[0m\n", i+1);
 }
 
@@ -158,13 +168,18 @@ int readItem(playerS *player, enemyS *enemy) {
         scanf("%i", &option);
         printf("\n");
 
-        if(option>0 && option<=size) {                  // Se a opção é um feitiço, conjura ele.
+        if(option>0 && option<=size) {                  // Se a opção é um item, usa ele.
             printInfo(*player, *enemy);
-            if(useItem(player, enemy, option-1)) break; // Se ele retornar 1, acaba o loop. Feitiços retornam 0 se eles não funcionam 
-        }                                                     // (Exemplo: conjura Armadura Arcana quando ela já está em efeito)
-        else if(option==size+1) {  
+            if(useItem(player, enemy, option-1)) break; // Se ele retornar 1, acaba o loop. Itens retornam 0 se eles não funcionam 
+        }                                               // (Exemplo: usa Runa de Proteção quando ela já está em efeito)
+        else if(option == size+1) {  
             return 1; // Se a opção for cancelar, volta pro menu
         } 
+        else if(option == 0) { // Se a opção for 0, inverte showDesc e chama a função de novo
+            showDesc = !showDesc;
+            printItems(player, enemy);
+            return readItem(player, enemy);
+        }
         else {
             printf("Opcao invalida! (tem que ser um numero de 1 a %i).\n", size+1); // Se não for válida, pede pra colocar outra
         }
@@ -175,7 +190,7 @@ int readItem(playerS *player, enemyS *enemy) {
 
 // Imprime o menu e lê a escolha de item.
 int playerInv (playerS *player, enemyS *enemy) {
-    printItems(player);
+    printItems(player, enemy);
     if(readItem(player, enemy)) {
         return 1; // Retorna 1, fazendo com que o menu imprima de novo
     }

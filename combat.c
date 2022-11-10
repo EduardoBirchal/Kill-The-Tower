@@ -37,7 +37,7 @@ typedef struct spell_s {
     int cost;
 } spellS;
 
-static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
+int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
 
 /* ======= Combate ======= */
@@ -158,7 +158,7 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
         }
         total = roll;
 
-        if(adv) printf("\033[92m(Rolando com vantagem x%i)\033[0m\n", adv);
+        if(adv > 0) printf("\033[92m(Rolando com vantagem x%i)\033[0m\n", adv);
         
         // Rola com vantagem, ou seja, rola [adv] vezes e escolhe o maior resultado
         for(int i=0; i<adv; i++) {
@@ -945,72 +945,85 @@ static int showDesc = true; // Mostrar descrição dos feitiços e habilidades
         return evento;
     }
 
+    // Atualiza os status do player, fazendo as operações necessárias em cada um
+    bool updatePlayerStatus(playerS *player, enemyS *enemy, bool evento) {
+        // mageShldS
+            if (player->status[mageShldS] == 1) player->armor -= 5; // Quando mageShld está pra acabar, diminui a armadura em 5.
+            if (player->status[mageShldS] > 0) player->status[mageShldS]--; // Mage Shield dura pelo turno que ele foi ativado e o próximo turno.
+        
+
+        // tripAtk
+            if (player->status[tripAtk] == true) {
+                player->status[tripAtk] == false;
+                player->advantage--;
+            }
+        
+
+        // parryAtkS
+            if (player->status[parryAtkS] == 1) player->armor -= 3;
+            if (player->status[parryAtkS] > 0) player->status[parryAtkS]--;
+        
+
+        // hungerOfTheVoidS
+            if (player->status[hungerOfTheVoidS] == true) {
+                evento = rodarEvento(evento, *player, *enemy);
+
+                printSlow("Tentaculos do Longinquo se estendem pelo portal, dilacerando o inimigo com os dentes afiados de suas bocas disformes.\n");
+
+                int dmgRoll = rollDice(6, 1, player->magMod, 0);
+                printSlow("Rolagem de dano - \033[36mrolando ");
+                printf("%id%i%+i", 1, 6, player->magMod);
+                printRollResult(dmgRoll);
+                enemy->hp -= dmgRoll;
+                printf("\n\n");
+            }
+            
+
+        // searingLightS
+            if (player->status[searingLightS] == true) {
+                evento = rodarEvento(evento, *player, *enemy);
+
+                printSlow("A coluna cintilante de luz persiste, queimando enquanto brilha.\n");
+                enemy->hp -= player->magMod;
+            }
+
+
+        // btlTranceS
+            if (player->status[btlTranceS] == 1) {
+                player->atkMod -= 3;
+                player->dmgMod -= 3;
+            }
+
+            if (player->status[btlTranceS] > 0) player->status[btlTranceS]--;
+
+
+        // poisonedS
+            if(player->status[poisonedS]) {
+                evento = rodarEvento(evento, *player, *enemy);
+
+                printSlow("Voce toma ");
+                printf("\033[32m%i", player->status[poisonedS]);
+                printSlow(" de dano \033[0mde veneno!\n");
+
+                player->hp -= player->status[poisonedS];
+                player->status[poisonedS]--;
+            }
+
+
+        return evento;
+    }
+
+    bool updateEnemyStatus(playerS *player, enemyS *enemy, bool evento) {
+
+        return evento;
+    }
+
     // Checa o array de status do player e faz os efeitos de cada status
     void updateStatus(playerS *player, enemyS *enemy) {
-        int evento = false; // Se teve algum evento que o player precisa ler, evento = true e o jogo pede um enter depois de todos os eventos.
+        bool evento = false; // Se teve algum evento que o player precisa ler, evento = true e o jogo pede um enter depois de todos os eventos.
 
-        for (int i=0; i<NUM_STATUSES; i++) {
-            switch (i)
-            {
-            case mageShldS:
-                if (player->status[mageShldS] == 1) player->armor -= 5; // Quando mageShld está pra acabar, diminui a armadura em 5.
-                if (player->status[mageShldS] > 0) player->status[mageShldS]--; // Mage Shield dura pelo turno que ele foi ativado e o próximo turno.
-                
-                break;
-
-            case tripAtkS:
-                if (player->status[tripAtk] == true) {
-                    player->status[tripAtk] == false;
-                    player->advantage--;
-                }
-                
-                break;    
-
-            case parryAtkS:
-                if (player->status[parryAtkS] == 1) player->armor -= 3;
-                if (player->status[parryAtkS] > 0) player->status[parryAtkS]--;
-                
-                break;       
-
-            case hungerOfTheVoidS:
-                if (player->status[hungerOfTheVoidS] == true) {
-                    evento = rodarEvento(evento, *player, *enemy);
-
-                    printSlow("Tentaculos do Longinquo se estendem pelo portal, dilacerando o inimigo com os dentes afiados de suas bocas disformes.\n");
-
-                    int dmgRoll = rollDice(6, 1, player->magMod, 0);
-                    printSlow("Rolagem de dano - \033[36mrolando ");
-                    printf("%id%i%+i", 1, 6, player->magMod);
-                    printRollResult(dmgRoll);
-                    enemy->hp -= dmgRoll;
-                    printf("\n\n");
-                }
-                
-                break;     
-
-            case searingLightS:
-                if (player->status[searingLightS] == true) {
-                    evento = rodarEvento(evento, *player, *enemy);
-
-                    printSlow("A coluna cintilante de luz persiste, queimando enquanto brilha.\n");
-                    enemy->hp -= player->magMod;
-                }
-                
-                break;           
-            
-            case btlTranceS:
-                if (player->status[btlTranceS] == 1) {
-                    player->atkMod -= 3;
-                    player->dmgMod -= 3;
-                }
-
-                if (player->status[btlTranceS] > 0) player->status[btlTranceS]--;
-                break;
-
-            default:
-                break;
-            }
-        }
+        evento = updatePlayerStatus(player, enemy, evento);
+        evento = updateEnemyStatus(player, enemy, evento);
 
         if (evento) {
             printf("Press ENTER to continue.");

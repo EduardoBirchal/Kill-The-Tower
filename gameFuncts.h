@@ -30,8 +30,8 @@
 #define MAX_OPTION 15
 #define OPTION_AMT 5
 
-#define NUM_STATUSES 9
-#define MAX_WPN_SMN 3
+#define NUM_STATUSES 10
+#define NUM_ENEMY_STATUSES 1
 
 #define INV_SIZE 6
 #define MAX_ITEM 25
@@ -83,7 +83,7 @@ typedef struct player_s {
 typedef struct enemy_s {
     int hpMax, hp, dmgDiceNum, dmgDice, dmgMod, atkMod, atkNum, armor, skillMod, manaMax, mana;
     char name[MAX_NAME], atkName[MAX_ENEMY_SKILL];
-    int status[NUM_STATUSES];
+    int status[NUM_ENEMY_STATUSES];
     int advantage;
 
     struct enemySkill_s *knownSkills;
@@ -94,7 +94,7 @@ typedef struct enemy_s {
 
 /* ==== Typedefs ==== */
 
-enum statNums {mageArmS, mageShldS, tripAtkS, parryAtkS, rdntSmiteS, hungerOfTheVoidS, azathothDreamS, searingLightS, btlTranceS};
+enum statNums {mageArmS, mageShldS, tripAtkS, parryAtkS, rdntSmiteS, hungerOfTheVoidS, azathothDreamS, searingLightS, btlTranceS, poisonedS};
 enum classes {warrior, wizard, warlock, paladin};
 
 enum spells {fireBlt, sonicBlst, mageArm, mageShld, magicMsl, blessWpn, rdntSmite, voidHunger, yogSothothSight, cthulhuFire, azathothDream, srngLight};
@@ -103,8 +103,9 @@ enum skills {doubleStrk, tripAtk, selfDmg, parryAtk, scndWind, dvnGuidance, bldO
 enum enemySkills {eFireBlt, eRegenerate, eleechAtk};
 
 typedef int bool;
-typedef bool (*sklFunct) (playerS *player, enemyS *enemy); // define bool (*coisa) (playerS *player, enemyS *enemy) como só sklFunct. É um ponteiro de função.
+typedef bool (*sklFunct) (playerS *player, enemyS *enemy); // Define bool (*coisa) (playerS *player, enemyS *enemy) como só sklFunct. É um ponteiro de função.
 
+extern int showDesc; // Deixa outros arquivos (como inventory.c) acessarem a variável showDesc, que define se descrições são impressas pra itens, skills, etc
 
 /* ==== Funções ==== */
 
@@ -121,6 +122,9 @@ typedef bool (*sklFunct) (playerS *player, enemyS *enemy); // define bool (*cois
 
     // Imprime uma barra de mana
     void printMana (int manaMax, int mana);
+
+    // Coloca o número dentro de um máximo e um mínimo
+    int checkRange (int num, int min, int max);
 
     // Conserta o HP pra não ficar negativo
     int updateValues (playerS *player, enemyS *enemy);
@@ -299,7 +303,7 @@ typedef bool (*sklFunct) (playerS *player, enemyS *enemy); // define bool (*cois
     int useItem (playerS *player, enemyS *enemy, int item);
 
     // Imprime o menu de itens.
-    void printItems(playerS *player);
+    void printItems(playerS *player, enemyS *enemy);
 
     // Lê a escolha do player.
     int readItem(playerS *player, enemyS *enemy);
@@ -334,35 +338,38 @@ typedef bool (*sklFunct) (playerS *player, enemyS *enemy); // define bool (*cois
 
 /* ==== Inimigo ==== */
 
-// Anuncia o ataque do inimigo
-void announceAtkE(enemyS *enemy);
+    // Anuncia o ataque do inimigo
+    void announceAtkE(enemyS *enemy);
 
-// Acerto crítico do inimigo
-int enemyCrit(playerS *player, enemyS *enemy);
+    // Acerto crítico do inimigo
+    int enemyCrit(playerS *player, enemyS *enemy);
 
-// Acerto não-crítico do inimigo
-int enemyHit(playerS *player, enemyS *enemy);
+    // Acerto não-crítico do inimigo
+    int enemyHit(playerS *player, enemyS *enemy);
 
-// Um ataque do inimigo
-int enemyAtk(playerS *player, enemyS *enemy);
+    // Um ataque do inimigo
+    int enemyAtk(playerS *player, enemyS *enemy);
 
-// Rola o ataque pra uma habilidade que não é um ataque básico.
-int enemySkillAtk (enemyS *enemy);
+    // Rola o ataque pra uma habilidade que não é um ataque básico.
+    int enemySkillAtk (enemyS *enemy);
 
-// Dá dano de uma skill
-int enemySkillDmg (playerS* player, enemyS *enemy, int dmgDie, int dmgDieNum);
+    // Dá dano de uma skill
+    int enemySkillDmg (playerS* player, enemyS *enemy, int dmgDie, int dmgDieNum);
 
-// Uma habilidade de dano genérica. Retorna o dano, pra efeitos adicionais.
-int enemySkillAtkDmg (playerS* player, enemyS *enemy, int dmgDieNum, int dmgDie);
+    // Uma habilidade de dano genérica. Retorna o dano, pra efeitos adicionais.
+    int enemySkillAtkDmg (playerS* player, enemyS *enemy, int dmgDieNum, int dmgDie);
 
-// Uma skill de cura genérica
-int enemySkillHeal (enemyS *enemy, int healDieNum, int healDie, int healMod);
+    // Uma skill de cura genérica
+    int enemySkillHeal (enemyS *enemy, int healDieNum, int healDie, int healMod);
 
-// Anuncia e usa uma skill
-void useSkillE (playerS *player, enemyS *enemy, int index);
+    // Anuncia e usa uma skill
+    void useSkillE (playerS *player, enemyS *enemy, int index);
 
-// Aloca e preenche o vetor de skills do inimigo
-void initSkillsE (enemyS *enemy);
+    // Aloca e preenche o vetor de skills do inimigo
+    void initSkillsE (enemyS *enemy);
 
-// Cria o inimigo
-enemyS createEnemy(int index);
+    // Cria o inimigo
+    enemyS createEnemy(int index);
+
+    // Executa as funções do turno do inimigo
+    void turnEnemy (playerS *player, enemyS *enemy);
