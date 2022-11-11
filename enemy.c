@@ -9,9 +9,11 @@
 /* ==== Typedefs e Defines ==== */
 
 #define NUM_ENEMY_SKILLS 5
-#define NUM_ENEMY_ACTIONS 5
+#define NUM_ENEMY_ACTIONS 4
 
-enum enemyActions {damage, heal, defend, buff, debuff};
+#define BASE_ATTACK_WEIGHT 6
+
+enum enemyActions {damage, heal, defend, tactical};
 
 typedef struct enemySkill_s {
     sklFunct funct; // sklFunct é um ponteiro de função. Esse tipo é usado para feitiços, habilidades e itens.
@@ -194,7 +196,7 @@ typedef struct enemySkill_s {
     // Aumenta a armadura em +1
     bool fortifyE (playerS *player, enemyS *enemy) {
         enemy->armor++;
-        printSlow("\033[33mArmadura do inimigo +2!\033[0m\n\n");
+        printSlow("\033[33mArmadura do inimigo +1!\033[0m\n\n");
 
         return true;
     }
@@ -222,6 +224,7 @@ typedef struct enemySkill_s {
             3,                  // Cooldown
             0,                  // Custo de mana (só skills poderosas custam mana)
             false,              // É signature
+            {3, 0, 0, 0},       // Pesos de cada ação (dano, cura, defensiva, tática)
         },
         {
             &regenerateE,
@@ -229,6 +232,7 @@ typedef struct enemySkill_s {
             4,
             7,
             false,
+            {0, 3, 0, 0},
         },
         {
             &leechAttackE,
@@ -236,6 +240,7 @@ typedef struct enemySkill_s {
             2,
             0,
             false,
+            {2, 1, 0, 0},
         },
         {
             &fortifyE,
@@ -243,6 +248,7 @@ typedef struct enemySkill_s {
             2,
             5,
             false,
+            {0, 2, 0, 0},
         },
         {
             &poisonAtkE,
@@ -250,6 +256,7 @@ typedef struct enemySkill_s {
             4,
             0,
             false,
+            {1, 0, 0, 2},
         }
     };
 
@@ -358,18 +365,17 @@ typedef struct enemySkill_s {
 
 /* ==== IA do inimigo ==== */
 
-    // Retorna a segurança do inimigo ou player em relação a HP, numa escala de -5 a 5
+    // Retorna a segurança do inimigo ou player em relação a HP, numa escala de 0 a 10
     int calcHpSafety (int max, int current) {
         double safety = (double) current / (double) max; // Ganha uma fração entre o HP máximo e o atual
 
         safety *= 10;  // Multiplica por 10, movendo ela uma casa decimal pra frente 
         round(safety); // Arredonda pra ficar na escala, ficando no mínimo 0 e no máximo 10
-        safety -= 5;   // Subtrai 5 pra ficar entre -5 e 5
 
         return (int) safety;
     }
 
-    // Retorna a segurança do inimigo em relação a ser acertado por ataques, numa escala de -5 a 5
+    // Retorna a segurança do inimigo em relação a ser acertado por ataques, numa escala de 0 a 10
     int calcHitSafety (int armor, int atkMod, int magMod, int atkNum) {
         int highestMod = (atkMod < magMod) ? atkMod : magMod; // Pega o maior modificador entre o de magia e o de ataque, já que o player provavelmente vai usar o maior
 
@@ -377,46 +383,86 @@ typedef struct enemySkill_s {
         
         round(safety/2);       // Divide por 2 pra ficar chance em 10 e arredonda
         round(safety/atkNum);  // Divide pelo número de ataques pra ganhar a chance de ser acertado em um turno
-        safety -= 5;           // Subtrai 5 pra ficar entre -5 e 5
 
         return (int) safety;
     }
 
-    // Retorna o quão recomendável é pro inimigo tomar a ação dano, numa escala de -5 a 5
+    // Retorna o quão recomendável é pro inimigo tomar uma ação de dano, numa escala de 0 a 10 
     int damageWeight (playerS *player, enemyS *enemy) {
         int enemySafety = calcHpSafety (enemy->hpMax, enemy->hp) + calcHitSafety (enemy->armor, player->atkMod, player-> magMod, player->atkNum);
         int playerSafety = calcHitSafety (player->armor, enemy->atkMod, enemy->skillMod, enemy->atkNum);
 
-        return (enemySafety-playerSafety)/3; // Divide por 3 porque a escala original é -15 a 15
+        return (enemySafety-playerSafety+10) / 3; // Divide por 3 porque a escala original é -15 a 15. Subtrai playerSafety porque se o player está muito seguro, é melhor tomar uma ação tática. Adiciona 10 porque originalmente ficaria -10 a 20 em vez de 0 a 30
     }
 
+    // Retorna o quão recomendável é pro inimigo tomar uma ação de cura, numa escala de 0 a 10
     int healWeight (playerS *player, enemyS *enemy) {
+        int hpSafety = calcHpSafety (enemy->hpMax, enemy->hp);
 
+        return 10-hpSafety; // Quanto menos seguro o inimigo, melhor é ele se curar. Sendo assim, subtrai hpSafety de 10 pra ficar no máximo 10 e no mínimo 0
     }
 
-    int decideActionEnemy (playerS *player, enemyS *enemy) {
+    // Retorna o quão recomendável é pro inimigo tomar uma ação defensiva, numa escala de -5 a 5
+    int defendWeight (playerS *player, enemyS *enemy) {
+        int hitSafety = calcHitSafety (enemy->armor, player->atkMod, player-> magMod, player->atkNum);
 
+        return 10-hitSafety;
+    }
+
+    // Retorna o quão recomendável é pro inimigo tomar uma ação tática, numa escala de -5 a 5
+    int tacticalWeight (playerS *player, enemyS *enemy) {
+        int playerSafety = calcHitSafety (player->armor, enemy->atkMod, enemy->skillMod, enemy->atkNum);
+
+        return 10-playerSafety;
+    }
+
+    // Insere, num array de ações, os pesos de cada ação que o inimigo pode tomar
+    void calcActionWeights (playerS *player, enemyS *enemy, int *actionArray) {
+        actionArray[damage] = damageWeight (player, enemy);       // Ação de dano
+        actionArray[heal] = healWeight (player, enemy);           // Ação de cura
+        actionArray[defend] = defendWeight (player, enemy);       // Ação defensiva
+        actionArray[tactical] = tacticalWeight (player, enemy);   // Ação tática (buff em si mesmo ou debuff no player)
+    }
+
+    int calcSkillWeight (playerS *player, enemyS *enemy, int *actionArray, enemySkillS skill) {
+        int weight = 0;
+
+        for (int i=0; i<NUM_ENEMY_ACTIONS; i++) {
+            weight += skill.actionWeights[i] * actionArray[i];
+        }
+
+        return weight;
+    }
+
+    int decideActionE (playerS *player, enemyS *enemy, int *actionArray) {
+        int atkWeight = BASE_ATTACK_WEIGHT * actionArray[damage];
+        int skillChoice = -1, skillWeight = atkWeight; // skillWeight começa como atkWeight, porque se nenhuma skill for muito preferível, o inimigo simplesmente ataca
+
+        for(int i=0; i<enemy->skillNum; i++) {
+            int currentWeight = calcSkillWeight(player, enemy, actionArray, enemy->knownSkills[i]);
+
+            // Só escolhe a skill se ela tiver maior prioridade que as outras e não custar mais mana do que o inimigo pode gastar
+            if (currentWeight > skillWeight && enemy->knownSkills[i].manaCost >= enemy->mana) {
+                skillWeight = currentWeight;
+                skillChoice = i;
+            }
+        }
+
+        return skillChoice;
     }
 
     // Executa as funções do turno do inimigo
     void turnEnemy (playerS *player, enemyS *enemy) {
-        int option;
+        int actionWeights[NUM_ENEMY_ACTIONS];
+        int choice;
 
-        printInfo(*player, *enemy);
-        printf("Acao do inimigo: ");
-        scanf("%i", &option);
+        calcActionWeights(player, enemy, actionWeights);
+        choice = decideActionE(player, enemy, actionWeights);
 
-        switch (option) //(decideActionEnemy(player, enemy))
-        {
-        case 0:
+        if (choice < 0) {
             enemyAtk(player, enemy);
-            break;
-        
-        case 1:
-            useSkillE(player, enemy, ((rand()%enemy->skillNum)));
-            break;
-
-        default:
-            break;
-        } 
+        }
+        else {
+            useSkillE(player, enemy, choice);
+        }
     }

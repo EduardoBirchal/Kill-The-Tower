@@ -15,8 +15,7 @@ Interface
     - Customizar nome
     - Traduzir pra inglês
 Inimigo
-    - Mais skills
-    - IA do Inimigo
+    - IA do Inimigo <-- FAZENDO
 Player
     - Sistema de levels
     - Equipamento
@@ -38,6 +37,7 @@ Bugs
     - Barra de vida não imprime direito (HP tá menos que a metade mas a barrinha tá além da metade)
 
 */
+
 
 /* ==== Main ==== */
 
