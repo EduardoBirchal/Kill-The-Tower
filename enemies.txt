@@ -16,9 +16,9 @@ atkMod 4
 atkNum 1
 arm 12
 skillMod 1
-skillNum 3
+skillNum 5
 mana 20
-skills 0 2 1
+skills 0 2 1 3 4
 Faca de Ritual
 
 ====
@@ -31,9 +31,9 @@ atkMod 5
 atkNum 1
 arm 15
 skillMod 2
-skillNum 2
+skillNum 5
 mana 20
-skills 0 1
+skills 0 1 2 3 4
 Soco
 
 ====
@@ -46,7 +46,7 @@ atkMod 4
 atkNum 2
 arm 12
 skillMod -1
-skillNum 2
+skillNum 5
 mana 15
-skills 2 1
+skills 2 1 0 3 4
 Espada Curta

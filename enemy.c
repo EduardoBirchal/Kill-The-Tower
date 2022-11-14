@@ -11,7 +11,7 @@
 #define NUM_ENEMY_SKILLS 5
 #define NUM_ENEMY_ACTIONS 4
 
-#define BASE_ATTACK_WEIGHT 6
+#define BASE_ATTACK_WEIGHT 4
 
 enum enemyActions {damage, heal, defend, tactical};
 
@@ -402,7 +402,7 @@ typedef struct enemySkill_s {
         return 10-hpSafety; // Quanto menos seguro o inimigo, melhor é ele se curar. Sendo assim, subtrai hpSafety de 10 pra ficar no máximo 10 e no mínimo 0
     }
 
-    // Retorna o quão recomendável é pro inimigo tomar uma ação defensiva, numa escala de -5 a 5
+    // Retorna o quão recomendável é pro inimigo tomar uma ação defensiva, numa escala de 0 a 10
     int defendWeight (playerS *player, enemyS *enemy) {
         int hitSafety = calcHitSafety (enemy->armor, player->atkMod, player-> magMod, player->atkNum);
 
@@ -428,9 +428,11 @@ typedef struct enemySkill_s {
         int weight = 0;
 
         for (int i=0; i<NUM_ENEMY_ACTIONS; i++) {
+            printf("%i = %i, ", skill.actionWeights[i], actionArray[i]);
             weight += skill.actionWeights[i] * actionArray[i];
         }
 
+        printf("\n");
         return weight;
     }
 
@@ -439,10 +441,13 @@ typedef struct enemySkill_s {
         int skillChoice = -1, skillWeight = atkWeight; // skillWeight começa como atkWeight, porque se nenhuma skill for muito preferível, o inimigo simplesmente ataca
 
         for(int i=0; i<enemy->skillNum; i++) {
+            printf("Skill: %s\n", enemy->knownSkills[i].name);
             int currentWeight = calcSkillWeight(player, enemy, actionArray, enemy->knownSkills[i]);
 
+            printf("currentWeight: %i, skillWeight: %i\n\n", currentWeight, skillWeight);
             // Só escolhe a skill se ela tiver maior prioridade que as outras e não custar mais mana do que o inimigo pode gastar
-            if (currentWeight > skillWeight && enemy->knownSkills[i].manaCost >= enemy->mana) {
+            if (currentWeight > skillWeight && enemy->knownSkills[i].manaCost <= enemy->mana) {
+                
                 skillWeight = currentWeight;
                 skillChoice = i;
             }
