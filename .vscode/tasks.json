@@ -7,6 +7,11 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
+                "combat.c",
+                "enemy.c",
+                "inventory.c",
+                "term.c",
+                "gameFuncts.h",
                 "${file}",
                 "-o",
                 "${fileDirname}\\${fileBasenameNoExtension}.exe"
@@ -17,31 +22,11 @@
             "problemMatcher": [
                 "$gcc"
             ],
-            "group": "build",
-            "detail": "Tarefa gerada pelo Depurador."
-        },
-        {
-            "type": "cppbuild",
-            "label": "C/C++: cl.exe arquivo de build ativo",
-            "command": "cl.exe",
-            "args": [
-                "/Zi",
-                "/EHsc",
-                "/nologo",
-                "/Fe${fileDirname}\\${fileBasenameNoExtension}.exe",
-                "${file}"
-            ],
-            "options": {
-                "cwd": "${fileDirname}"
-            },
-            "problemMatcher": [
-                "$msCompile"
-            ],
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
-            "detail": "Tarefa gerada pelo Depurador."
+            "detail": "Tarefa gerada pelo Depurador.",
         }
     ],
     "version": "2.0.0"

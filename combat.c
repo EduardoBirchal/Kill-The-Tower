@@ -193,12 +193,13 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
     // Acerto crítico do player
     int playerCrit(playerS *player, enemyS *enemy) {
+        int dmgMod = (player->dmgMod*2) - player->status[weakenedS];
         // Rola o dado
-        int dmgRoll = rollDice(player->dmgDice, player->dmgDiceNum*2, player->dmgMod*2, 0);
+        int dmgRoll = rollDice(player->dmgDice, player->dmgDiceNum*2, dmgMod, 0);
 
         // Imprime as coisas
         printSlow("Rolagem de dano - \033[36mrolando ");
-        printf("%id%i%+i", player->dmgDiceNum*2, player->dmgDice, player->dmgMod*2);
+        printf("%id%i%+i", player->dmgDiceNum*2, player->dmgDice, dmgMod);
         printRollResult(dmgRoll);
         printSlow(player->critString);
 
@@ -211,12 +212,14 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
     // Acerto não-crítico do player
     int playerHit(playerS *player, enemyS *enemy) {
+        int dmgMod = player->dmgMod - player->status[weakenedS];
+
         // Rola o dado
-        int dmgRoll = rollDice(player->dmgDice, player->dmgDiceNum, player->dmgMod, 0);
+        int dmgRoll = rollDice(player->dmgDice, player->dmgDiceNum, dmgMod, 0);
 
         // Imprime as coisas
         printSlow("Rolagem de dano - \033[36mrolando ");
-        printf("%id%i%+i", player->dmgDiceNum, player->dmgDice, player->dmgMod);
+        printf("%id%i%+i", player->dmgDiceNum, player->dmgDice, dmgMod);
         printRollResult(dmgRoll);
         printSlow(player->hitString);
 
@@ -1007,6 +1010,12 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
                 player->hp -= player->status[poisonedS];
                 player->status[poisonedS]--;
+            }
+
+
+        // weakenedS
+            if(player->status[weakenedS]) {
+                player->status[weakenedS]--;
             }
 
 

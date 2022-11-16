@@ -8,10 +8,10 @@
 
 /* ==== Typedefs e Defines ==== */
 
-#define NUM_ENEMY_SKILLS 5
+#define NUM_ENEMY_SKILLS 6
 #define NUM_ENEMY_ACTIONS 4
 
-#define BASE_ATTACK_WEIGHT 4
+#define BASE_ATTACK_WEIGHT 2
 
 enum enemyActions {damage, heal, defend, tactical};
 
@@ -207,11 +207,22 @@ typedef struct enemySkill_s {
             int psnRoll = rollDice(1, 6, 1, 0);
 
             printSlow("Rolagem de veneno - \033[36mrolando ");
-            printf("%id%i%+i", 1, 6, 1);
+            printf("%id%i%+i", 1, 4, 0);
             printCustomResult(psnRoll, "veneno");
 
-            player->status[poisonedS] = psnRoll;
+            player->status[poisonedS] += psnRoll;
         }
+    }
+
+    // Aplica um efeito de enfraquecimento 
+    bool sapStrengthE (playerS *player, enemyS *enemy) {
+        int wknRoll = rollDice(1, 4, 1, 0);
+
+        printSlow("Rolagem de enfraquecimento - \033[36mrolando ");
+        printf("%id%i%+i", 1, 4, 1);
+        printCustomResult(wknRoll, "enfraquecimento");
+
+        player->status[weakenedS] += wknRoll;
     }
 
 
@@ -248,7 +259,7 @@ typedef struct enemySkill_s {
             2,
             5,
             false,
-            {0, 2, 0, 0},
+            {0, 0, 2, 0},
         },
         {
             &poisonAtkE,
@@ -257,6 +268,14 @@ typedef struct enemySkill_s {
             0,
             false,
             {1, 0, 0, 2},
+        },
+        {
+            &sapStrengthE,
+            "Extrair Forca",
+            3,
+            3,
+            false,
+            {0, 0, 0, 3},
         }
     };
 
@@ -377,12 +396,14 @@ typedef struct enemySkill_s {
 
     // Retorna a segurança do inimigo em relação a ser acertado por ataques, numa escala de 0 a 10
     int calcHitSafety (int armor, int atkMod, int magMod, int atkNum) {
-        int highestMod = (atkMod < magMod) ? atkMod : magMod; // Pega o maior modificador entre o de magia e o de ataque, já que o player provavelmente vai usar o maior
+        int highestMod = (atkMod > magMod) ? atkMod : magMod; // Pega o maior modificador entre o de magia e o de ataque, já que o player provavelmente vai usar o maior
 
         double safety = armor - highestMod; // Chance, em 20, do inimigo ser acertado em um ataque 
         
-        round(safety/2);       // Divide por 2 pra ficar chance em 10 e arredonda
-        round(safety/atkNum);  // Divide pelo número de ataques pra ganhar a chance de ser acertado em um turno
+        safety /= 2;
+        round(safety); // Divide por 2 pra ficar chance em 10 e arredonda
+        safety /= atkNum;
+        round(safety); // Divide pelo número de ataques pra ganhar a chance de ser acertado em um turno
 
         return (int) safety;
     }
@@ -392,7 +413,9 @@ typedef struct enemySkill_s {
         int enemySafety = calcHpSafety (enemy->hpMax, enemy->hp) + calcHitSafety (enemy->armor, player->atkMod, player-> magMod, player->atkNum);
         int playerSafety = calcHitSafety (player->armor, enemy->atkMod, enemy->skillMod, enemy->atkNum);
 
-        return (enemySafety-playerSafety+10) / 3; // Divide por 3 porque a escala original é -15 a 15. Subtrai playerSafety porque se o player está muito seguro, é melhor tomar uma ação tática. Adiciona 10 porque originalmente ficaria -10 a 20 em vez de 0 a 30
+        enemySafety /= 2;
+
+        return (enemySafety-playerSafety+10) / 2; // Divide por 2 porque a escala original é -10 a 10. Subtrai playerSafety porque se o player está muito seguro, é melhor tomar uma ação tática. Adiciona 10 porque originalmente ficaria -10 a 20 em vez de 0 a 30
     }
 
     // Retorna o quão recomendável é pro inimigo tomar uma ação de cura, numa escala de 0 a 10
@@ -428,7 +451,7 @@ typedef struct enemySkill_s {
         int weight = 0;
 
         for (int i=0; i<NUM_ENEMY_ACTIONS; i++) {
-            printf("%i = %i, ", skill.actionWeights[i], actionArray[i]);
+            printf("%i = %i*%i | ", i, skill.actionWeights[i], actionArray[i]);
             weight += skill.actionWeights[i] * actionArray[i];
         }
 
@@ -443,14 +466,20 @@ typedef struct enemySkill_s {
         for(int i=0; i<enemy->skillNum; i++) {
             printf("Skill: %s\n", enemy->knownSkills[i].name);
             int currentWeight = calcSkillWeight(player, enemy, actionArray, enemy->knownSkills[i]);
-
             printf("currentWeight: %i, skillWeight: %i\n\n", currentWeight, skillWeight);
+
             // Só escolhe a skill se ela tiver maior prioridade que as outras e não custar mais mana do que o inimigo pode gastar
-            if (currentWeight > skillWeight && enemy->knownSkills[i].manaCost <= enemy->mana) {
-                
-                skillWeight = currentWeight;
-                skillChoice = i;
+            if (enemy->knownSkills[i].manaCost <= enemy->mana) {
+                if (currentWeight > skillWeight) {
+                    skillWeight = currentWeight;
+                    skillChoice = i;
+                }
+                else if (currentWeight == skillWeight && (rand()%3)) { // Se for de igual prioridade, tem 1/3 de chance de substituir mesmo assim
+                    skillWeight = currentWeight;
+                    skillChoice = i;
+                }
             }
+            
         }
 
         return skillChoice;

@@ -30,7 +30,7 @@
 #define MAX_OPTION 15
 #define OPTION_AMT 5
 
-#define NUM_STATUSES 10
+#define NUM_STATUSES 11
 #define NUM_ENEMY_STATUSES 1
 
 #define INV_SIZE 6
@@ -94,7 +94,7 @@ typedef struct enemy_s {
 
 /* ==== Typedefs ==== */
 
-enum statNums {mageArmS, mageShldS, tripAtkS, parryAtkS, rdntSmiteS, hungerOfTheVoidS, azathothDreamS, searingLightS, btlTranceS, poisonedS};
+enum statNums {mageArmS, mageShldS, tripAtkS, parryAtkS, rdntSmiteS, hungerOfTheVoidS, azathothDreamS, searingLightS, btlTranceS, poisonedS, weakenedS};
 enum classes {warrior, wizard, warlock, paladin};
 
 enum spells {fireBlt, sonicBlst, mageArm, mageShld, magicMsl, blessWpn, rdntSmite, voidHunger, yogSothothSight, cthulhuFire, azathothDream, srngLight};
