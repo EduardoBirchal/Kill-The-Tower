@@ -14,7 +14,7 @@ dmgDice 6
 dmgMod 3
 atkMod 4
 atkNum 1
-arm 12
+arm 8
 skillMod 1
 skillNum 6
 mana 20
@@ -29,7 +29,7 @@ dmgDice 4
 dmgMod 1
 atkMod 5
 atkNum 1
-arm 15
+arm 12
 skillMod 2
 skillNum 6
 mana 20
@@ -44,7 +44,7 @@ dmgDice 4
 dmgMod 2
 atkMod 4
 atkNum 2
-arm 12
+arm 8
 skillMod -1
 skillNum 6
 mana 15

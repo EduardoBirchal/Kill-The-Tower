@@ -18,7 +18,8 @@
 #define MAX_DESC_SPELL 100
 
 
-/* ==== Typedefs ==== */
+/* ==== Structs ==== */
+
 
 typedef struct skill_s {
     sklFunct funct; // sklFunct é um ponteiro de função. Esse tipo é usado para feitiços, habilidades e itens.
@@ -36,6 +37,7 @@ typedef struct spell_s {
 
     int cost;
 } spellS;
+
 
 int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
@@ -261,6 +263,27 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
             printSlow(player->missString);
             return 0;
         }
+    }
+
+    // Retorna true e imprime uma mensagem se alguém morreu
+    bool battleIsOver (playerS player, enemyS enemy) {
+        int battleState = 0;
+
+        updateValues(&player, &enemy);
+        
+        battleState = updateValues(&player, &enemy); // Faz o updateValues antes e depois de atualizar os status, pra nao mostrar HP nem mana negativo.
+        if(battleState) {
+            printInfo(player, enemy); // Se alguém morreu, imprime a tela pra mostrar quem foi e retorna true.
+            if (battleState == 1) {
+                printSlow("O inimigo cai no chao, derrotado.\n");
+            }
+            else if (battleState == 2) {
+                printSlow("Voce sucumbe aos seus ferimentos e desmaia.\n");
+            }
+            
+            return true;
+        }
+        else return false;
     }
 
 
@@ -562,11 +585,17 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
         return 0;
     }
 
-    // Diminui os cooldowns de toda habilidade.
-    void updateCooldown (playerS *player) {
+    // Diminui os cooldowns de toda habilidade do player.
+    void updatePlayerCooldown (playerS *player) {
         for(int i=0; i<player->skillNum; i++) {
-            if(player->knownSkills[i].cooldown>0) player->knownSkills[i].cooldown--;
+            if(player->knownSkills[i].cooldown > 0) player->knownSkills[i].cooldown--;
         }
+    }
+
+    // Diminui os cooldowns do player e do inimigo.
+    void updateCooldowns (playerS *player, enemyS *enemy) {
+        updatePlayerCooldown(player);
+        updateEnemyCooldown(enemy);
     }
 
 
@@ -1180,7 +1209,7 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
             {
             case warrior:
                 // Stats do player
-                player->armor = 14;
+                player->armor = 12;
                 player->atkMod = 6;
                 player->atkNum = 1;
                 player->dmgDice = 6;
@@ -1211,7 +1240,7 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
                 break;
             
             case wizard:
-                player->armor = 10;
+                player->armor = 8;
                 player->atkMod = 0;
                 player->atkNum = 1;
                 player->dmgDice = 6;
@@ -1237,7 +1266,7 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
                 break;
 
             case warlock:
-                player->armor = 11;
+                player->armor = 9;
                 player->atkMod = 0;
                 player->atkNum = 1;
                 player->dmgDice = 8;
@@ -1265,7 +1294,7 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
                 break;
 
             case paladin:
-                player->armor = 14;
+                player->armor = 12;
                 player->atkMod = 5;
                 player->atkNum = 1;
                 player->dmgDice = 8;

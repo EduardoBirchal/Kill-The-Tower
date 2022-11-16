@@ -48,6 +48,7 @@
 #define CONFIG_AMT 2
 
 #define MAX_ENEMY_SKILL 25
+#define NUM_ENEMY_ACTIONS 4
 
 
 /* ==== Structs ==== */
@@ -81,7 +82,7 @@ typedef struct player_s {
 } playerS;
 
 typedef struct enemy_s {
-    int hpMax, hp, dmgDiceNum, dmgDice, dmgMod, atkMod, atkNum, armor, skillMod, manaMax, mana;
+    int hpMax, hp, dmgDiceNum, dmgDice, dmgMod, atkMod, atkNum, armor, skillMod, manaMax, mana, tacticalsInARow;
     char name[MAX_NAME], atkName[MAX_ENEMY_SKILL];
     int status[NUM_ENEMY_STATUSES];
     int advantage;
@@ -128,12 +129,16 @@ extern int showDesc; // Deixa outros arquivos (como inventory.c) acessarem a var
 
     // Conserta o HP pra não ficar negativo
     int updateValues (playerS *player, enemyS *enemy);
+    
 
     // Rola [num] dados de [size] lados
     int rollDice(int size, int num, int mod, int adv);
 
     // Faz o ataque do player
     int playerAtk(playerS *player, enemyS *enemy);
+
+    // Retorna true e imprime uma mensagem se alguém morreu
+    bool battleIsOver (playerS player, enemyS enemy);
 
     
 /* ==== Skills - habilidades especiais não-mágicas ==== */
@@ -166,8 +171,14 @@ extern int showDesc; // Deixa outros arquivos (como inventory.c) acessarem a var
     // Imprime as habilidades e lê a escolha do player.
     int playerSkl (playerS *player, enemyS *enemy);
 
+    // Diminui os cooldowns de toda habilidade do inimigo.
+    void updateEnemyCooldown (enemyS *enemy);
+
+    // Diminui os cooldowns de toda habilidade do player.
+    void updatePlayerCooldown (playerS *player);
+
     // Diminui os cooldowns de toda habilidade.
-    void updateCooldown (playerS *player);
+    void updateCooldowns (playerS *player, enemyS *enemy);
 
     // Inicializa o vetor de skills do player.
     void initSkills (playerS *player);

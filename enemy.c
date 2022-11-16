@@ -9,9 +9,14 @@
 /* ==== Typedefs e Defines ==== */
 
 #define NUM_ENEMY_SKILLS 6
-#define NUM_ENEMY_ACTIONS 4
 
 #define BASE_ATTACK_WEIGHT 2
+#define BASE_ATTACK_BIAS 1
+
+#define DAMAGE_BIAS 1
+#define HEAL_BIAS 0
+#define DEFENSIVE_BIAS -1
+#define TACTICAL_BIAS -1
 
 enum enemyActions {damage, heal, defend, tactical};
 
@@ -207,7 +212,7 @@ typedef struct enemySkill_s {
             int psnRoll = rollDice(1, 6, 1, 0);
 
             printSlow("Rolagem de veneno - \033[36mrolando ");
-            printf("%id%i%+i", 1, 4, 0);
+            printf("%id%i%+i", 1, 6, 1);
             printCustomResult(psnRoll, "veneno");
 
             player->status[poisonedS] += psnRoll;
@@ -259,7 +264,7 @@ typedef struct enemySkill_s {
             2,
             5,
             false,
-            {0, 0, 2, 0},
+            {0, 0, 3, 0},
         },
         {
             &poisonAtkE,
@@ -297,6 +302,8 @@ typedef struct enemySkill_s {
 
     // Anuncia e usa uma skill
     void useSkillE (playerS *player, enemyS *enemy, int index) {
+        enemy->mana -= enemy->knownSkills[index].manaCost;
+        enemy->knownSkills[index].cooldown = enemy->knownSkills[index].maxCooldown;
         announceSkillE (enemy, enemy->knownSkills[index]);
         enemy->knownSkills[index].funct(player, enemy);
         requestEnter();
@@ -308,6 +315,7 @@ typedef struct enemySkill_s {
 
         for (int i=0; i<enemy->skillNum; i++) {
             enemy->knownSkills[i] = skillsE[enemy->skillCodes[i]]; // Pega o código na posição 'i' em skillCodes e coloca a skill correspondente ao código em knownSkills
+            enemy->knownSkills[i].cooldown = 0; // Coloca o cooldown em 0
         }
     }
 
@@ -377,6 +385,7 @@ typedef struct enemySkill_s {
         enemy.advantage = 0;
         enemy.hp = enemy.hpMax;
         enemy.mana = enemy.manaMax;
+        enemy.tacticalsInARow = 0;
 
         return enemy;
     }
@@ -412,31 +421,43 @@ typedef struct enemySkill_s {
     int damageWeight (playerS *player, enemyS *enemy) {
         int enemySafety = calcHpSafety (enemy->hpMax, enemy->hp) + calcHitSafety (enemy->armor, player->atkMod, player-> magMod, player->atkNum);
         int playerSafety = calcHitSafety (player->armor, enemy->atkMod, enemy->skillMod, enemy->atkNum);
+        int weight = 0;
 
         enemySafety /= 2;
+        weight = (enemySafety-playerSafety+10) / 2;
 
-        return (enemySafety-playerSafety+10) / 2; // Divide por 2 porque a escala original é -10 a 10. Subtrai playerSafety porque se o player está muito seguro, é melhor tomar uma ação tática. Adiciona 10 porque originalmente ficaria -10 a 20 em vez de 0 a 30
+        return weight+DAMAGE_BIAS; // Divide por 2 porque a escala original é -10 a 10. Subtrai playerSafety porque se o player está muito seguro, é melhor tomar uma ação tática. Adiciona 10 porque originalmente ficaria -10 a 20 em vez de 0 a 30
     }
 
     // Retorna o quão recomendável é pro inimigo tomar uma ação de cura, numa escala de 0 a 10
     int healWeight (playerS *player, enemyS *enemy) {
         int hpSafety = calcHpSafety (enemy->hpMax, enemy->hp);
+        int weight = 0;
 
-        return 10-hpSafety; // Quanto menos seguro o inimigo, melhor é ele se curar. Sendo assim, subtrai hpSafety de 10 pra ficar no máximo 10 e no mínimo 0
+        weight = 10-hpSafety;
+
+        return weight+HEAL_BIAS; // Quanto menos seguro o inimigo, melhor é ele se curar. Sendo assim, subtrai hpSafety de 10 pra ficar no máximo 10 e no mínimo 0
     }
 
     // Retorna o quão recomendável é pro inimigo tomar uma ação defensiva, numa escala de 0 a 10
     int defendWeight (playerS *player, enemyS *enemy) {
         int hitSafety = calcHitSafety (enemy->armor, player->atkMod, player-> magMod, player->atkNum);
+        int weight = 0;
 
-        return 10-hitSafety;
+        weight = 10-hitSafety;
+
+        return weight-DEFENSIVE_BIAS;
     }
 
     // Retorna o quão recomendável é pro inimigo tomar uma ação tática, numa escala de -5 a 5
     int tacticalWeight (playerS *player, enemyS *enemy) {
         int playerSafety = calcHitSafety (player->armor, enemy->atkMod, enemy->skillMod, enemy->atkNum);
+        int numTacticals = enemy->tacticalsInARow;
+        int weight = 0;
 
-        return 10-playerSafety;
+        weight = 10-playerSafety-numTacticals; // Subtrai o número de táticas seguidas pra evitar spam de táticas
+
+        return weight+TACTICAL_BIAS; 
     }
 
     // Insere, num array de ações, os pesos de cada ação que o inimigo pode tomar
@@ -450,8 +471,10 @@ typedef struct enemySkill_s {
     int calcSkillWeight (playerS *player, enemyS *enemy, int *actionArray, enemySkillS skill) {
         int weight = 0;
 
+        char typeNames[4][12] = {"\033[31matk", "\033[32mheal", "\033[94mdef", "\033[35mtact"}; // Debug
+
         for (int i=0; i<NUM_ENEMY_ACTIONS; i++) {
-            printf("%i = %i*%i | ", i, skill.actionWeights[i], actionArray[i]);
+            printf("%s\033[0m = %i*%i | ", typeNames[i], skill.actionWeights[i], actionArray[i]); // Debug
             weight += skill.actionWeights[i] * actionArray[i];
         }
 
@@ -460,16 +483,16 @@ typedef struct enemySkill_s {
     }
 
     int decideActionE (playerS *player, enemyS *enemy, int *actionArray) {
-        int atkWeight = BASE_ATTACK_WEIGHT * actionArray[damage];
+        int atkWeight = (BASE_ATTACK_WEIGHT * actionArray[damage]) + BASE_ATTACK_BIAS;
         int skillChoice = -1, skillWeight = atkWeight; // skillWeight começa como atkWeight, porque se nenhuma skill for muito preferível, o inimigo simplesmente ataca
 
         for(int i=0; i<enemy->skillNum; i++) {
-            printf("Skill: %s\n", enemy->knownSkills[i].name);
+            printf("Skill: %s\n", enemy->knownSkills[i].name); // Debug
             int currentWeight = calcSkillWeight(player, enemy, actionArray, enemy->knownSkills[i]);
-            printf("currentWeight: %i, skillWeight: %i\n\n", currentWeight, skillWeight);
+            printf("currentWeight: \033[93m%i\033[0m, skillWeight: %i\n\n", currentWeight, skillWeight); // Debug
 
-            // Só escolhe a skill se ela tiver maior prioridade que as outras e não custar mais mana do que o inimigo pode gastar
-            if (enemy->knownSkills[i].manaCost <= enemy->mana) {
+            // Só escolhe a skill se ela tiver maior prioridade que as outras e não custar mais mana do que o inimigo pode gastar e não estiver em cooldown
+            if (enemy->knownSkills[i].manaCost <= enemy->mana && enemy->knownSkills[i].cooldown <= 0) {
                 if (currentWeight > skillWeight) {
                     skillWeight = currentWeight;
                     skillChoice = i;
@@ -479,10 +502,19 @@ typedef struct enemySkill_s {
                     skillChoice = i;
                 }
             }
-            
         }
 
         return skillChoice;
+    }
+
+    // Aumenta o número de skills táticas seguidas se a skill for tática ou reseta se não for
+    void updateTacticalCount (int choice, enemyS *enemy) {
+        if(enemy->knownSkills[choice].actionWeights[tactical] > 1) { // Se o peso de tática da skill for 2 ou mais, aumenta o número de táticas usadas
+            enemy->tacticalsInARow++;
+        }
+        else {
+            enemy->tacticalsInARow = 0; // Senão, reseta o número
+        }
     }
 
     // Executa as funções do turno do inimigo
@@ -497,6 +529,14 @@ typedef struct enemySkill_s {
             enemyAtk(player, enemy);
         }
         else {
+            updateTacticalCount(choice, enemy);
             useSkillE(player, enemy, choice);
+        }
+    }
+
+    // Diminui os cooldowns de toda habilidade do inimigo.
+    void updateEnemyCooldown (enemyS *enemy) {
+        for(int i=0; i<enemy->skillNum; i++) {
+            if(enemy->knownSkills[i].cooldown) enemy->knownSkills[i].cooldown--;
         }
     }

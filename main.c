@@ -15,11 +15,12 @@ Interface
     - Customizar nome
     - Traduzir pra inglês
 Inimigo
-    - IA do Inimigo <-- FAZENDO
+    - Aprimorar IA do Inimigo <-- FAZENDO
 Player
     - Sistema de levels
     - Equipamento
 Dungeon
+    - Rebalancear armadura (armadura demais deixa a batalha chata, mas armadura de menos elimina qualquer estratégia que não seja atacar sem parar)
     - Fazer múltiplas salas da dungeon
     - Imprimir o mapa da dungeon
     Recompensas
@@ -41,6 +42,7 @@ Bugs
 
 /* ==== Main ==== */
 
+
 int main(int argc, char** argv) {
     // Semeando o rand()
     srand(time(NULL));
@@ -54,23 +56,15 @@ int main(int argc, char** argv) {
     
 
     while (1) {
-        updateValues(&player, &enemy);
         updateStatus(&player, &enemy);
-        updateCooldown(&player);
-        battleState = updateValues(&player, &enemy); // Faz o updateValues antes e depois de atualizar os status, pra nao mostrar HP nem mana negativo.
-        if(battleState) {
-            printInfo(player, enemy); // Se alguém morreu, imprime a tela pra mostrar quem foi.
-            if (battleState == 1) {
-                printSlow("O inimigo cai no chao, derrotado.\n");
-            }
-            else if (battleState == 2) {
-                printSlow("Voce sucumbe aos seus ferimentos e desmaia.\n");
-            }
-            break;
-        }
+        updateCooldowns(&player, &enemy);
+        if (battleIsOver(player, enemy)) break; // Se a batalha acabou, quebra o loop.
+
         if (turnPlayer(&player, &enemy)) {
             break;
         }
+
+        if (battleIsOver(player, enemy)) break; // Checa se a batalha acabou antes e depois do turno do player, pra ninguém poder agir quando já morreu.
         
         turnEnemy(&player, &enemy);
     }
