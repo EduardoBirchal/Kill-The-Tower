@@ -10,6 +10,9 @@
 
 COISAS PRA FAZER:
 
+Balanceamento
+    - Toma dano demais
+    - Pouca variedade pro paladino e pouca quantidade de combo
 Interface
     - Menu principal
     - Customizar nome
@@ -52,7 +55,8 @@ int main(int argc, char** argv) {
 
     // Declarando criaturas
     playerS player = createPlayer();
-    enemyS enemy = createEnemy((rand()%3) + 1);
+    //enemyS enemy = createEnemy((rand()%3) + 1);
+    enemyS enemy = createEnemy(2);
     
 
     while (1) {

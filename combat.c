@@ -243,7 +243,7 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
         printRollResult(atkRoll);
         
         // Se for 17 natural pra cima, é um acerto crítico
-        if(atkRoll-player->atkMod > 17) {
+        if(atkRoll-player->atkMod > 19) {
             printSlow(" \033[33;4mAcerto Critico!\033[0m Dados de dano dobrados pra esse ataque.\n\n");
 
             playerCrit(player, enemy);
@@ -1215,7 +1215,7 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
                 player->dmgDice = 6;
                 player->dmgDiceNum = 2;
                 player->dmgMod = 5;
-                player->hpMax = 35;
+                player->hpMax = 40;
                 player->magMod = -1;
                 player->manaMax = 15;
 
@@ -1240,13 +1240,13 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
                 break;
             
             case wizard:
-                player->armor = 8;
+                player->armor = 10;
                 player->atkMod = 0;
                 player->atkNum = 1;
                 player->dmgDice = 6;
                 player->dmgDiceNum = 1;
                 player->dmgMod = -2;
-                player->hpMax = 25;
+                player->hpMax = 35;
                 player->magMod = 6;
                 player->manaMax = 30;
 
@@ -1266,13 +1266,13 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
                 break;
 
             case warlock:
-                player->armor = 9;
+                player->armor = 11;
                 player->atkMod = 0;
                 player->atkNum = 1;
                 player->dmgDice = 8;
                 player->dmgDiceNum = 1;
                 player->dmgMod = 2;
-                player->hpMax = 25;
+                player->hpMax = 35;
                 player->magMod = 6;
                 player->manaMax = 25;
 
@@ -1300,7 +1300,7 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
                 player->dmgDice = 8;
                 player->dmgDiceNum = 1;
                 player->dmgMod = 3;
-                player->hpMax = 30;
+                player->hpMax = 40;
                 player->magMod = 3;
                 player->manaMax = 25;
 

@@ -171,14 +171,14 @@ typedef struct enemySkill_s {
 
     // Dá dano médio
     bool fireBoltE (playerS *player, enemyS *enemy) { // Toda skill de inimigo tem 'E' no final, pra diferenciar das de player
-        enemySkillAtkDmg (player, enemy, 3, 8);
+        enemySkillAtkDmg (player, enemy, 2, 8);
 
         return true;
     }
 
     // Cura o usuário
     bool regenerateE (playerS *player, enemyS *enemy) {
-        enemySkillHeal (enemy, 2, 4, enemy->skillMod);
+        enemySkillHeal (enemy, 3, 4, enemy->skillMod);
 
         return true;
     }
@@ -207,12 +207,13 @@ typedef struct enemySkill_s {
     }
 
     // Ataca e aplica um efeito de veneno se acertar
+
     bool poisonAtkE (playerS *player, enemyS *enemy) {
         if (enemySkillAtkDmg(player, enemy, 2, 6)) {
-            int psnRoll = rollDice(1, 6, 1, 0);
+            int psnRoll = rollDice(1, 4, 0, 0);
 
             printSlow("Rolagem de veneno - \033[36mrolando ");
-            printf("%id%i%+i", 1, 6, 1);
+            printf("%id%i%+i", 1, 4, 0);
             printCustomResult(psnRoll, "veneno");
 
             player->status[poisonedS] += psnRoll;
@@ -471,14 +472,14 @@ typedef struct enemySkill_s {
     int calcSkillWeight (playerS *player, enemyS *enemy, int *actionArray, enemySkillS skill) {
         int weight = 0;
 
-        char typeNames[4][12] = {"\033[31matk", "\033[32mheal", "\033[94mdef", "\033[35mtact"}; // Debug
+        //char typeNames[4][12] = {"\033[31matk", "\033[32mheal", "\033[94mdef", "\033[35mtact"}; // Debug
 
         for (int i=0; i<NUM_ENEMY_ACTIONS; i++) {
-            printf("%s\033[0m = %i*%i | ", typeNames[i], skill.actionWeights[i], actionArray[i]); // Debug
+            //printf("%s\033[0m = %i*%i | ", typeNames[i], skill.actionWeights[i], actionArray[i]); // Debug
             weight += skill.actionWeights[i] * actionArray[i];
         }
 
-        printf("\n");
+        //printf("\n"); // Debug
         return weight;
     }
 
@@ -487,9 +488,9 @@ typedef struct enemySkill_s {
         int skillChoice = -1, skillWeight = atkWeight; // skillWeight começa como atkWeight, porque se nenhuma skill for muito preferível, o inimigo simplesmente ataca
 
         for(int i=0; i<enemy->skillNum; i++) {
-            printf("Skill: %s\n", enemy->knownSkills[i].name); // Debug
+            //printf("Skill: %s\n", enemy->knownSkills[i].name); // Debug
             int currentWeight = calcSkillWeight(player, enemy, actionArray, enemy->knownSkills[i]);
-            printf("currentWeight: \033[93m%i\033[0m, skillWeight: %i\n\n", currentWeight, skillWeight); // Debug
+            //printf("currentWeight: \033[93m%i\033[0m, skillWeight: %i\n\n", currentWeight, skillWeight); // Debug
 
             // Só escolhe a skill se ela tiver maior prioridade que as outras e não custar mais mana do que o inimigo pode gastar e não estiver em cooldown
             if (enemy->knownSkills[i].manaCost <= enemy->mana && enemy->knownSkills[i].cooldown <= 0) {
