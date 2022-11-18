@@ -9,7 +9,7 @@
 
 /* ==== Defines ==== */
 
-#define NUM_SKILLS 10
+#define NUM_SKILLS 12
 #define MAX_SKILL 25
 #define MAX_DESC_SKILL 100
 
@@ -303,6 +303,15 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
         player->hp += healRoll;
     }
 
+    // Checa se uma habilidade já está em efeito
+    bool isInEffect (playerS *player, int index) {
+        if (player->status[index]) {
+            printSlow("Isso ja esta em efeito!\n\n");
+            return true;
+        }
+        else return false;
+    }
+
 
     /* ==== Lista de habilidades ==== */
 
@@ -348,7 +357,7 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
     // Recupera HP.
     bool secondWind (playerS* player, enemyS *enemy) {
-        itemHeal(player, enemy, 6, 1, 2,
+        itemHeal(player, enemy, 6, 2, 2,
         "Voce recua e respira, recuperando seu folego e se sentindo descansado.\n\n");
 
         return true;
@@ -401,7 +410,7 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
             }
             // Se o player fosse morrer ao tomar o dano, cancela a skill
             else {
-                printSlow("Voce chegou ao seu limite. Se voce se exercesse mais ainda, voce morreria. (Nao tem HP suficiente para regenerar todas as habilidades)");
+                printSlow("Voce chegou ao seu limite. Se voce se exercesse mais ainda, voce morreria. (Nao tem HP suficiente para regenerar todas as habilidades)\n\n");
                 break;
             }
         }
@@ -419,7 +428,7 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
     // Dá um boost de dano e ataque mas coloca todas as habilidades em cooldown por 4 turnos.
     bool battleTrance (playerS *player, enemyS *enemy) {
-        printSlow("Esquecendo toda a tecnica, voce confia o controle do seu corpo inteiramente aos seus instintos.\n");
+        printSlow("Esquecendo toda a tecnica, voce confia o controle do seu corpo inteiramente aos seus instintos.\n\n");
 
         player->atkMod += 3;
         player->dmgMod += 3;
@@ -439,14 +448,131 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
         return true;
     }
 
+    bool siphonPower (playerS *player, enemyS *enemy) {
+        if (!enemy->mana) { // Inimigo não tem mana
+            printSlow("O inimigo nao tem mana!\n\n");
+            return false;
+        }
+        else if(enemy->mana >= 6) { // Inimigo tem mana maior ou igual a 6
+            enemy->mana -= 6;
+            player->mana += 6;
+        }
+        else { // Inimigo tem mana, mas menos que 6
+            player->mana += enemy->mana;
+            enemy->mana = 0;
+        }
+
+        printSlow("Usando uma conexao parasitica, voce extrai as energias do inimigo para si e se sente invigorado. \033[33mMana +6!\033[0m\n\n");
+        return true;
+    }
+
+    // Menu de opções se Divine Intervention funcionar
+    bool divineInterventionMenu (playerS *player, enemyS *enemy) {
+        int option = 0;
+        
+        while (1) {
+            printInfo(*player, *enemy);
+
+            printf("\033[94mVoce consegue sentir uma conexao profunda com a sua divindade, uma abundancia de luz fluindo pela sua alma. Pelo que voce pede?\n\n"); 
+
+            printf("\033[33m1 - Redencao:\033[0m Recupera %i de Mana\n", player->magMod*3); 
+            printf("\033[33m2 - Vinganca:\033[0m Aplica %i de veneno\n", player->magMod*2); 
+            printf("\033[33m3 - Salvacao:\033[0m Recebe %i de cura\n", player->magMod*4); 
+            printf("\033[33m4 - Gloria:\033[0m Aumenta ataque e dano em %i\n", player->magMod); 
+            printf("\033[33m5 - Protecao:\033[0m Ganha %+i de armadura\n", player->magMod); 
+
+            printf("\nEscolha um efeito:\n> "); // Lê a opção
+            scanf("%i", &option);
+            printf("\n");
+
+            switch (option)
+            {
+            case 1:
+                player->mana += player->magMod*3;
+                printSlow("\033[33mMana ");
+                printf("%+i", player->magMod*3);
+                printSlow("!\033[0m\n\n");
+
+                return true;
+                break;
+
+            case 2:
+                enemy->status[poisonedSE] += player->magMod*2;
+                printSlow("\033[32mVeneno ");
+                printf("%+i", player->magMod*2);
+                printSlow("!\033[0m\n\n");
+
+                return true;
+                break;
+
+            case 3:
+                player->hp += player->magMod*4;
+                printSlow("\033[33mCura ");
+                printf("%+i", player->magMod*4);
+                printSlow("!\033[0m\n\n");
+
+                return true;
+                break;
+
+            case 4:
+                player->atkMod += player->magMod;
+                player->dmgMod += player->magMod;
+
+                printSlow("\033[33mAtaque e dano ");
+                printf("%+i", player->magMod);
+                printSlow("!\033[0m\n\n");
+
+                return true;
+                break;
+
+            case 5:
+                player->armor += player->magMod;
+                printSlow("\033[33mArmadura ");
+                printf("%+i", player->magMod);
+                printSlow("!\033[0m\n\n");
+
+                return true;
+                break;
+            
+            default:
+                printf("Opcao invalida! (tem que ser um numero de 1 a 5).\n"); // Se não for válida, pede pra colocar outra
+                break;
+            }
+        }
+    }
+
+    // Tem uma chance de 30% de fazer um efeito útil da escolha do player.
+    bool divineIntervention (playerS *player, enemyS *enemy) {
+        printf("\033[94m30%% de chance - se o dado tirar mais que 70, o efeito funciona\033[0m\n\n");
+        int chanceRoll = rollDice(100, 1, 0, 0);
+
+        printSlow("Rolagem de chance - \033[36mrolando 1d100");
+        printRollResult(chanceRoll);
+        
+        // Se for 70 natural pra cima, tem sucesso
+        if(chanceRoll > 70) {
+            printSlow(" \033[33;4mSucesso!\033[0m\n\n");
+
+            divineInterventionMenu(player, enemy);
+        } 
+        else {
+            printSlow(" \033[33;4mFalha...\033[0m\n\n");
+
+            printSlow("No calor da batalha, voce nao consegue se concentrar por inteiro, e a oracao falha.\n\n");
+        }
+
+        return true;
+    }
+
+
     /* ==== Criar o array de habilidades ==== */
 
     const skillS skills[NUM_SKILLS] = {
         {
-            &doubleStrike, // Função de quando a habilidade é usada
-            "Golpe Duplo", // Nome da habilidade
+            &doubleStrike,       // Função de quando a habilidade é usada
+            "Golpe Duplo",       // Nome da habilidade
             "Ataca duas vezes.", // Descrição da habilidade
-            5 // Cooldown da habilidade
+            5                    // Cooldown da habilidade
         },
         {
             &tripAttack,
@@ -509,13 +635,27 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
             "Ganha um aumento de ataque e dano por 4 turnos, mas coloca todas as habilidades em cooldown.",
             7
         },
+        
+        {
+            &siphonPower,
+            "Roubar Poder",
+            "Rouba 6 de Mana do inimigo.",
+            4
+        },
+
+        {
+            &divineIntervention,
+            "Intervencao Divina",
+            "Pode escolher entre varios efeitos poderosos. Funciona apenas 30%% das vezes.",
+            3
+        }
     };
 
     /* ==== Imprimir menu de habilidades ==== */
 
     bool useSkill(playerS *player, enemyS *enemy, int option) {
         if(player->knownSkills[option-1].funct (player, enemy)) {
-            player->knownSkills[option-1].cooldown = player->knownSkills[option-1].maxCooldown + 1; // Coloca o cooldown no máximo ao usar a habilidade.
+            player->knownSkills[option-1].cooldown += player->knownSkills[option-1].maxCooldown + 1; // Coloca o cooldown no máximo ao usar a habilidade.
             return true;  // Se ela retornar true, acaba o loop. Habilidades retornam 0 se elas não funcionam 
         }                 // (Exemplo: usa Rasteira quando já está em efeito)
         else {
@@ -680,29 +820,24 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
     // Aumenta a armadura do player. Não acumula.
     bool mageArmor (playerS *player, enemyS *enemy) {
-        if(player->status[mageArmS]) {
-            printf("Esse feitico ja esta em efeito!\n\n");
-            return false;
-        } else {
-            player->status[mageArmS] = true;
-            player->armor += 2;
-            printSlow("Voce conjura uma armadura translucida de energia protetiva em volta de si. \033[33mArmadura +2!\033[0m\n\n");
-        }
+        if (isInEffect(player, mageArmS)) return false;
+        
+        player->status[mageArmS] = true;
+        player->armor += 2;
+        printSlow("Voce conjura uma armadura translucida de energia protetiva em volta de si. \033[33mArmadura +2!\033[0m\n\n");
+        
 
         return true;
     }
 
     // Aumenta muito a armadura do player, por 1 turno. Não acumula.
     bool mageShield (playerS *player, enemyS *enemy) {
-        if(player->status[mageShldS]) {
-            printf("Esse feitico ja esta em efeito!\n\n");
-            return false;
-        } else {
-            player->status[mageShldS] = 2;
-            player->armor += 5;
-            printSlow("Com uma runa protetora, voce conjura um escudo flutuante de energia arcana. \033[33mArmadura +5!\033[0m\n\n");
-        }
+        if (isInEffect(player, mageShldS)) return false;
 
+        player->status[mageShldS] = 2;
+        player->armor += 5;
+        printSlow("Com uma runa protetora, voce conjura um escudo flutuante de energia arcana. \033[33mArmadura +5!\033[0m\n\n");
+        
         return true;
     }
 
@@ -791,26 +926,23 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
     // Causa dano baixo constante.
     bool searingLight (playerS *player, enemyS *enemy) {
-        if(!player->status[searingLightS]) {
-            player->status[searingLightS] = true;
-            printSlow("Voce invoca a furia de sua divindade contra o inimigo, e um feixe de radiancia divina desce dos ceus sobre a criatura.\n\n");
+        if (isInEffect(player, searingLightS)) return false;
 
-            return true;
-        }
-        else {
-            printf("Esse feitico ja esta em efeito!\n\n");
-            return false;
-        }
+        player->status[searingLightS] = true;
+        printSlow("Voce invoca a furia de sua divindade contra o inimigo, e um feixe de radiancia divina desce dos ceus sobre a criatura.\n\n");
+
+        return true;
     }
+    
 
     /* ==== Criar o array de feitiços ==== */
 
     const spellS spells[NUM_SPELLS] = {
         {
-            &fireBolt, // Função de quando o feitiço é conjurado
-            "Dardo de Fogo", // Nome do feitiço
+            &fireBolt,          // Função de quando o feitiço é conjurado
+            "Dardo de Fogo",    // Nome do feitiço
             "Causa dano alto.", // Descrição do feitiço
-            5 // Custo de mana do feitiço
+            5                   // Custo de mana do feitiço
         },
         {
             &sonicBlast,
@@ -1052,7 +1184,17 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
     }
 
     bool updateEnemyStatus(playerS *player, enemyS *enemy, bool evento) {
+        // poisonedSE
+            if(enemy->status[poisonedSE]) {
+                evento = rodarEvento(evento, *player, *enemy);
 
+                printSlow("Inimigo toma ");
+                printf("\033[32m%i", enemy->status[poisonedSE]);
+                printSlow(" de dano \033[0mde veneno!\n\n");
+
+                enemy->hp -= enemy->status[poisonedSE];
+                enemy->status[poisonedSE]--;
+            }
         return evento;
     }
 
@@ -1226,7 +1368,6 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
                 // Skills do player
                 addSkill (player, doubleStrk);
                 addSkill (player, tripAtk);
-                addSkill (player, parryAtk);
                 addSkill (player, scndWind);
                 addSkill (player, adrnlSurge);
                 addSkill (player, prcStrk);
@@ -1285,7 +1426,7 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
                 addSkill (player, doubleStrk);
                 addSkill (player, tripAtk);
                 addSkill (player, bldOffering);
-                addSkill (player, selfDmg);
+                addSkill (player, siphonPwr);
                 
                 strcpy(player->hitString, "\n\nVoce invoca um feixe de energia sombria que dispara erraticamente pelo ar, atingindo o inimigo e queimando-o.\n\n");
                 strcpy(player->critString, "\n\nCom uma palavra profana voce conjura um raio faiscante de sombra, que atinge o alvo em cheio e o empurra pra tras numa chuva de faiscas.\n\n");
@@ -1301,7 +1442,7 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
                 player->dmgDiceNum = 1;
                 player->dmgMod = 3;
                 player->hpMax = 40;
-                player->magMod = 3;
+                player->magMod = 4;
                 player->manaMax = 25;
 
                 addSpell (player, mageArm);
@@ -1311,8 +1452,10 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
                 addSkill (player, parryAtk);
                 addSkill (player, tripAtk);
+                addSkill (player, scndWind);
                 addSkill (player, dvnGuidance);
                 addSkill (player, bldOffering);
+                addSkill (player, dvnIntervention);
 
                 strcpy(player->hitString, "\n\nO golpe da sua espada acerta o alvo com um corte amplo, abrindo um ferimento e jorrando sangue por onde a lamina rasga.\n\n");
                 strcpy(player->critString, "\n\nVoce acerta a criatura com o seu escudo numa investida e finca sua espada num ponto vital, causando um ferimento gravissimo.\n\n");

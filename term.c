@@ -104,7 +104,7 @@ void printRollResult (int result) {
     trueSleep(800);
     printf(" %i.\033[0m ", result);
     fflush(stdout);
-    trueSleep(150);
+    trueSleep(200);
 }
 
 // Imprime o resultado de um dado e anuncia de que é esse dado. Por exemplo, se [string] for "dano", imprime "[result] de dano"
@@ -117,7 +117,7 @@ void printCustomResult (int result, char string[]) {
     printSlow(string);
     printSlow("!\n\n");
     fflush(stdout);
-    trueSleep(150);
+    trueSleep(200);
 }
 
 // Imprime uma margem
@@ -164,7 +164,11 @@ void enemyInfo(enemyS enemy) {
     printHp(enemy.hpMax, enemy.hp);
     printMana(enemy.manaMax, enemy.mana);
 
-    printf("Rolagem de Ataque: \033[4m1d20%+i\033[0m\tRolagem de Dano: \033[4m%id%i%+i\033[0m\tArmadura: \033[4m%i\033[0m\n", enemy.atkMod, enemy.dmgDiceNum, enemy.dmgDice, enemy.dmgMod, enemy.armor);
+    printf("Rolagem de Ataque: \033[4m1d20%+i\033[0m      Rolagem de Dano: \033[4m%id%i%+i\033[0m      Armadura: \033[4m%i\033[0m\n", enemy.atkMod, enemy.dmgDiceNum, enemy.dmgDice, enemy.dmgMod, enemy.armor);
+    
+    if(enemy.status[poisonedSE]) {
+        printf("\n\033[32mEnvenenado: %i\n", enemy.status[poisonedSE]);
+    }
 }
 
 // Imprime o menu de atributos

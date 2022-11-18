@@ -95,11 +95,13 @@ typedef struct enemy_s {
 
 /* ==== Typedefs ==== */
 
-enum statNums {mageArmS, mageShldS, tripAtkS, parryAtkS, rdntSmiteS, hungerOfTheVoidS, azathothDreamS, searingLightS, btlTranceS, poisonedS, weakenedS};
+enum statusNums {mageArmS, mageShldS, tripAtkS, parryAtkS, rdntSmiteS, hungerOfTheVoidS, azathothDreamS, searingLightS, btlTranceS, poisonedS, weakenedS};
+enum enemyStatusNums {poisonedSE};
+
 enum classes {warrior, wizard, warlock, paladin};
 
 enum spells {fireBlt, sonicBlst, mageArm, mageShld, magicMsl, blessWpn, rdntSmite, voidHunger, yogSothothSight, cthulhuFire, azathothDream, srngLight};
-enum skills {doubleStrk, tripAtk, selfDmg, parryAtk, scndWind, dvnGuidance, bldOffering, adrnlSurge, prcStrk, btlTrance};
+enum skills {doubleStrk, tripAtk, selfDmg, parryAtk, scndWind, dvnGuidance, bldOffering, adrnlSurge, prcStrk, btlTrance, siphonPwr, dvnIntervention};
 
 enum enemySkills {eFireBlt, eRegenerate, eleechAtk};
 
@@ -143,6 +145,8 @@ extern int showDesc; // Deixa outros arquivos (como inventory.c) acessarem a var
     
 /* ==== Skills - habilidades especiais não-mágicas ==== */
 
+    // Checa se uma habilidade já está em efeito
+    bool isInEffect (playerS *player, int index);
 
     // Ataca duas vezes.
     int doubleStrike (playerS* player, enemyS *enemy);

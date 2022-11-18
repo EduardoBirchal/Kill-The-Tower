@@ -15,7 +15,7 @@
 
 #define DAMAGE_BIAS 1
 #define HEAL_BIAS 0
-#define DEFENSIVE_BIAS -1
+#define DEFENSIVE_BIAS -2
 #define TACTICAL_BIAS -1
 
 enum enemyActions {damage, heal, defend, tactical};
@@ -210,7 +210,7 @@ typedef struct enemySkill_s {
 
     bool poisonAtkE (playerS *player, enemyS *enemy) {
         if (enemySkillAtkDmg(player, enemy, 2, 6)) {
-            int psnRoll = rollDice(1, 4, 0, 0);
+            int psnRoll = rollDice(4, 1, 0, 0);
 
             printSlow("Rolagem de veneno - \033[36mrolando ");
             printf("%id%i%+i", 1, 4, 0);

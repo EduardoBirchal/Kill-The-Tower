@@ -10,9 +10,6 @@
 
 COISAS PRA FAZER:
 
-Balanceamento
-    - Toma dano demais
-    - Pouca variedade pro paladino e pouca quantidade de combo
 Interface
     - Menu principal
     - Customizar nome
@@ -23,7 +20,6 @@ Player
     - Sistema de levels
     - Equipamento
 Dungeon
-    - Rebalancear armadura (armadura demais deixa a batalha chata, mas armadura de menos elimina qualquer estratégia que não seja atacar sem parar)
     - Fazer múltiplas salas da dungeon
     - Imprimir o mapa da dungeon
     Recompensas
@@ -39,6 +35,11 @@ Dungeon
 Bugs
     - Escudo Arcano te dá -1 de vantagem
     - Barra de vida não imprime direito (HP tá menos que a metade mas a barrinha tá além da metade)
+Balanceamento
+    - É muito fácil morrer, especialmente pras classes de magia
+    - Pouca variedade pro paladino e pouca quantidade de combo
+    - Inimigo fortifica demais
+    - Rebalancear armadura (armadura demais deixa a batalha chata, mas armadura de menos elimina qualquer estratégia que não seja atacar sem parar)
 
 */
 
@@ -60,8 +61,10 @@ int main(int argc, char** argv) {
     
 
     while (1) {
+        updateValues(&player, &enemy);
         updateStatus(&player, &enemy);
         updateCooldowns(&player, &enemy);
+        
         if (battleIsOver(player, enemy)) break; // Se a batalha acabou, quebra o loop.
 
         if (turnPlayer(&player, &enemy)) {
