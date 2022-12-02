@@ -10,12 +10,12 @@
 
 #define NUM_ENEMY_SKILLS 6
 
-#define BASE_ATTACK_WEIGHT 2
-#define BASE_ATTACK_BIAS 1
+#define BASE_ATTACK_WEIGHT 3
+#define BASE_ATTACK_BIAS 0
 
 #define DAMAGE_BIAS 1
 #define HEAL_BIAS 0
-#define DEFENSIVE_BIAS -2
+#define DEFENSIVE_BIAS -1
 #define TACTICAL_BIAS -1
 
 enum enemyActions {damage, heal, defend, tactical};
@@ -128,10 +128,10 @@ typedef struct enemySkill_s {
 
     // Dá dano de uma skill
     int enemySkillDmg (playerS* player, enemyS *enemy, int dmgDie, int dmgDieNum) {
-        int dmgRoll = rollDice(dmgDie, dmgDieNum, enemy->skillMod, 0);
+        int dmgRoll = rollDice(dmgDie, dmgDieNum, enemy->dmgMod, 0);
 
         printSlow("Rolagem de dano - \033[36mrolando ");
-        printf("%id%i%+i", dmgDieNum, dmgDie, enemy->skillMod);
+        printf("%id%i%+i", dmgDieNum, dmgDie, enemy->dmgMod);
         printCustomResult(dmgRoll, "dano");
         
         player->hp -= dmgRoll;
@@ -447,7 +447,7 @@ typedef struct enemySkill_s {
 
         weight = 10-hitSafety;
 
-        return weight-DEFENSIVE_BIAS;
+        return weight+DEFENSIVE_BIAS;
     }
 
     // Retorna o quão recomendável é pro inimigo tomar uma ação tática, numa escala de -5 a 5
@@ -495,6 +495,7 @@ typedef struct enemySkill_s {
             // Só escolhe a skill se ela tiver maior prioridade que as outras e não custar mais mana do que o inimigo pode gastar e não estiver em cooldown
             if (enemy->knownSkills[i].manaCost <= enemy->mana && enemy->knownSkills[i].cooldown <= 0) {
                 if (currentWeight > skillWeight) {
+                    //printf("Substituicao "); // Debug
                     skillWeight = currentWeight;
                     skillChoice = i;
                 }

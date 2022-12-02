@@ -864,6 +864,8 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
     // Amplifica o dano do seu próximo ataque.
     bool radiantSmite (playerS *player, enemyS *enemy) {
+        if (isInEffect(player, rdntSmiteS)) return false;
+
         player->status[rdntSmiteS] = true;
         printSlow("Voce se concentra e canaliza as energias da sua divindade. Seu corpo comeca a emitir centelhas de poder divino, que voce sente fluir pelas suas veias. \033[33mDano do proximo ataque +2d6!\033[0m\n\n");
 
@@ -872,14 +874,10 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
     // Causa dano contínuo no inimigo até o player castar um feitiço
     bool hungerOfTheVoid (playerS *player, enemyS *enemy) {
-        if(player->status[hungerOfTheVoidS]) {
-            printf("Esse feitico ja esta em efeito!\n\n");
-            return 0;
-        }
-        else {
-            printSlow("Sua mente se torna inundada de visoes do Longinquo, o vazio alem do Multiverso. Com um grito terrivel, voce evoca essas visoes para o mundo fisico e conjura um portal sombrio.\n\n");
-            player->status[hungerOfTheVoidS] = true;
-        }
+        if (isInEffect(player, hungerOfTheVoidS)) return false;
+
+        printSlow("Sua mente se torna inundada de visoes do Longinquo, o vazio alem do Multiverso. Com um grito terrivel, voce evoca essas visoes para o mundo fisico e conjura um portal sombrio.\n\n");
+        player->status[hungerOfTheVoidS] = true;
 
         return true;
     }
@@ -908,20 +906,15 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
     // Diminui o dano do inimigo.
     bool dreamOfAzathoth (playerS *player, enemyS *enemy) {
-        if(!player->status[azathothDreamS]) {
-            player->status[azathothDreamS] = true;
-            printSlow("Voce cria uma conexao entre a mente do inimigo e os sonhos do Grande Ancestral Azathoth, aflingindo-o com visoes perturbadoras e tornando dificil para a criatura discernir entre realidade e sonho. \033[33mDano do inimigo -");
-            printf("%i", player->magMod);
-            printSlow("!\033[0m\n\n");
+        if (isInEffect(player, azathothDreamS)) return false;
+        
+        player->status[azathothDreamS] = true;
+        printSlow("Voce cria uma conexao entre a mente do inimigo e os sonhos do Grande Ancestral Azathoth, aflingindo-o com visoes perturbadoras e tornando dificil para a criatura discernir entre realidade e sonho. \033[33mDano do inimigo -");
+        printf("%i", player->magMod);
+        printSlow("!\033[0m\n\n");
 
-            enemy->dmgMod -= player->magMod;
-            return true;
-        }
-        else {
-            printf("Esse feitico ja esta em efeito!\n\n");
-            return false;
-        }
-
+        enemy->dmgMod -= player->magMod;
+        return true;
     }
 
     // Causa dano baixo constante.
@@ -1408,11 +1401,11 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
             case warlock:
                 player->armor = 11;
-                player->atkMod = 0;
+                player->atkMod = 3;
                 player->atkNum = 1;
                 player->dmgDice = 8;
                 player->dmgDiceNum = 1;
-                player->dmgMod = 2;
+                player->dmgMod = 3;
                 player->hpMax = 35;
                 player->magMod = 6;
                 player->manaMax = 25;
