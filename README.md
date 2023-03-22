@@ -6,7 +6,7 @@ Jogo baseado em turno feito em C com 4 classes disponíveis. Usei ele pra treina
 BIBLIOTECAS:
   - combat.c - Combate + habilidades e magia
   - enemy.c - Funções de gerar e controlar inimigo
-  - GameFuncts.h - Header geral e contém todos os includes e a maioria das structs, typedefs, etc
+  - gameFuncts.h - Header geral e contém todos os includes e a maioria das structs, typedefs, etc
   - inventory.c - Funções de inventário
   - term.c - Funções de terminal
 
