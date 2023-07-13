@@ -46,8 +46,14 @@ Código
 */
 
 
-/* ==== Main ==== */
+/* ==== Variáveis Globais ==== */
+int showDesc = true; // Mostrar descrição dos feitiços e habilidades
 
+playerS player;
+enemyS enemy;
+
+
+/* ==== Main ==== */
 
 int main(int argc, char** argv) {
     // Semeando o rand()
@@ -56,10 +62,10 @@ int main(int argc, char** argv) {
     // Declarando variáveis
     int battleState = 0;
 
-    // Declarando criaturas
-    playerS player = createPlayer();
-    //enemyS enemy = createEnemy((rand()%3) + 1);
-    enemyS enemy = createEnemy(2);
+    // Definindo criaturas
+    player = createPlayer();
+    //enemy = createEnemy((rand()%3) + 1);
+    enemy = createEnemy(2);
     
 
     while (1) {

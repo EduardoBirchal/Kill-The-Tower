@@ -6,7 +6,6 @@
 
 #include "gameFuncts.h"
 
-
 #define NUM_ITEMS 3
 
 typedef struct item_s { // Tá definido aqui porque depende do tipo sklFunct

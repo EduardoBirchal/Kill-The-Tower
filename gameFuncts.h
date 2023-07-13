@@ -108,7 +108,13 @@ enum enemySkills {eFireBlt, eRegenerate, eleechAtk};
 typedef int bool;
 typedef bool (*sklFunct) (playerS *player, enemyS *enemy); // Define bool (*coisa) (playerS *player, enemyS *enemy) como só sklFunct. É um ponteiro de função.
 
-extern int showDesc; // Deixa outros arquivos (como inventory.c) acessarem a variável showDesc, que define se descrições são impressas pra itens, skills, etc
+
+/* ==== Variáveis globais ==== */
+
+extern int showDesc;
+extern playerS player;
+extern enemyS enemy;
+
 
 /* ==== Funções ==== */
 
@@ -131,7 +137,6 @@ extern int showDesc; // Deixa outros arquivos (como inventory.c) acessarem a var
 
     // Conserta o HP pra não ficar negativo
     int updateValues (playerS *player, enemyS *enemy);
-    
 
     // Rola [num] dados de [size] lados
     int rollDice(int size, int num, int mod, int adv);
