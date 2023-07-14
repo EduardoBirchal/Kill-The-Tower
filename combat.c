@@ -39,9 +39,6 @@ typedef struct spell_s {
 } spellS;
 
 
-int showDesc = true; // Mostrar descrição dos feitiços e habilidades
-
-
 /* ======= Combate ======= */
 
     // Libera tudo do player
@@ -742,18 +739,18 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
     /* ==== Funções de skills conhecidas ==== */
 
     // Inicializa o vetor de skills do player.
-    void initSkills (playerS *player) {
-        player->knownSkills = (skillS*) malloc(sizeof(skillS));
-        player->skillNum = 0;
+    void initSkills () {
+        player.knownSkills = (skillS*) malloc(sizeof(skillS));
+        player.skillNum = 0;
     }
 
     // Adiciona uma skill no vetor de skills do player.
-    void addSkill (playerS *player, int index) {
-        player->skillNum++;
-        player->knownSkills = (skillS*) realloc(player->knownSkills, sizeof(skillS)*(player->skillNum)); // Realoca o vetor pra caber mais uma skill.
+    void addSkill (int index) {
+        player.skillNum++;
+        player.knownSkills = (skillS*) realloc(player.knownSkills, sizeof(skillS)*(player.skillNum)); // Realoca o vetor pra caber mais uma skill.
 
-        player->knownSkills[player->skillNum-1] = skills[index];
-        player->knownSkills[player->skillNum-1].cooldown = 0; // Inicializa o cooldown como 0.
+        player.knownSkills[player.skillNum-1] = skills[index];
+        player.knownSkills[player.skillNum-1].cooldown = 0; // Inicializa o cooldown como 0.
     }
 
 /* ======= Feitiços ====== */
@@ -1077,17 +1074,17 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
     /* ==== Funções de feitiços conhecidos ==== */
 
     // Inicializa o vetor de feitiços do player.
-    void initSpells (playerS *player) {
-        player->knownSpells = (spellS*) malloc(sizeof(spellS));
-        player->spellNum = 0;
+    void initSpells () {
+        player.knownSpells = (spellS*) malloc(sizeof(spellS));
+        player.spellNum = 0;
     }
 
     // Adiciona um feitiço no vetor de feitiços do player.
-    void addSpell (playerS *player, int index) {
-        player->spellNum++;
-        player->knownSpells = realloc(player->knownSpells, sizeof(spellS)*(player->spellNum+1)); // Realoca o vetor pra caber mais um feitiço.
+    void addSpell (int index) {
+        player.spellNum++;
+        player.knownSpells = realloc(player.knownSpells, sizeof(spellS)*(player.spellNum+1)); // Realoca o vetor pra caber mais um feitiço.
 
-        player->knownSpells[player->spellNum-1] = spells[index];
+        player.knownSpells[player.spellNum-1] = spells[index];
     }
 
 /* ======= Status ======= */
@@ -1331,7 +1328,7 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
     }
 
     // Configura a classe do player
-    void chooseClass (playerS *player) {
+    void chooseClass () {
         int escolha;
         printClasses();
 
@@ -1344,115 +1341,115 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
             {
             case warrior:
                 // Stats do player
-                player->armor = 12;
-                player->atkMod = 6;
-                player->atkNum = 1;
-                player->dmgDice = 6;
-                player->dmgDiceNum = 2;
-                player->dmgMod = 5;
-                player->hpMax = 40;
-                player->magMod = -1;
-                player->manaMax = 15;
+                player.armor = 12;
+                player.atkMod = 6;
+                player.atkNum = 1;
+                player.dmgDice = 6;
+                player.dmgDiceNum = 2;
+                player.dmgMod = 5;
+                player.hpMax = 40;
+                player.magMod = -1;
+                player.manaMax = 15;
 
                 // Feitiços do player
-                addSpell (player, fireBlt);
-                addSpell (player, mageShld);
+                addSpell (fireBlt);
+                addSpell (mageShld);
 
                 // Skills do player
-                addSkill (player, doubleStrk);
-                addSkill (player, tripAtk);
-                addSkill (player, scndWind);
-                addSkill (player, adrnlSurge);
-                addSkill (player, prcStrk);
-                addSkill (player, btlTrance);
+                addSkill (doubleStrk);
+                addSkill (tripAtk);
+                addSkill (scndWind);
+                addSkill (adrnlSurge);
+                addSkill (prcStrk);
+                addSkill (btlTrance);
                 
                 // Mensagens de ataque
-                strcpy(player->hitString, "\n\nA lamina do seu machado atinge o inimigo, que falha em se esquivar e recua com um grito.\n\n");
-                strcpy(player->critString, "\n\nGirando sua arma com as duas maos, voce faz um corte letal no alvo, causando dano massivo.\n\n");
-                strcpy(player->missString, "\n\nO oponente desvia agilmente do seu golpe, saltando para o lado. A lamina encontra apenas terra.\n\n");
+                strcpy(player.hitString, "\n\nA lamina do seu machado atinge o inimigo, que falha em se esquivar e recua com um grito.\n\n");
+                strcpy(player.critString, "\n\nGirando sua arma com as duas maos, voce faz um corte letal no alvo, causando dano massivo.\n\n");
+                strcpy(player.missString, "\n\nO oponente desvia agilmente do seu golpe, saltando para o lado. A lamina encontra apenas terra.\n\n");
 
                 break;
             
             case wizard:
-                player->armor = 10;
-                player->atkMod = 0;
-                player->atkNum = 1;
-                player->dmgDice = 6;
-                player->dmgDiceNum = 1;
-                player->dmgMod = -2;
-                player->hpMax = 35;
-                player->magMod = 6;
-                player->manaMax = 30;
+                player.armor = 10;
+                player.atkMod = 0;
+                player.atkNum = 1;
+                player.dmgDice = 6;
+                player.dmgDiceNum = 1;
+                player.dmgMod = -2;
+                player.hpMax = 35;
+                player.magMod = 6;
+                player.manaMax = 30;
 
-                addSpell (player, fireBlt);
-                addSpell (player, sonicBlst);
-                addSpell (player, mageArm);
-                addSpell (player, mageShld);
-                addSpell (player, magicMsl);
+                addSpell (fireBlt);
+                addSpell (sonicBlst);
+                addSpell (mageArm);
+                addSpell (mageShld);
+                addSpell (magicMsl);
 
-                addSkill (player, parryAtk);
-                addSkill (player, scndWind);
+                addSkill (parryAtk);
+                addSkill (scndWind);
 
-                strcpy(player->hitString, "\n\nApesar da sua falta de treinamento marcial, voce consegue atingir a criatura com o seu cajado, fazendo-a recuar.\n\n");
-                strcpy(player->critString, "\n\nVoce acerta o alvo com um giro do seu cajado, com um impacto brutal e o som de ossos quebrando.\n\n");
-                strcpy(player->missString, "\n\nVoce golpeia pra frente com a ponta do bastao, mas a armadura do inimigo absorve o impacto do ataque.\n\n");
+                strcpy(player.hitString, "\n\nApesar da sua falta de treinamento marcial, voce consegue atingir a criatura com o seu cajado, fazendo-a recuar.\n\n");
+                strcpy(player.critString, "\n\nVoce acerta o alvo com um giro do seu cajado, com um impacto brutal e o som de ossos quebrando.\n\n");
+                strcpy(player.missString, "\n\nVoce golpeia pra frente com a ponta do bastao, mas a armadura do inimigo absorve o impacto do ataque.\n\n");
                 
                 break;
 
             case warlock:
-                player->armor = 11;
-                player->atkMod = 3;
-                player->atkNum = 1;
-                player->dmgDice = 8;
-                player->dmgDiceNum = 1;
-                player->dmgMod = 3;
-                player->hpMax = 35;
-                player->magMod = 6;
-                player->manaMax = 25;
+                player.armor = 11;
+                player.atkMod = 3;
+                player.atkNum = 1;
+                player.dmgDice = 8;
+                player.dmgDiceNum = 1;
+                player.dmgMod = 3;
+                player.hpMax = 35;
+                player.magMod = 6;
+                player.manaMax = 25;
 
-                addSpell (player, mageArm);
-                addSpell (player, voidHunger);
-                addSpell (player, yogSothothSight);
-                addSpell (player, cthulhuFire);
-                addSpell (player, azathothDream);
+                addSpell (mageArm);
+                addSpell (voidHunger);
+                addSpell (yogSothothSight);
+                addSpell (cthulhuFire);
+                addSpell (azathothDream);
 
-                addSkill (player, doubleStrk);
-                addSkill (player, tripAtk);
-                addSkill (player, bldOffering);
-                addSkill (player, siphonPwr);
+                addSkill (doubleStrk);
+                addSkill (tripAtk);
+                addSkill (bldOffering);
+                addSkill (siphonPwr);
                 
-                strcpy(player->hitString, "\n\nVoce invoca um feixe de energia sombria que dispara erraticamente pelo ar, atingindo o inimigo e queimando-o.\n\n");
-                strcpy(player->critString, "\n\nCom uma palavra profana voce conjura um raio faiscante de sombra, que atinge o alvo em cheio e o empurra pra tras numa chuva de faiscas.\n\n");
-                strcpy(player->missString, "\n\nNo calor da batalha, voce nao consegue se concentrar para evocar as energias extraplanares do seu patrono, e o raio se dissipa com um chiado.\n\n");
+                strcpy(player.hitString, "\n\nVoce invoca um feixe de energia sombria que dispara erraticamente pelo ar, atingindo o inimigo e queimando-o.\n\n");
+                strcpy(player.critString, "\n\nCom uma palavra profana voce conjura um raio faiscante de sombra, que atinge o alvo em cheio e o empurra pra tras numa chuva de faiscas.\n\n");
+                strcpy(player.missString, "\n\nNo calor da batalha, voce nao consegue se concentrar para evocar as energias extraplanares do seu patrono, e o raio se dissipa com um chiado.\n\n");
 
                 break;
 
             case paladin:
-                player->armor = 12;
-                player->atkMod = 5;
-                player->atkNum = 1;
-                player->dmgDice = 8;
-                player->dmgDiceNum = 1;
-                player->dmgMod = 3;
-                player->hpMax = 40;
-                player->magMod = 4;
-                player->manaMax = 25;
+                player.armor = 12;
+                player.atkMod = 5;
+                player.atkNum = 1;
+                player.dmgDice = 8;
+                player.dmgDiceNum = 1;
+                player.dmgMod = 3;
+                player.hpMax = 40;
+                player.magMod = 4;
+                player.manaMax = 25;
 
-                addSpell (player, mageArm);
-                addSpell (player, blessWpn);
-                addSpell (player, rdntSmite);
-                addSpell (player, srngLight);
+                addSpell (mageArm);
+                addSpell (blessWpn);
+                addSpell (rdntSmite);
+                addSpell (srngLight);
 
-                addSkill (player, parryAtk);
-                addSkill (player, tripAtk);
-                addSkill (player, scndWind);
-                addSkill (player, dvnGuidance);
-                addSkill (player, bldOffering);
-                addSkill (player, dvnIntervention);
+                addSkill (parryAtk);
+                addSkill (tripAtk);
+                addSkill (scndWind);
+                addSkill (dvnGuidance);
+                addSkill (bldOffering);
+                addSkill (dvnIntervention);
 
-                strcpy(player->hitString, "\n\nO golpe da sua espada acerta o alvo com um corte amplo, abrindo um ferimento e jorrando sangue por onde a lamina rasga.\n\n");
-                strcpy(player->critString, "\n\nVoce acerta a criatura com o seu escudo numa investida e finca sua espada num ponto vital, causando um ferimento gravissimo.\n\n");
-                strcpy(player->missString, "\n\nO som de metal com metal ressoa pelo campo de batalha quando o seu golpe e bloqueado pelo escudo do inimigo.\n\n");
+                strcpy(player.hitString, "\n\nO golpe da sua espada acerta o alvo com um corte amplo, abrindo um ferimento e jorrando sangue por onde a lamina rasga.\n\n");
+                strcpy(player.critString, "\n\nVoce acerta a criatura com o seu escudo numa investida e finca sua espada num ponto vital, causando um ferimento gravissimo.\n\n");
+                strcpy(player.missString, "\n\nO som de metal com metal ressoa pelo campo de batalha quando o seu golpe e bloqueado pelo escudo do inimigo.\n\n");
                 
                 break;
             
@@ -1465,21 +1462,20 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
             break;
         }
 
-        player->class = escolha;
+        player.class = escolha;
     }
 
     // Cria o player
-    playerS createPlayer() {
-        playerS player;
-
+    void createPlayer() {
         // Inicializando os arrays
-        initSpells(&player);
-        initSkills(&player);
-        initInv(&player);
-        fillInv(&player);
+        initSpells();
+        initSkills();
+        initInv();
+        fillInv();
 
         // Escolhendo a classe
-        chooseClass (&player);
+        chooseClass ();
+        
 
         // Inicializando os atributos
         player.advantage = 0;
@@ -1492,6 +1488,4 @@ int showDesc = true; // Mostrar descrição dos feitiços e habilidades
         for(int i=0; i<NUM_STATUSES; i++) { 
             player.status[i] = false;
         }
-
-        return player;
     }

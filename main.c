@@ -63,9 +63,10 @@ int main(int argc, char** argv) {
     int battleState = 0;
 
     // Definindo criaturas
-    player = createPlayer();
-    //enemy = createEnemy((rand()%3) + 1);
-    enemy = createEnemy(2);
+    createPlayer();
+    
+    //createEnemy((rand()%3) + 1);
+    createEnemy(2);
     
 
     while (1) {

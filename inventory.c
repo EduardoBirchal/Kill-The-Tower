@@ -90,29 +90,29 @@ itemS items[INV_SIZE] = {
 /* ==== Funções de inventário ==== */
 
 // Cria um inventário vazio.
-void initInv (playerS *player) {
-    player->inventory = (itemS*) malloc (sizeof(itemS) * INV_SIZE);
+void initInv () {
+    player.inventory = (itemS*) malloc (sizeof(itemS) * INV_SIZE);
 
     for(int i=0; i<INV_SIZE; i++) {
-        player->inventory[i].num = 0;
+        player.inventory[i].num = 0;
     }
     
-    player->invFill = 0; // invFill é o número de slots ocupados no inventário.
+    player.invFill = 0; // invFill é o número de slots ocupados no inventário.
 }
 
 // Coloca um número de itens num slot.
-void setInvSlot (playerS *player, int slot, int item, int itemNum) {
-    player->inventory[slot] = items[item];
-    player->inventory[slot].num = itemNum;
+void setInvSlot (int slot, int item, int itemNum) {
+    player.inventory[slot] = items[item];
+    player.inventory[slot].num = itemNum;
 
-    player->invFill++;
+    player.invFill++;
 }
 
 // Pra debug, enche o inventário com uma lista pré-pronta de itens.
-void fillInv (playerS *player) {
-    setInvSlot(player, 0, 0, 4);
-    setInvSlot(player, 1, 1, 1);
-    setInvSlot(player, 2, 2, 2);
+void fillInv () {
+    setInvSlot(0, 0, 4);
+    setInvSlot(1, 1, 1);
+    setInvSlot(2, 2, 2);
 }
 
 // Usa um item, diminuindo a quantidade do item no slot.

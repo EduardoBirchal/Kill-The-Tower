@@ -324,12 +324,10 @@ typedef struct enemySkill_s {
 /* ==== Criação do inimigo ==== */
 
     // Cria o inimigo
-    enemyS createEnemy(int index) {
+    void createEnemy(int index) {
         FILE *file;
         int linesDetected = 0; // linesDetected guarda o número de linhas puladas até chegar no inimigo certo no arquivo.
         char stringScan[6]; // stringScan é a string que foi lida para ser comparada
-
-        enemyS enemy;
 
         // Abrindo o arquivo
         file = fopen("enemies.txt", "r");
@@ -387,8 +385,6 @@ typedef struct enemySkill_s {
         enemy.hp = enemy.hpMax;
         enemy.mana = enemy.manaMax;
         enemy.tacticalsInARow = 0;
-
-        return enemy;
     }
 
 

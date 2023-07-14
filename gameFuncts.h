@@ -190,10 +190,10 @@ extern enemyS enemy;
     void updateCooldowns (playerS *player, enemyS *enemy);
 
     // Inicializa o vetor de skills do player.
-    void initSkills (playerS *player);
+    void initSkills ();
 
     // Adiciona uma skill no vetor de skills do player.
-    void addSkill (playerS *player, int index);
+    void addSkill (int index);
 
 
 /* ==== Spells - as funções de feitiços ==== */
@@ -232,10 +232,10 @@ extern enemyS enemy;
     int playerMag (playerS *player, enemyS *enemy);
 
     // Inicializa o vetor de feitiços do player.
-    void initSpells (playerS *player);
+    void initSpells ();
 
     // Adiciona um feitiço no vetor de feitiços do player.
-    void addSpell (playerS *player, int index);
+    void addSpell (int index);
 
 
 /* ==== Status - as funções de cada status do player ==== */
@@ -311,13 +311,13 @@ extern enemyS enemy;
     int acidFlask (playerS *player, enemyS *enemy);
 
     // Cria um inventário vazio.
-    void initInv (playerS *player);
+    void initInv ();
 
     // Coloca um número de itens num slot.
-    void setInvSlot (playerS *player, int slot, int item, int itemNum);
+    void setInvSlot (int slot, int item, int itemNum);
 
     // Pra debug, enche o inventário com uma lista pré-pronta de itens.
-    void fillInv (playerS *player);
+    void fillInv ();
 
     // Usa um item, diminuindo a quantidade do item no slot.
     int useItem (playerS *player, enemyS *enemy, int item);
@@ -350,10 +350,10 @@ extern enemyS enemy;
     void printClasses();
 
     // Configura a classe do player
-    void chooseClass (playerS *player);
+    void chooseClass ();
 
     // Cria o player
-    playerS createPlayer();
+    void createPlayer();
 
 
 /* ==== Inimigo ==== */
@@ -389,7 +389,7 @@ extern enemyS enemy;
     void initSkillsE (enemyS *enemy);
 
     // Cria o inimigo
-    enemyS createEnemy(int index);
+    void createEnemy(int index);
 
     // Executa as funções do turno do inimigo
     void turnEnemy (playerS *player, enemyS *enemy);
