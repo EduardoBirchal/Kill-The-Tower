@@ -13,16 +13,17 @@ COISAS PRA FAZER:
 Interface
     - Menu principal
     - Customizar nome
-    - Traduzir pra inglês
+    - Traduzir pra inglês (usar gettext. Pra refatorar o código, aprender regex)
+    - Fazer o terminal ser controlável via setinhas
 Inimigo
-    - Aprimorar IA do Inimigo <-- FAZENDO
+    - Aprimorar IA do Inimigo
 Player
     - Sistema de levels
     - Equipamento
 Dungeon
     - Fazer múltiplas salas da dungeon
     - Imprimir o mapa da dungeon
-    Recompensas
+    - Recompensas
         - XP
         - Itens
         - Dinheiro
@@ -40,8 +41,6 @@ Balanceamento
     - Pouca variedade pro paladino e pouca quantidade de combo
     - Inimigo fortifica demais
     - Rebalancear armadura (armadura demais deixa a batalha chata, mas armadura de menos elimina qualquer estratégia que não seja atacar sem parar)
-Código
-    - Fazer player e inimigo serem static
 
 */
 

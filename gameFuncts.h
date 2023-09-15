@@ -12,6 +12,7 @@
 #include <math.h>
 #include <time.h>
 #include <stdint.h>
+#include <libintl.h>
 
 #ifdef _WIN32
     #include <Windows.h>
@@ -49,6 +50,8 @@
 
 #define MAX_ENEMY_SKILL 25
 #define NUM_ENEMY_ACTIONS 4
+
+#define _(String) gettext(String)
 
 
 /* ==== Structs ==== */

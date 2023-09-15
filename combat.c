@@ -316,7 +316,7 @@ extern enemyS enemy;
     /* ==== Lista de habilidades ==== */
 
     // Ataca duas vezes.
-    bool doubleStrike ( ) {
+    bool doubleStrike () {
         playerAtk(enemy);
         playerAtk(enemy);
         
@@ -324,7 +324,7 @@ extern enemyS enemy;
     }
 
     // Ataca e ganha vantagem nos ataques no turno seguinte.
-    bool tripAttack ( ) {
+    bool tripAttack () {
         if (playerAtk(enemy)) {
              player.status[tripAtkS] = true;
              player.advantage++;
@@ -336,7 +336,7 @@ extern enemyS enemy;
     }
 
     // Dá dano no player, pra debug.
-    bool debugSelfDmg ( ) {
+    bool debugSelfDmg () {
          player.hp -= 5;
         printSlow("Ai.\n\n");
 
@@ -344,7 +344,7 @@ extern enemyS enemy;
     }
 
     // Ataca e ganha um bônus de armadura no turno seguinte.
-    bool parryAttack ( ) {
+    bool parryAttack () {
         playerAtk(enemy);
 
          player.status[parryAtkS] = 2;
@@ -356,7 +356,7 @@ extern enemyS enemy;
     }
 
     // Recupera HP.
-    bool secondWind ( ) {
+    bool secondWind () {
         itemHeal(6, 2, 2,
         "Voce recua e respira, recuperando seu folego e se sentindo descansado.\n\n");
 
@@ -364,7 +364,7 @@ extern enemyS enemy;
     }
 
     // Ataca com um bônus de ataque e dano.
-    bool divineGuidance ( ) {
+    bool divineGuidance () {
          player.atkMod += 5;
          player.dmgMod += 5;
         printSlow("Voce se concentra na sua divindade, deixando conhecimento divino guiar seu ataque. \033[33mAtaque e dano +5!\033[0m\n\n");
@@ -378,7 +378,7 @@ extern enemyS enemy;
     }
 
     // Recebe dano e recupera mana.
-    bool bloodOffering ( ) {
+    bool bloodOffering () {
         int sacrifice;  
 
         printf("\nQuanto de HP sacrificar? (1 de HP recupera 3 Mana)\n\n> ");
@@ -419,7 +419,7 @@ extern enemyS enemy;
     }
 
     // Acerta o ataque sem precisar rolar.
-    bool precisionStrike ( ) {
+    bool precisionStrike () {
         printSlow("Com um movimento gracioso, voce se posiciona para aproveitar uma brecha na defesa do alvo.\n");
         playerHit(enemy);
 
@@ -427,7 +427,7 @@ extern enemyS enemy;
     }
 
     // Dá um boost de dano e ataque mas coloca todas as habilidades em cooldown por 4 turnos.
-    bool battleTrance ( ) {
+    bool battleTrance () {
         printSlow("Esquecendo toda a tecnica, voce confia o controle do seu corpo inteiramente aos seus instintos.\n\n");
 
          player.atkMod += 3;
@@ -448,7 +448,7 @@ extern enemyS enemy;
         return true;
     }
 
-    bool siphonPower ( ) {
+    bool siphonPower () {
         if (! enemy.mana) { // Inimigo não tem mana
             printSlow("O inimigo nao tem mana!\n\n");
             return false;
@@ -542,7 +542,7 @@ extern enemyS enemy;
     }
 
     // Tem uma chance de 30% de fazer um efeito útil da escolha do player.
-    bool divineIntervention ( ) {
+    bool divineIntervention () {
         printf("\033[94m30%% de chance - se o dado tirar mais que 70, o efeito funciona\033[0m\n\n");
         int chanceRoll = rollDice(100, 1, 0, 0);
 
@@ -690,7 +690,7 @@ extern enemyS enemy;
     }
 
     // Lê a escolha de skill do player
-    int playerSkl( ) {
+    int playerSkl() {
         int option = 1;
 
         while (1) {
@@ -733,7 +733,7 @@ extern enemyS enemy;
     }
 
     // Diminui os cooldowns do player e do inimigo.
-    void updateCooldowns ( ) {
+    void updateCooldowns () {
         updatePlayerCooldown(player);
         updateEnemyCooldown(enemy);
     }
@@ -797,7 +797,7 @@ extern enemyS enemy;
     /* ==== Lista de feitiços ==== */
 
     // Um feitiço simples, que dá uma boa quantidade de dano.
-    bool fireBolt ( ) {
+    bool fireBolt () {
         spellDmg (8, 2,
         "\n\nO dardo de fogo acerta a criatura, estalando e criando um estouro de chamas.\n\n", 
         " \033[33;4mFalha...\033[0m\n\nO alvo se abaixa para fora do caminho do projetil, que dispara por cima dele e se dissipa numa nuvem de brasas.\n\n");
@@ -806,7 +806,7 @@ extern enemyS enemy;
     }
 
     // Dá dano médio e diminui armadura.
-    bool sonicBlast ( ) {
+    bool sonicBlast () {
         int result = spellDmg (8, 1,
         "\n\nO pulso sonico colide com o alvo, com um impacto pesado. O som ressoante rasga um buraco em sua armadura de couro. \033[33mArmadura do inimigo -1!\033[0m\n\n", 
         " \033[33;4mFalha...\033[0m\n\nO feixe atinge o escudo de bronze da criatura, estourando num zumbido estrondoso.\n\n");
@@ -819,7 +819,7 @@ extern enemyS enemy;
     }
 
     // Aumenta a armadura do player. Não acumula.
-    bool mageArmor ( ) {
+    bool mageArmor () {
         if (isInEffect(mageArmS)) return false;
         
          player.status[mageArmS] = true;
@@ -831,7 +831,7 @@ extern enemyS enemy;
     }
 
     // Aumenta muito a armadura do player, por 1 turno. Não acumula.
-    bool mageShield ( ) {
+    bool mageShield () {
         if (isInEffect(mageShldS)) return false;
 
          player.status[mageShldS] = 2;
@@ -842,7 +842,7 @@ extern enemyS enemy;
     }
 
     // Dá dano baixo e acerta sempre, sem precisar rolar ataque.
-    bool magicMissile ( ) {
+    bool magicMissile () {
         int dmgRoll = rollDice(4, 3, 1, 0);
 
         printSlow("Rolagem de dano - \033[36mrolando ");
@@ -855,7 +855,7 @@ extern enemyS enemy;
     }
 
     // Aumenta o dano da arma permanentemente.
-    bool blessWeapon ( ) {
+    bool blessWeapon () {
          player.dmgMod += 2;
         printSlow("Com uma oracao voce abencoa sua arma, manipulando as forcas do destino para favorecer sua lamina. \033[33mDano +2!\033[0m\n\n");
 
@@ -863,7 +863,7 @@ extern enemyS enemy;
     }
 
     // Amplifica o dano do seu próximo ataque.
-    bool radiantSmite ( ) {
+    bool radiantSmite () {
         if (isInEffect(rdntSmiteS)) return false;
 
          player.status[rdntSmiteS] = true;
@@ -873,7 +873,7 @@ extern enemyS enemy;
     }
 
     // Causa dano contínuo no inimigo até o player castar um feitiço
-    bool hungerOfTheVoid ( ) {
+    bool hungerOfTheVoid () {
         if (isInEffect(hungerOfTheVoidS)) return false;
 
         printSlow("Sua mente se torna inundada de visoes do Longinquo, o vazio alem do Multiverso. Com um grito terrivel, voce evoca essas visoes para o mundo fisico e conjura um portal sombrio.\n\n");
@@ -883,7 +883,7 @@ extern enemyS enemy;
     }
 
     // Diminui o custo dos feitiços do player.
-    bool sightOfYogSothoth ( ) {
+    bool sightOfYogSothoth () {
         printSlow("Por um instante voce consegue ver com olhos transcendentes, entendendo um pedaco da natureza do mundo e aprofundando a sua comunhao com os Grandes Ancestrais. \033[33mCusto dos feiticos -1!\033[0m\n\n");
 
         for (int i=0; i< player.spellNum; i++) {
@@ -896,7 +896,7 @@ extern enemyS enemy;
     }
 
     // Causa dano alto.
-    bool fireOfCthulhu ( ) {
+    bool fireOfCthulhu () {
         spellDmg (8, 3,
         "\n\nSeus olhos se enchem de escuridao, liberando um cone de fogo e trevas que envolve o inimigo por completo, queimando-o com fogo necrotico.\n\n", 
         " \033[33;4mFalha...\033[0m\n\nA criatura bloqueia o raio de chamas sombrias com seu escudo, e o fogo produz um cheiro forte de enxofre.\n\n");
@@ -905,7 +905,7 @@ extern enemyS enemy;
     }
 
     // Diminui o dano do inimigo.
-    bool dreamOfAzathoth ( ) {
+    bool dreamOfAzathoth () {
         if (isInEffect(azathothDreamS)) return false;
         
          player.status[azathothDreamS] = true;
@@ -918,7 +918,7 @@ extern enemyS enemy;
     }
 
     // Causa dano baixo constante.
-    bool searingLight ( ) {
+    bool searingLight () {
         if (isInEffect(searingLightS)) return false;
 
          player.status[searingLightS] = true;
@@ -1045,7 +1045,7 @@ extern enemyS enemy;
         printf("\033[33m%i: \033[36mCancelar\033[0m\n", i+1);
     }
 
-    int playerMag( ) {
+    int playerMag() {
         int option = 1;
 
         while (1) {
@@ -1192,7 +1192,7 @@ extern enemyS enemy;
     }
 
     // Checa o array de status do player e faz os efeitos de cada status
-    void updateStatus( ) {
+    void updateStatus() {
         bool evento = false; // Se teve algum evento que o player precisa ler, evento = true e o jogo pede um enter depois de todos os eventos.
 
         evento = updatePlayerStatus(evento);
@@ -1208,7 +1208,7 @@ extern enemyS enemy;
 /* ==== UI do player ==== */
 
     // Imprime as opções do player
-    void printOptions( ) {
+    void printOptions() {
         char options[OPTION_AMT][MAX_OPTION] = {"ATACAR", "HABILIDADES", "MAGIA", "INVENTARIO", "FECHAR JOGO"};
         int option = 0;
 
@@ -1221,7 +1221,7 @@ extern enemyS enemy;
     }
     
     // Lê a opção que o player escolheu
-    int readOption( ) {
+    int readOption() {
         int option = 1;
 
         while (1) {
@@ -1283,7 +1283,7 @@ extern enemyS enemy;
     }
 
     // Turno do player
-    int turnPlayer( ) {
+    int turnPlayer() {
         while(1) {
             printOptions(enemy);
             switch (readOption(enemy))
