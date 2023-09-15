@@ -106,7 +106,7 @@ enum skills {doubleStrk, tripAtk, selfDmg, parryAtk, scndWind, dvnGuidance, bldO
 enum enemySkills {eFireBlt, eRegenerate, eleechAtk};
 
 typedef int bool;
-typedef bool (*sklFunct) (playerS *player, enemyS *enemy); // Define bool (*coisa) (playerS *player, enemyS *enemy) como só sklFunct. É um ponteiro de função.
+typedef bool (*sklFunct) (); // Define bool (*coisa) () como só sklFunct. É um ponteiro de função.
 
 
 /* ==== Variáveis globais ==== */
@@ -121,10 +121,10 @@ extern enemyS enemy;
 /* ==== Combate - funções de combate ==== */
 
     // Libera tudo do player
-    void freePlayer(playerS player);
+    void freePlayer();
 
     // Libera tudo do inimigo 
-    void freeEnemy(enemyS enemy);
+    void freeEnemy();
 
     // Imprime uma barra de vida
     void printHp (int hpMax, int hp);
@@ -136,58 +136,58 @@ extern enemyS enemy;
     int checkRange (int num, int min, int max);
 
     // Conserta o HP pra não ficar negativo
-    int updateValues (playerS *player, enemyS *enemy);
+    int updateValues ();
 
     // Rola [num] dados de [size] lados
     int rollDice(int size, int num, int mod, int adv);
 
     // Faz o ataque do player
-    int playerAtk(playerS *player, enemyS *enemy);
+    int playerAtk();
 
     // Retorna true e imprime uma mensagem se alguém morreu
-    bool battleIsOver (playerS player, enemyS enemy);
+    bool battleIsOver ();
 
     
 /* ==== Skills - habilidades especiais não-mágicas ==== */
 
     // Checa se uma habilidade já está em efeito
-    bool isInEffect (playerS *player, int index);
+    bool isInEffect (int index);
 
     // Ataca duas vezes.
-    int doubleStrike (playerS* player, enemyS *enemy);
+    int doubleStrike ();
 
     // Ataca e ganha vantagem nos ataques no turno seguinte.
-    int tripAttack (playerS* player, enemyS *enemy);
+    int tripAttack ();
 
     // Ataca e ganha um bônus de armadura no turno seguinte.
-    int parryAttack (playerS* player, enemyS *enemy);
+    int parryAttack ();
 
     // Recupera HP.
-    int secondWind (playerS* player, enemyS *enemy);
+    int secondWind ();
 
     // Ataca com um bônus de ataque e dano.
-    int divineGuidance (playerS* player, enemyS *enemy);
+    int divineGuidance ();
 
     // Recebe dano e recupera mana.
-    int bloodOffering (playerS* player, enemyS *enemy);
+    int bloodOffering ();
 
     // Uma skill de cura genérica.
-    int skillHeal (playerS* player, enemyS *enemy, int healDie, int healDieNum, int healMod, char* str);
+    int skillHeal (int healDie, int healDieNum, int healMod, char* str);
 
     // Imprime a lista de habilidades.
-    void printSkills(playerS *player);
+    void printSkills();
 
     // Imprime as habilidades e lê a escolha do player.
-    int playerSkl (playerS *player, enemyS *enemy);
+    int playerSkl ();
 
     // Diminui os cooldowns de toda habilidade do inimigo.
-    void updateEnemyCooldown (enemyS *enemy);
+    void updateEnemyCooldown ();
 
     // Diminui os cooldowns de toda habilidade do player.
-    void updatePlayerCooldown (playerS *player);
+    void updatePlayerCooldown ();
 
     // Diminui os cooldowns de toda habilidade.
-    void updateCooldowns (playerS *player, enemyS *enemy);
+    void updateCooldowns ();
 
     // Inicializa o vetor de skills do player.
     void initSkills ();
@@ -199,37 +199,37 @@ extern enemyS enemy;
 /* ==== Spells - as funções de feitiços ==== */
 
     // Rola o ataque pra um feitiço.
-    int spellAtk (playerS* player);
+    int spellAtk ();
 
     // Um feitiço de dano genérico. Retorna se acertou ou errou, pra efeitos adicionais.
-    int spellDmg (playerS* player, enemyS *enemy, int dmgDie, int dmgDieNum, char* strHit, char* strMiss);
+    int spellDmg (int dmgDie, int dmgDieNum, char* strHit, char* strMiss);
 
     // Um feitiço simples, que dá uma boa quantidade de dano.
-    int fireBolt (playerS* player, enemyS *enemy);
+    int fireBolt ();
 
     // Dá dano médio e diminui armadura.
-    int sonicBlast (playerS* player, enemyS *enemy);
+    int sonicBlast ();
 
     // Aumenta a armadura do player. Não acumula.
-    int mageArmor (playerS *player, enemyS *enemy);
+    int mageArmor ();
 
     // Aumenta muito a armadura do player, por 1 turno. Não acumula.
-    int mageShield (playerS *player, enemyS *enemy);
+    int mageShield ();
 
     // Dá dano baixo e acerta sempre, sem precisar rolar ataque.
-    int magicMissile (playerS *player, enemyS *enemy);
+    int magicMissile ();
 
     // Aumenta o dano da arma permanentemente.
-    int blessWeapon (playerS *player, enemyS *enemy);
+    int blessWeapon ();
 
     // Amplifica o dano do seu próximo ataque.
-    int radiantSmite (playerS *player, enemyS *enemy);
+    int radiantSmite ();
 
     // Lê a escolha de feitiços do player.
-    int readSpell(playerS *player, enemyS *enemy);
+    int readSpell();
     
     // Imprime os feitiços e lê a escolha do player.
-    int playerMag (playerS *player, enemyS *enemy);
+    int playerMag ();
 
     // Inicializa o vetor de feitiços do player.
     void initSpells ();
@@ -241,7 +241,7 @@ extern enemyS enemy;
 /* ==== Status - as funções de cada status do player ==== */
 
     // Checa o array de status do player e faz os efeitos de cada status
-    void updateStatus(playerS *player, enemyS *enemy);
+    void updateStatus();
 
 
 /* ==== Term - funções de terminal ==== */
@@ -278,13 +278,13 @@ extern enemyS enemy;
     void printBorder ();
 
     // Imprime os atributos do player
-    void playerInfo(playerS player);
+    void playerInfo();
 
     // Imprime os atributos do inimigo
-    void enemyInfo(enemyS enemy);
+    void enemyInfo();
 
     // Imprime o menu de atributos
-    void printInfo (playerS player, enemyS enemy);
+    void printInfo ();
 
     // Pega uma string de um arquivo e tira o \n
     void getStringFromFile(FILE* file, int max, char* string);
@@ -296,19 +296,19 @@ extern enemyS enemy;
 /* ==== Inventory - funções de inventário do player ==== */
 
     // Um item de dano genérico.
-    int itemDmg (playerS* player, enemyS *enemy, int dmgDie, int dmgDieNum, int dmgMod, char* strHit);
+    int itemDmg (int dmgDie, int dmgDieNum, int dmgMod, char* strHit);
 
     // Um item de cura genérico.
-    int itemHeal (playerS* player, enemyS *enemy, int healDie, int healDieNum, int healMod, char* str);
+    int itemHeal (int healDie, int healDieNum, int healMod, char* str);
 
     // Aumenta a armadura do player. Não acumula.
-    int healPotion (playerS *player, enemyS *enemy);
+    int healPotion ();
 
     // Aumenta muito a armadura do player, por 1 turno. Não acumula.
-    int armorRune (playerS *player, enemyS *enemy);
+    int armorRune ();
 
     // Dá dano baixo e acerta sempre, sem precisar rolar ataque.
-    int acidFlask (playerS *player, enemyS *enemy);
+    int acidFlask ();
 
     // Cria um inventário vazio.
     void initInv ();
@@ -320,28 +320,28 @@ extern enemyS enemy;
     void fillInv ();
 
     // Usa um item, diminuindo a quantidade do item no slot.
-    int useItem (playerS *player, enemyS *enemy, int item);
+    int useItem (int item);
 
     // Imprime o menu de itens.
-    void printItems(playerS *player, enemyS *enemy);
+    void printItems();
 
     // Lê a escolha do player.
-    int readItem(playerS *player, enemyS *enemy);
+    int readItem();
 
     // Imprime o menu e lê a escolha de item.
-    int playerInv (playerS *player, enemyS *enemy);
+    int playerInv ();
 
 
 /* ==== UI do player ==== */
 
     // Imprime as opções do player
-    void printOptions(playerS *player, enemyS *enemy);
+    void printOptions();
 
     // Lê a opção que o player escolheu
-    int readOption(playerS *player, enemyS *enemy);
+    int readOption();
 
     // Turno do player
-    int turnPlayer(playerS *player, enemyS *enemy);
+    int turnPlayer();
 
 
 /* ==== Criação do player ==== */
@@ -359,37 +359,37 @@ extern enemyS enemy;
 /* ==== Inimigo ==== */
 
     // Anuncia o ataque do inimigo
-    void announceAtkE(enemyS *enemy);
+    void announceAtkE();
 
     // Acerto crítico do inimigo
-    int enemyCrit(playerS *player, enemyS *enemy);
+    int enemyCrit();
 
     // Acerto não-crítico do inimigo
-    int enemyHit(playerS *player, enemyS *enemy);
+    int enemyHit();
 
     // Um ataque do inimigo
-    int enemyAtk(playerS *player, enemyS *enemy);
+    int enemyAtk();
 
     // Rola o ataque pra uma habilidade que não é um ataque básico.
-    int enemySkillAtk (enemyS *enemy);
+    int enemySkillAtk ();
 
     // Dá dano de uma skill
-    int enemySkillDmg (playerS* player, enemyS *enemy, int dmgDie, int dmgDieNum);
+    int enemySkillDmg (int dmgDie, int dmgDieNum);
 
     // Uma habilidade de dano genérica. Retorna o dano, pra efeitos adicionais.
-    int enemySkillAtkDmg (playerS* player, enemyS *enemy, int dmgDieNum, int dmgDie);
+    int enemySkillAtkDmg (int dmgDieNum, int dmgDie);
 
     // Uma skill de cura genérica
-    int enemySkillHeal (enemyS *enemy, int healDieNum, int healDie, int healMod);
+    int enemySkillHeal (int healDieNum, int healDie, int healMod);
 
     // Anuncia e usa uma skill
-    void useSkillE (playerS *player, enemyS *enemy, int index);
+    void useSkillE (int index);
 
     // Aloca e preenche o vetor de skills do inimigo
-    void initSkillsE (enemyS *enemy);
+    void initSkillsE ();
 
     // Cria o inimigo
     void createEnemy(int index);
 
     // Executa as funções do turno do inimigo
-    void turnEnemy (playerS *player, enemyS *enemy);
+    void turnEnemy ();

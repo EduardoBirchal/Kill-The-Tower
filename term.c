@@ -8,6 +8,9 @@
 
 static int cursorPos = 1;
 
+extern playerS player;
+extern enemyS enemy;
+
 
 // Sleep que funciona em Windows e Linux
 void trueSleep(int ms) {
@@ -131,7 +134,7 @@ void printBorder () {
 }
 
 // Imprime os atributos do player
-void playerInfo(playerS player) {
+void playerInfo() {
     // Imprime o nome
     centerText(strlen(player.name), BORDER_LEN);
     printf("\033[1m ");
@@ -150,7 +153,7 @@ void playerInfo(playerS player) {
 }
 
 // Imprime os atributos do inimigo
-void enemyInfo(enemyS enemy) {
+void enemyInfo() {
     // Imprime a margem de cima
     printBorder();
 
@@ -172,7 +175,7 @@ void enemyInfo(enemyS enemy) {
 }
 
 // Imprime o menu de atributos
-void printInfo (playerS player, enemyS enemy) {
+void printInfo () {
     // Código de escape (se eu não me engano é ANSI) que esconde o cursor
     printf("\33[?25l");
 
@@ -183,8 +186,8 @@ void printInfo (playerS player, enemyS enemy) {
     printBorder();
 
     // Imprime a informação
-    playerInfo(player);
-    enemyInfo(enemy);
+    playerInfo();
+    enemyInfo();
 
     // Imprime a margem de baixo
     printBorder();

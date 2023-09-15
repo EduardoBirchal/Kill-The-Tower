@@ -70,26 +70,26 @@ int main(int argc, char** argv) {
     
 
     while (1) {
-        updateValues(&player, &enemy);
-        updateStatus(&player, &enemy);
-        updateCooldowns(&player, &enemy);
+        updateValues();
+        updateStatus();
+        updateCooldowns();
         
-        if (battleIsOver(player, enemy)) break; // Se a batalha acabou, quebra o loop.
+        if (battleIsOver()) break; // Se a batalha acabou, quebra o loop.
 
-        if (turnPlayer(&player, &enemy)) {
+        if (turnPlayer()) {
             break;
         }
 
-        if (battleIsOver(player, enemy)) break; // Checa se a batalha acabou antes e depois do turno do player, pra ninguém poder agir quando já morreu.
+        if (battleIsOver()) break; // Checa se a batalha acabou antes e depois do turno do player, pra ninguém poder agir quando já morreu.
         
-        turnEnemy(&player, &enemy);
+        turnEnemy();
     }
     printf("\n");
 
 
     // Libera arrays alocados
-    freePlayer(player);
-    freeEnemy(enemy);
+    freePlayer();
+    freeEnemy();
 
     return EXIT_SUCCESS;
 }

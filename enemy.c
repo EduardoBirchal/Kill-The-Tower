@@ -20,6 +20,9 @@
 
 enum enemyActions {damage, heal, defend, tactical};
 
+extern playerS player;
+extern enemyS enemy;
+
 typedef struct enemySkill_s {
     sklFunct funct; // sklFunct é um ponteiro de função. Esse tipo é usado para feitiços, habilidades e itens.
     char name[MAX_ENEMY_SKILL];
@@ -37,69 +40,69 @@ typedef struct enemySkill_s {
 /* ==== Funções gerais de habilidade ==== */
 
     // Anuncia o ataque do inimigo
-    void announceAtkE(enemyS *enemy) {
+    void announceAtkE() {
         printf("\033[91m");
-        printSlow(enemy->name);
+        printSlow(enemy.name);
         printSlow("\033[0m usa \033[91m");
-        printSlow(enemy->atkName);
+        printSlow(enemy.atkName);
         printSlow("\033[0m!\n\n");
     }
 
     // Acerto crítico do inimigo
-    int enemyCrit(playerS *player, enemyS *enemy) {
+    int enemyCrit() {
         // Rola o dado
-        int dmgRoll = rollDice(enemy->dmgDice, enemy->dmgDiceNum*2, enemy->dmgMod*2, 0);
+        int dmgRoll = rollDice(enemy.dmgDice, enemy.dmgDiceNum*2, enemy.dmgMod*2, 0);
 
         // Imprime as coisas
         printSlow("Rolagem de dano - \033[36mrolando ");
-        printf("%id%i%+i", enemy->dmgDiceNum*2, enemy->dmgDice, enemy->dmgMod*2);
+        printf("%id%i%+i", enemy.dmgDiceNum*2, enemy.dmgDice, enemy.dmgMod*2);
         printCustomResult(dmgRoll, "dano");
         printf("\n\n");
 
         // Dá o dano
-        player->hp -= dmgRoll;
+        player.hp -= dmgRoll;
     }
 
     // Acerto não-crítico do inimigo
-    int enemyHit(playerS *player, enemyS *enemy) {
+    int enemyHit() {
         // Rola o dado
-        int dmgRoll = rollDice(enemy->dmgDice, enemy->dmgDiceNum, enemy->dmgMod, 0);
+        int dmgRoll = rollDice(enemy.dmgDice, enemy.dmgDiceNum, enemy.dmgMod, 0);
 
         // Imprime as coisas
         printSlow("Rolagem de dano - \033[36mrolando ");
-        printf("%id%i%+i", enemy->dmgDiceNum, enemy->dmgDice, enemy->dmgMod);
+        printf("%id%i%+i", enemy.dmgDiceNum, enemy.dmgDice, enemy.dmgMod);
         printCustomResult(dmgRoll, "dano");
         printf("\n\n");
 
         // Dá o dano
-        player->hp -= dmgRoll;
+        player.hp -= dmgRoll;
     }
 
     // Um ataque do inimigo
-    int enemyAtk(playerS *player, enemyS *enemy) {
+    int enemyAtk() {
         // Rola o ataque
-        int atkRoll = rollDice(20, 1, enemy->atkMod, enemy->advantage);
+        int atkRoll = rollDice(20, 1, enemy.atkMod, enemy.advantage);
 
         // Imprime a rolagem
         announceAtkE(enemy);
 
         printSlow("Rolagem de ataque do inimigo - \033[36mrolando ");
-        printf("1d20%+i", enemy->atkMod);
+        printf("1d20%+i", enemy.atkMod);
         printRollResult(atkRoll);
         
         // Se for 17 natural pra cima, é um acerto crítico
-        if(atkRoll-enemy->atkMod > 17) {
+        if(atkRoll-enemy.atkMod > 17) {
             printSlow(" \033[33;4mAcerto Critico!\033[0m Dados de dano dobrados pra esse ataque.\n\n");
 
-            enemyCrit(player, enemy);
+            enemyCrit();
             requestEnter();
             return 2;
         }
         // Se for acima da armadura do player, acerta
-        else if (atkRoll >= player->armor) { 
+        else if (atkRoll >= player.armor) { 
             printSlow(" \033[33;4mAcerto!\033[0m\n\n");
             
-            enemyHit(player, enemy);
+            enemyHit();
             requestEnter();
             return 1;
         }
@@ -116,36 +119,36 @@ typedef struct enemySkill_s {
 /* ==== Funções de habilidades genéricas ==== */
 
     // Rola o ataque pra uma habilidade que não é um ataque básico.
-    int enemySkillAtk (enemyS *enemy) {
-        int atkRoll = rollDice(20, 1, enemy->skillMod, enemy->advantage);
+    int enemySkillAtk () {
+        int atkRoll = rollDice(20, 1, enemy.skillMod, enemy.advantage);
 
         printSlow("Rolagem de ataque - \033[36mrolando ");
-        printf("1d20%+i", enemy->skillMod);
+        printf("1d20%+i", enemy.skillMod);
         printRollResult(atkRoll);
 
         return atkRoll;
     }
 
     // Dá dano de uma skill
-    int enemySkillDmg (playerS* player, enemyS *enemy, int dmgDie, int dmgDieNum) {
-        int dmgRoll = rollDice(dmgDie, dmgDieNum, enemy->dmgMod, 0);
+    int enemySkillDmg (int dmgDie, int dmgDieNum) {
+        int dmgRoll = rollDice(dmgDie, dmgDieNum, enemy.dmgMod, 0);
 
         printSlow("Rolagem de dano - \033[36mrolando ");
-        printf("%id%i%+i", dmgDieNum, dmgDie, enemy->dmgMod);
+        printf("%id%i%+i", dmgDieNum, dmgDie, enemy.dmgMod);
         printCustomResult(dmgRoll, "dano");
         
-        player->hp -= dmgRoll;
+        player.hp -= dmgRoll;
         return dmgRoll;
     }
 
     // Uma habilidade de dano genérica. Retorna o dano, pra efeitos adicionais.
-    int enemySkillAtkDmg (playerS* player, enemyS *enemy, int dmgDieNum, int dmgDie) {
+    int enemySkillAtkDmg (int dmgDieNum, int dmgDie) {
         int atkRoll = enemySkillAtk (enemy);
 
-        if (atkRoll >= player->armor) { // Se acertou, dá dano e retorna true
+        if (atkRoll >= player.armor) { // Se acertou, dá dano e retorna true
             printSlow(" \033[33;4mAcerto!\033[0m\n\n");
 
-            return enemySkillDmg(player, enemy, dmgDie, dmgDieNum);
+            return enemySkillDmg(dmgDie, dmgDieNum);
         }
         else { // Senão, retorna 0
             printSlow(" \033[33;4mFalha! O ataque erra!\033[0m\n\n");
@@ -155,14 +158,14 @@ typedef struct enemySkill_s {
     }
 
     // Uma skill de cura genérica
-    int enemySkillHeal (enemyS *enemy, int healDieNum, int healDie, int healMod) {
+    int enemySkillHeal (int healDieNum, int healDie, int healMod) {
         int healRoll = rollDice(healDieNum, healDie, healMod, 0);
 
         printSlow("Rolagem de cura - \033[36mrolando ");
         printf("%id%i%+i", healDieNum, healDie, healMod);
         printCustomResult(healRoll, "cura");
 
-        enemy->hp += healRoll;
+        enemy.hp += healRoll;
         return healRoll;
     }
 
@@ -170,37 +173,37 @@ typedef struct enemySkill_s {
 /* ==== Skills não-signature ==== */
 
     // Dá dano médio
-    bool fireBoltE (playerS *player, enemyS *enemy) { // Toda skill de inimigo tem 'E' no final, pra diferenciar das de player
-        enemySkillAtkDmg (player, enemy, 2, 8);
+    bool fireBoltE () { // Toda skill de inimigo tem 'E' no final, pra diferenciar das de player
+        enemySkillAtkDmg (2, 8);
 
         return true;
     }
 
     // Cura o usuário
-    bool regenerateE (playerS *player, enemyS *enemy) {
-        enemySkillHeal (enemy, 3, 4, enemy->skillMod);
+    bool regenerateE () {
+        enemySkillHeal (3, 4, enemy.skillMod);
 
         return true;
     }
 
     // Dá dano e cura metade do dano causado
-    bool leechAttackE (playerS *player, enemyS *enemy) {
-        int healAmt = enemySkillAtkDmg(player, enemy, 2, 6);
+    bool leechAttackE () {
+        int healAmt = enemySkillAtkDmg(2, 6);
 
         if (healAmt) {
             printSlow("O inimigo recebe ");
             printf("\033[36m%i\033[0m", healAmt/2);
             printSlow(" de cura!\n\n");
 
-            enemy->hp += healAmt/2;
+            enemy.hp += healAmt/2;
         }
         
         return true;
     }
 
     // Aumenta a armadura em +1
-    bool fortifyE (playerS *player, enemyS *enemy) {
-        enemy->armor++;
+    bool fortifyE () {
+        enemy.armor++;
         printSlow("\033[33mArmadura do inimigo +1!\033[0m\n\n");
 
         return true;
@@ -208,27 +211,27 @@ typedef struct enemySkill_s {
 
     // Ataca e aplica um efeito de veneno se acertar
 
-    bool poisonAtkE (playerS *player, enemyS *enemy) {
-        if (enemySkillAtkDmg(player, enemy, 2, 6)) {
+    bool poisonAtkE () {
+        if (enemySkillAtkDmg(2, 6)) {
             int psnRoll = rollDice(4, 1, 0, 0);
 
             printSlow("Rolagem de veneno - \033[36mrolando ");
             printf("%id%i%+i", 1, 4, 0);
             printCustomResult(psnRoll, "veneno");
 
-            player->status[poisonedS] += psnRoll;
+            player.status[poisonedS] += psnRoll;
         }
     }
 
     // Aplica um efeito de enfraquecimento 
-    bool sapStrengthE (playerS *player, enemyS *enemy) {
+    bool sapStrengthE () {
         int wknRoll = rollDice(1, 4, 1, 0);
 
         printSlow("Rolagem de enfraquecimento - \033[36mrolando ");
         printf("%id%i%+i", 1, 4, 1);
         printCustomResult(wknRoll, "enfraquecimento");
 
-        player->status[weakenedS] += wknRoll;
+        player.status[weakenedS] += wknRoll;
     }
 
 
@@ -289,9 +292,9 @@ typedef struct enemySkill_s {
 /* ==== Funções de uso de habilidade ==== */
 
     // Anuncia a skill do inimigo
-    void announceSkillE (enemyS *enemy, enemySkillS skill) {
+    void announceSkillE (enemySkillS skill) {
         printf("\033[91m");
-        printSlow(enemy->name);
+        printSlow(enemy.name);
         printSlow("\033[0m usa ");
 
         if(skill.signature) printf("\033[33m"); // Se for uma skill signature, coloca ela em amarelo em vez de magenta
@@ -302,21 +305,21 @@ typedef struct enemySkill_s {
     }
 
     // Anuncia e usa uma skill
-    void useSkillE (playerS *player, enemyS *enemy, int index) {
-        enemy->mana -= enemy->knownSkills[index].manaCost;
-        enemy->knownSkills[index].cooldown = enemy->knownSkills[index].maxCooldown;
-        announceSkillE (enemy, enemy->knownSkills[index]);
-        enemy->knownSkills[index].funct(player, enemy);
+    void useSkillE (int index) {
+        enemy.mana -= enemy.knownSkills[index].manaCost;
+        enemy.knownSkills[index].cooldown = enemy.knownSkills[index].maxCooldown;
+        announceSkillE (enemy.knownSkills[index]);
+        enemy.knownSkills[index].funct();
         requestEnter();
     }
 
     // Aloca e preenche o vetor de skills do inimigo
-    void initSkillsE (enemyS *enemy) {
-        enemy->knownSkills = malloc(sizeof(enemySkillS) * enemy->skillNum);  // Aloca o vetor de habilidades  
+    void initSkillsE () {
+        enemy.knownSkills = malloc(sizeof(enemySkillS) * enemy.skillNum);  // Aloca o vetor de habilidades  
 
-        for (int i=0; i<enemy->skillNum; i++) {
-            enemy->knownSkills[i] = skillsE[enemy->skillCodes[i]]; // Pega o código na posição 'i' em skillCodes e coloca a skill correspondente ao código em knownSkills
-            enemy->knownSkills[i].cooldown = 0; // Coloca o cooldown em 0
+        for (int i=0; i<enemy.skillNum; i++) {
+            enemy.knownSkills[i] = skillsE[enemy.skillCodes[i]]; // Pega o código na posição 'i' em skillCodes e coloca a skill correspondente ao código em knownSkills
+            enemy.knownSkills[i].cooldown = 0; // Coloca o cooldown em 0
         }
     }
 
@@ -415,9 +418,9 @@ typedef struct enemySkill_s {
     }
 
     // Retorna o quão recomendável é pro inimigo tomar uma ação de dano, numa escala de 0 a 10 
-    int damageWeight (playerS *player, enemyS *enemy) {
-        int enemySafety = calcHpSafety (enemy->hpMax, enemy->hp) + calcHitSafety (enemy->armor, player->atkMod, player-> magMod, player->atkNum);
-        int playerSafety = calcHitSafety (player->armor, enemy->atkMod, enemy->skillMod, enemy->atkNum);
+    int damageWeight () {
+        int enemySafety = calcHpSafety (enemy.hpMax, enemy.hp) + calcHitSafety (enemy.armor, player.atkMod, player. magMod, player.atkNum);
+        int playerSafety = calcHitSafety (player.armor, enemy.atkMod, enemy.skillMod, enemy.atkNum);
         int weight = 0;
 
         enemySafety /= 2;
@@ -427,8 +430,8 @@ typedef struct enemySkill_s {
     }
 
     // Retorna o quão recomendável é pro inimigo tomar uma ação de cura, numa escala de 0 a 10
-    int healWeight (playerS *player, enemyS *enemy) {
-        int hpSafety = calcHpSafety (enemy->hpMax, enemy->hp);
+    int healWeight () {
+        int hpSafety = calcHpSafety (enemy.hpMax, enemy.hp);
         int weight = 0;
 
         weight = 10-hpSafety;
@@ -437,8 +440,8 @@ typedef struct enemySkill_s {
     }
 
     // Retorna o quão recomendável é pro inimigo tomar uma ação defensiva, numa escala de 0 a 10
-    int defendWeight (playerS *player, enemyS *enemy) {
-        int hitSafety = calcHitSafety (enemy->armor, player->atkMod, player-> magMod, player->atkNum);
+    int defendWeight () {
+        int hitSafety = calcHitSafety (enemy.armor, player.atkMod, player. magMod, player.atkNum);
         int weight = 0;
 
         weight = 10-hitSafety;
@@ -447,9 +450,9 @@ typedef struct enemySkill_s {
     }
 
     // Retorna o quão recomendável é pro inimigo tomar uma ação tática, numa escala de -5 a 5
-    int tacticalWeight (playerS *player, enemyS *enemy) {
-        int playerSafety = calcHitSafety (player->armor, enemy->atkMod, enemy->skillMod, enemy->atkNum);
-        int numTacticals = enemy->tacticalsInARow;
+    int tacticalWeight () {
+        int playerSafety = calcHitSafety (player.armor, enemy.atkMod, enemy.skillMod, enemy.atkNum);
+        int numTacticals = enemy.tacticalsInARow;
         int weight = 0;
 
         weight = 10-playerSafety-numTacticals; // Subtrai o número de táticas seguidas pra evitar spam de táticas
@@ -458,14 +461,14 @@ typedef struct enemySkill_s {
     }
 
     // Insere, num array de ações, os pesos de cada ação que o inimigo pode tomar
-    void calcActionWeights (playerS *player, enemyS *enemy, int *actionArray) {
-        actionArray[damage] = damageWeight (player, enemy);       // Ação de dano
-        actionArray[heal] = healWeight (player, enemy);           // Ação de cura
-        actionArray[defend] = defendWeight (player, enemy);       // Ação defensiva
-        actionArray[tactical] = tacticalWeight (player, enemy);   // Ação tática (buff em si mesmo ou debuff no player)
+    void calcActionWeights (int *actionArray) {
+        actionArray[damage] = damageWeight ();       // Ação de dano
+        actionArray[heal] = healWeight ();           // Ação de cura
+        actionArray[defend] = defendWeight ();       // Ação defensiva
+        actionArray[tactical] = tacticalWeight ();   // Ação tática (buff em si mesmo ou debuff no player)
     }
 
-    int calcSkillWeight (playerS *player, enemyS *enemy, int *actionArray, enemySkillS skill) {
+    int calcSkillWeight (int *actionArray, enemySkillS skill) {
         int weight = 0;
 
         //char typeNames[4][12] = {"\033[31matk", "\033[32mheal", "\033[94mdef", "\033[35mtact"}; // Debug
@@ -479,17 +482,17 @@ typedef struct enemySkill_s {
         return weight;
     }
 
-    int decideActionE (playerS *player, enemyS *enemy, int *actionArray) {
+    int decideActionE (int *actionArray) {
         int atkWeight = (BASE_ATTACK_WEIGHT * actionArray[damage]) + BASE_ATTACK_BIAS;
         int skillChoice = -1, skillWeight = atkWeight; // skillWeight começa como atkWeight, porque se nenhuma skill for muito preferível, o inimigo simplesmente ataca
 
-        for(int i=0; i<enemy->skillNum; i++) {
-            //printf("Skill: %s\n", enemy->knownSkills[i].name); // Debug
-            int currentWeight = calcSkillWeight(player, enemy, actionArray, enemy->knownSkills[i]);
+        for(int i=0; i<enemy.skillNum; i++) {
+            //printf("Skill: %s\n", enemy.knownSkills[i].name); // Debug
+            int currentWeight = calcSkillWeight(actionArray, enemy.knownSkills[i]);
             //printf("currentWeight: \033[93m%i\033[0m, skillWeight: %i\n\n", currentWeight, skillWeight); // Debug
 
             // Só escolhe a skill se ela tiver maior prioridade que as outras e não custar mais mana do que o inimigo pode gastar e não estiver em cooldown
-            if (enemy->knownSkills[i].manaCost <= enemy->mana && enemy->knownSkills[i].cooldown <= 0) {
+            if (enemy.knownSkills[i].manaCost <= enemy.mana && enemy.knownSkills[i].cooldown <= 0) {
                 if (currentWeight > skillWeight) {
                     //printf("Substituicao "); // Debug
                     skillWeight = currentWeight;
@@ -506,35 +509,35 @@ typedef struct enemySkill_s {
     }
 
     // Aumenta o número de skills táticas seguidas se a skill for tática ou reseta se não for
-    void updateTacticalCount (int choice, enemyS *enemy) {
-        if(enemy->knownSkills[choice].actionWeights[tactical] > 1) { // Se o peso de tática da skill for 2 ou mais, aumenta o número de táticas usadas
-            enemy->tacticalsInARow++;
+    void updateTacticalCount (int choice) {
+        if(enemy.knownSkills[choice].actionWeights[tactical] > 1) { // Se o peso de tática da skill for 2 ou mais, aumenta o número de táticas usadas
+            enemy.tacticalsInARow++;
         }
         else {
-            enemy->tacticalsInARow = 0; // Senão, reseta o número
+            enemy.tacticalsInARow = 0; // Senão, reseta o número
         }
     }
 
     // Executa as funções do turno do inimigo
-    void turnEnemy (playerS *player, enemyS *enemy) {
+    void turnEnemy () {
         int actionWeights[NUM_ENEMY_ACTIONS];
         int choice;
 
-        calcActionWeights(player, enemy, actionWeights);
-        choice = decideActionE(player, enemy, actionWeights);
+        calcActionWeights(actionWeights);
+        choice = decideActionE(actionWeights);
 
         if (choice < 0) {
-            enemyAtk(player, enemy);
+            enemyAtk();
         }
         else {
-            updateTacticalCount(choice, enemy);
-            useSkillE(player, enemy, choice);
+            updateTacticalCount(choice);
+            useSkillE(choice);
         }
     }
 
     // Diminui os cooldowns de toda habilidade do inimigo.
-    void updateEnemyCooldown (enemyS *enemy) {
-        for(int i=0; i<enemy->skillNum; i++) {
-            if(enemy->knownSkills[i].cooldown) enemy->knownSkills[i].cooldown--;
+    void updateEnemyCooldown () {
+        for(int i=0; i<enemy.skillNum; i++) {
+            if(enemy.knownSkills[i].cooldown) enemy.knownSkills[i].cooldown--;
         }
     }

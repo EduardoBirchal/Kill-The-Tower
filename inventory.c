@@ -16,20 +16,23 @@ typedef struct item_s { // Tá definido aqui porque depende do tipo sklFunct
     int num; // O número de itens no slot. Se for 0, o slot está vazio.
 } itemS;
 
+extern playerS player;
+extern enemyS enemy;
+
 
 // Um item de dano genérico.
-int itemDmg (playerS* player, enemyS *enemy, int dmgDie, int dmgDieNum, int dmgMod, char* strHit) {
+int itemDmg (int dmgDie, int dmgDieNum, int dmgMod, char* strHit) {
     int dmgRoll = rollDice(dmgDieNum, dmgDie, dmgMod, 0);
 
     printSlow("Rolagem de dano - \033[36mrolando ");
     printf("%id%i%+i", dmgDieNum, dmgDie, dmgMod);
     printRollResult(dmgRoll);
     printSlow(strHit);
-    enemy->hp -= dmgRoll;
+    enemy.hp -= dmgRoll;
 }
 
 // Um item de cura genérico.
-int itemHeal (playerS* player, enemyS *enemy, int healDie, int healDieNum, int healMod, char* str) {
+int itemHeal (int healDie, int healDieNum, int healMod, char* str) {
     int healRoll = rollDice(healDieNum, healDie, healMod, 0);
 
     printSlow("Rolagem de cura - \033[36mrolando ");
@@ -37,30 +40,30 @@ int itemHeal (playerS* player, enemyS *enemy, int healDie, int healDieNum, int h
     printRollResult(healRoll);
     printSlow(str);
 
-    player->hp += healRoll;
+    player.hp += healRoll;
 }
 
     /* ==== Lista de feitiços ==== */
 
     // Aumenta a armadura do player. Não acumula.
-    int healPotion (playerS *player, enemyS *enemy) {
-        itemHeal(player, enemy, 4, 3, 5,
+    int healPotion () {
+        itemHeal(4, 3, 5,
         "A pocao tem um gosto forte e enjoativo, mas alivia sua dor e seus ferimentos fecham em segundos.\n\n");
 
         return 1;
     }
 
     // Aumenta muito a armadura do player, por 1 turno. Não acumula.
-    int armorRune (playerS *player, enemyS *enemy) {
-        player->armor += 2;
+    int armorRune () {
+        player.armor += 2;
         printSlow("Com um comando mental, o disco runado se ativa. O simbolo brilhante projeta um campo de protecao magico em volta de voce. \033[33mArmadura +2!\033[0m\n\n");
 
         return 1;
     }
 
     // Dá dano baixo e acerta sempre, sem precisar rolar ataque.
-    int acidFlask (playerS *player, enemyS *enemy) {
-        itemDmg (player, enemy, 6, 4, 4, 
+    int acidFlask () {
+        itemDmg (6, 4, 4, 
         "Voce puxa uma alca no frasco, retirando o tecido que separa dois liquidos dentro. Os fluidos se misturam e borbulham cada vez mais, e voce arremessa o frasco que explode numa enxurrada de acido.\n\n");
 
         return 1;
@@ -116,19 +119,19 @@ void fillInv () {
 }
 
 // Usa um item, diminuindo a quantidade do item no slot.
-int useItem (playerS *player, enemyS *enemy, int item) {   
-    int deuCerto = player->inventory[item].funct (player, enemy); // Executa a função do item e retorna o que ela retornar (guardado no deuCerto).
-    if(player->inventory[item].num <= 1) { // Se está usando o último item do slot, deleta ele do vetor.
+int useItem (int item) {   
+    int deuCerto = player.inventory[item].funct (); // Executa a função do item e retorna o que ela retornar (guardado no deuCerto).
+    if(player.inventory[item].num <= 1) { // Se está usando o último item do slot, deleta ele do vetor.
         int i = item;
         
         for (i=item; i<INV_SIZE; i++) {
-            if (player->inventory[i+1].num <= 0) break; // Se o próximo item do inventário tem 0 de num (ou seja, se o item atual é o último item do inventário, saia do loop)
-            player->inventory[i] = player->inventory[i+1]; // Senão, o item atual é igual ao próximo.
+            if (player.inventory[i+1].num <= 0) break; // Se o próximo item do inventário tem 0 de num (ou seja, se o item atual é o último item do inventário, saia do loop)
+            player.inventory[i] = player.inventory[i+1]; // Senão, o item atual é igual ao próximo.
         }
-        player->inventory[i].num = 0; // O último item do inventário vira um item qualquer de num 0 e o invFill diminui em 1.
-        player->invFill--;
+        player.inventory[i].num = 0; // O último item do inventário vira um item qualquer de num 0 e o invFill diminui em 1.
+        player.invFill--;
     }
-    else player->inventory[item].num--; // Se não estiver usando o último item do slot, só diminui o número de itens.
+    else player.inventory[item].num--; // Se não estiver usando o último item do slot, só diminui o número de itens.
 
     return deuCerto;
 }
@@ -136,20 +139,20 @@ int useItem (playerS *player, enemyS *enemy, int item) {
 /* ==== Imprimir menu de itens ==== */
 
 // Imprime o menu de itens.
-void printItems(playerS *player, enemyS *enemy) {
+void printItems() {
     int option = 0, i = 0;
 
-    printInfo(*player, *enemy);
+    printInfo();
     printf("\nDigite 0 para mostrar/parar de mostrar descricoes.\n\n");
 
-    for(i=0; i<player->invFill; i++) {
+    for(i=0; i<player.invFill; i++) {
         printf("\033[33m%i:\033[0m ", i+1);
-        fputs(player->inventory[i].name, stdout);
-        printf(" \033[36m(x%i)\033[0m", player->inventory[i].num);
+        fputs(player.inventory[i].name, stdout);
+        printf(" \033[36m(x%i)\033[0m", player.inventory[i].num);
 
         // Imprime a descrição, se showDesc for verdadeiro
         if(showDesc) {
-            printf("\033[90m - %s\033[0m", player->inventory[i].desc);
+            printf("\033[90m - %s\033[0m", player.inventory[i].desc);
         }
         printf("\n");
     }
@@ -158,9 +161,9 @@ void printItems(playerS *player, enemyS *enemy) {
 }
 
 // Lê a escolha do player.
-int readItem(playerS *player, enemyS *enemy) {
+int readItem() {
     int option = 1;
-    int size = player->invFill;
+    int size = player.invFill;
 
     while (1) {
         printf("\nEscolha um item:\n> "); // Lê a opção
@@ -168,16 +171,16 @@ int readItem(playerS *player, enemyS *enemy) {
         printf("\n");
 
         if(option>0 && option<=size) {                  // Se a opção é um item, usa ele.
-            printInfo(*player, *enemy);
-            if(useItem(player, enemy, option-1)) break; // Se ele retornar 1, acaba o loop. Itens retornam 0 se eles não funcionam 
+            printInfo();
+            if(useItem(option-1)) break; // Se ele retornar 1, acaba o loop. Itens retornam 0 se eles não funcionam 
         }                                               // (Exemplo: usa Runa de Proteção quando ela já está em efeito)
         else if(option == size+1) {  
             return 1; // Se a opção for cancelar, volta pro menu
         } 
         else if(option == 0) { // Se a opção for 0, inverte showDesc e chama a função de novo
             showDesc = !showDesc;
-            printItems(player, enemy);
-            return readItem(player, enemy);
+            printItems();
+            return readItem();
         }
         else {
             printf("Opcao invalida! (tem que ser um numero de 1 a %i).\n", size+1); // Se não for válida, pede pra colocar outra
@@ -188,9 +191,9 @@ int readItem(playerS *player, enemyS *enemy) {
 }
 
 // Imprime o menu e lê a escolha de item.
-int playerInv (playerS *player, enemyS *enemy) {
-    printItems(player, enemy);
-    if(readItem(player, enemy)) {
+int playerInv () {
+    printItems();
+    if(readItem()) {
         return 1; // Retorna 1, fazendo com que o menu imprima de novo
     }
 
