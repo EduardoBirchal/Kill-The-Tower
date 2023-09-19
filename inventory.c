@@ -24,7 +24,7 @@ extern enemyS enemy;
 int itemDmg (int dmgDie, int dmgDieNum, int dmgMod, char* strHit) {
     int dmgRoll = rollDice(dmgDieNum, dmgDie, dmgMod, 0);
 
-    printSlow("Rolagem de dano - \033[36mrolando ");
+    printSlow(_("Rolagem de dano - \033[36mrolando "));
     printf("%id%i%+i", dmgDieNum, dmgDie, dmgMod);
     printRollResult(dmgRoll);
     printSlow(strHit);
@@ -35,7 +35,7 @@ int itemDmg (int dmgDie, int dmgDieNum, int dmgMod, char* strHit) {
 int itemHeal (int healDie, int healDieNum, int healMod, char* str) {
     int healRoll = rollDice(healDieNum, healDie, healMod, 0);
 
-    printSlow("Rolagem de cura - \033[36mrolando ");
+    printSlow(_("Rolagem de cura - \033[36mrolando "));
     printf("%id%i%+i", healDieNum, healDie, healMod);
     printRollResult(healRoll);
     printSlow(str);
@@ -56,7 +56,7 @@ int itemHeal (int healDie, int healDieNum, int healMod, char* str) {
     // Aumenta muito a armadura do player, por 1 turno. Não acumula.
     int armorRune () {
         player.armor += 2;
-        printSlow("Com um comando mental, o disco runado se ativa. O simbolo brilhante projeta um campo de protecao magico em volta de voce. \033[33mArmadura +2!\033[0m\n\n");
+        printSlow(_("Com um comando mental, o disco runado se ativa. O simbolo brilhante projeta um campo de protecao magico em volta de voce. \033[33mArmadura +2!\033[0m\n\n"));
 
         return 1;
     }
@@ -143,7 +143,7 @@ void printItems() {
     int option = 0, i = 0;
 
     printInfo();
-    printf("\nDigite 0 para mostrar/parar de mostrar descricoes.\n\n");
+    printf(_("\nDigite 0 para mostrar/parar de mostrar descricoes.\n\n"));
 
     for(i=0; i<player.invFill; i++) {
         printf("\033[33m%i:\033[0m ", i+1);
@@ -157,7 +157,7 @@ void printItems() {
         printf("\n");
     }
 
-    printf("\033[33m%i: \033[36mCancelar\033[0m\n", i+1);
+    printf(_("\033[33m%i: \033[36mCancelar\033[0m\n"), i+1);
 }
 
 // Lê a escolha do player.
@@ -166,7 +166,7 @@ int readItem() {
     int size = player.invFill;
 
     while (1) {
-        printf("\nEscolha um item:\n> "); // Lê a opção
+        printf(_("\nEscolha um item:\n> ")); // Lê a opção
         scanf("%i", &option);
         printf("\n");
 
@@ -183,7 +183,7 @@ int readItem() {
             return readItem();
         }
         else {
-            printf("Opcao invalida! (tem que ser um numero de 1 a %i).\n", size+1); // Se não for válida, pede pra colocar outra
+            printf(_("Opcao invalida! (tem que ser um numero de 1 a %i).\n"), size+1); // Se não for válida, pede pra colocar outra
         }
     }
 

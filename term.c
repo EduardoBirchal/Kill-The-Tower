@@ -38,7 +38,7 @@ int getOption() {
         }  
     #else*/
         int option;
-        printf("\nEscolha uma opcao:\n> "); // Se não for, usa teclado.
+        printf(_("\nEscolha uma opcao:\n> ")); // Se não for, usa teclado.
         scanf("%i", &option);
         printf("\n");
         return option;
@@ -47,7 +47,7 @@ int getOption() {
 
 // Imprime para apertar enter e não continua até o usuário apertar
 void requestEnter() {
-    printf("Press ENTER to continue.");
+    printf(_("Press ENTER to continue."));
     if(getchar() == '\n') getchar(); // Primeiro getchar pega o \n da ultima mensagem
 }
 
@@ -145,10 +145,10 @@ void playerInfo() {
     printHp(player.hpMax, player.hp);
     printMana(player.manaMax, player.mana);
 
-    printf("Rolagem de Ataque: \033[4m1d20%+i\033[0m      Rolagem de Dano: \033[4m%id%i%+i\033[0m      Armadura: \033[4m%i\033[0m\n", player.atkMod, player.dmgDiceNum, player.dmgDice, player.dmgMod, player.armor);
+    printf(_("Rolagem de Ataque: \033[4m1d20%+i\033[0m      Rolagem de Dano: \033[4m%id%i%+i\033[0m      Armadura: \033[4m%i\033[0m\n"), player.atkMod, player.dmgDiceNum, player.dmgDice, player.dmgMod, player.armor);
 
     if(player.status[poisonedS]) {
-        printf("\n\033[32mEnvenenado: %i\n", player.status[poisonedS]);
+        printf(_("\n\033[32mEnvenenado: %i\n"), player.status[poisonedS]);
     }
 }
 
@@ -167,10 +167,10 @@ void enemyInfo() {
     printHp(enemy.hpMax, enemy.hp);
     printMana(enemy.manaMax, enemy.mana);
 
-    printf("Rolagem de Ataque: \033[4m1d20%+i\033[0m      Rolagem de Dano: \033[4m%id%i%+i\033[0m      Armadura: \033[4m%i\033[0m\n", enemy.atkMod, enemy.dmgDiceNum, enemy.dmgDice, enemy.dmgMod, enemy.armor);
+    printf(_("Rolagem de Ataque: \033[4m1d20%+i\033[0m      Rolagem de Dano: \033[4m%id%i%+i\033[0m      Armadura: \033[4m%i\033[0m\n"), enemy.atkMod, enemy.dmgDiceNum, enemy.dmgDice, enemy.dmgMod, enemy.armor);
     
     if(enemy.status[poisonedSE]) {
-        printf("\n\033[32mEnvenenado: %i\n", enemy.status[poisonedSE]);
+        printf(_("\n\033[32mEnvenenado: %i\n"), enemy.status[poisonedSE]);
     }
 }
 

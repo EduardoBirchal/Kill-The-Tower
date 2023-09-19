@@ -14,6 +14,9 @@ Interface
     - Menu principal
     - Customizar nome
     - Traduzir pra inglês (usar gettext. Pra refatorar o código, aprender regex)
+        REGEX:
+            find print(f|Slow)\(("[^"]*")
+            replace print$1(_($2)
     - Fazer o terminal ser controlável via setinhas
 Inimigo
     - Aprimorar IA do Inimigo
@@ -68,7 +71,7 @@ int main(int argc, char** argv) {
     createEnemy(2);
     
 
-    while (1) {
+    while (true) {
         updateValues();
         updateStatus();
         updateCooldowns();

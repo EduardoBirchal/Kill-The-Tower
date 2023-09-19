@@ -43,9 +43,9 @@ typedef struct enemySkill_s {
     void announceAtkE() {
         printf("\033[91m");
         printSlow(enemy.name);
-        printSlow("\033[0m usa \033[91m");
+        printSlow(_("\033[0m usa \033[91m"));
         printSlow(enemy.atkName);
-        printSlow("\033[0m!\n\n");
+        printSlow(_("\033[0m!\n\n"));
     }
 
     // Acerto crítico do inimigo
@@ -54,7 +54,7 @@ typedef struct enemySkill_s {
         int dmgRoll = rollDice(enemy.dmgDice, enemy.dmgDiceNum*2, enemy.dmgMod*2, 0);
 
         // Imprime as coisas
-        printSlow("Rolagem de dano - \033[36mrolando ");
+        printSlow(_("Rolagem de dano - \033[36mrolando "));
         printf("%id%i%+i", enemy.dmgDiceNum*2, enemy.dmgDice, enemy.dmgMod*2);
         printCustomResult(dmgRoll, "dano");
         printf("\n\n");
@@ -69,7 +69,7 @@ typedef struct enemySkill_s {
         int dmgRoll = rollDice(enemy.dmgDice, enemy.dmgDiceNum, enemy.dmgMod, 0);
 
         // Imprime as coisas
-        printSlow("Rolagem de dano - \033[36mrolando ");
+        printSlow(_("Rolagem de dano - \033[36mrolando "));
         printf("%id%i%+i", enemy.dmgDiceNum, enemy.dmgDice, enemy.dmgMod);
         printCustomResult(dmgRoll, "dano");
         printf("\n\n");
@@ -86,13 +86,13 @@ typedef struct enemySkill_s {
         // Imprime a rolagem
         announceAtkE(enemy);
 
-        printSlow("Rolagem de ataque do inimigo - \033[36mrolando ");
+        printSlow(_("Rolagem de ataque do inimigo - \033[36mrolando "));
         printf("1d20%+i", enemy.atkMod);
         printRollResult(atkRoll);
         
         // Se for 17 natural pra cima, é um acerto crítico
         if(atkRoll-enemy.atkMod > 17) {
-            printSlow(" \033[33;4mAcerto Critico!\033[0m Dados de dano dobrados pra esse ataque.\n\n");
+            printSlow(_(" \033[33;4mAcerto Critico!\033[0m Dados de dano dobrados pra esse ataque.\n\n"));
 
             enemyCrit();
             requestEnter();
@@ -100,7 +100,7 @@ typedef struct enemySkill_s {
         }
         // Se for acima da armadura do player, acerta
         else if (atkRoll >= player.armor) { 
-            printSlow(" \033[33;4mAcerto!\033[0m\n\n");
+            printSlow(_(" \033[33;4mAcerto!\033[0m\n\n"));
             
             enemyHit();
             requestEnter();
@@ -108,7 +108,7 @@ typedef struct enemySkill_s {
         }
         // Senão, erra
         else {
-            printSlow(" \033[33;4mFalha!\033[0m O ataque erra!\n\n");
+            printSlow(_(" \033[33;4mFalha!\033[0m O ataque erra!\n\n"));
 
             requestEnter();
             return 0;
@@ -122,7 +122,7 @@ typedef struct enemySkill_s {
     int enemySkillAtk () {
         int atkRoll = rollDice(20, 1, enemy.skillMod, enemy.advantage);
 
-        printSlow("Rolagem de ataque - \033[36mrolando ");
+        printSlow(_("Rolagem de ataque - \033[36mrolando "));
         printf("1d20%+i", enemy.skillMod);
         printRollResult(atkRoll);
 
@@ -133,7 +133,7 @@ typedef struct enemySkill_s {
     int enemySkillDmg (int dmgDie, int dmgDieNum) {
         int dmgRoll = rollDice(dmgDie, dmgDieNum, enemy.dmgMod, 0);
 
-        printSlow("Rolagem de dano - \033[36mrolando ");
+        printSlow(_("Rolagem de dano - \033[36mrolando "));
         printf("%id%i%+i", dmgDieNum, dmgDie, enemy.dmgMod);
         printCustomResult(dmgRoll, "dano");
         
@@ -146,12 +146,12 @@ typedef struct enemySkill_s {
         int atkRoll = enemySkillAtk (enemy);
 
         if (atkRoll >= player.armor) { // Se acertou, dá dano e retorna true
-            printSlow(" \033[33;4mAcerto!\033[0m\n\n");
+            printSlow(_(" \033[33;4mAcerto!\033[0m\n\n"));
 
             return enemySkillDmg(dmgDie, dmgDieNum);
         }
         else { // Senão, retorna 0
-            printSlow(" \033[33;4mFalha! O ataque erra!\033[0m\n\n");
+            printSlow(_(" \033[33;4mFalha! O ataque erra!\033[0m\n\n"));
 
             return 0;
         }
@@ -161,7 +161,7 @@ typedef struct enemySkill_s {
     int enemySkillHeal (int healDieNum, int healDie, int healMod) {
         int healRoll = rollDice(healDieNum, healDie, healMod, 0);
 
-        printSlow("Rolagem de cura - \033[36mrolando ");
+        printSlow(_("Rolagem de cura - \033[36mrolando "));
         printf("%id%i%+i", healDieNum, healDie, healMod);
         printCustomResult(healRoll, "cura");
 
@@ -191,9 +191,9 @@ typedef struct enemySkill_s {
         int healAmt = enemySkillAtkDmg(2, 6);
 
         if (healAmt) {
-            printSlow("O inimigo recebe ");
+            printSlow(_("O inimigo recebe "));
             printf("\033[36m%i\033[0m", healAmt/2);
-            printSlow(" de cura!\n\n");
+            printSlow(_(" de cura!\n\n"));
 
             enemy.hp += healAmt/2;
         }
@@ -204,7 +204,7 @@ typedef struct enemySkill_s {
     // Aumenta a armadura em +1
     bool fortifyE () {
         enemy.armor++;
-        printSlow("\033[33mArmadura do inimigo +1!\033[0m\n\n");
+        printSlow(_("\033[33mArmadura do inimigo +1!\033[0m\n\n"));
 
         return true;
     }
@@ -215,7 +215,7 @@ typedef struct enemySkill_s {
         if (enemySkillAtkDmg(2, 6)) {
             int psnRoll = rollDice(4, 1, 0, 0);
 
-            printSlow("Rolagem de veneno - \033[36mrolando ");
+            printSlow(_("Rolagem de veneno - \033[36mrolando "));
             printf("%id%i%+i", 1, 4, 0);
             printCustomResult(psnRoll, "veneno");
 
@@ -227,7 +227,7 @@ typedef struct enemySkill_s {
     bool sapStrengthE () {
         int wknRoll = rollDice(1, 4, 1, 0);
 
-        printSlow("Rolagem de enfraquecimento - \033[36mrolando ");
+        printSlow(_("Rolagem de enfraquecimento - \033[36mrolando "));
         printf("%id%i%+i", 1, 4, 1);
         printCustomResult(wknRoll, "enfraquecimento");
 
@@ -295,7 +295,7 @@ typedef struct enemySkill_s {
     void announceSkillE (enemySkillS skill) {
         printf("\033[91m");
         printSlow(enemy.name);
-        printSlow("\033[0m usa ");
+        printSlow(_("\033[0m usa "));
 
         if(skill.signature) printf("\033[33m"); // Se for uma skill signature, coloca ela em amarelo em vez de magenta
         else printf("\033[35m");
@@ -335,7 +335,7 @@ typedef struct enemySkill_s {
         // Abrindo o arquivo
         file = fopen("enemies.txt", "r");
         if (file == NULL) {
-            printf("\033[91mERRO: \033[0mArquivo 'enemies.txt' nao encontrado! Fechando programa...\n\n");
+            printf(_("\033[91mERRO: \033[0mArquivo 'enemies.txt' nao encontrado! Fechando programa...\n\n"));
             exit(1);
         }
 
@@ -347,7 +347,7 @@ typedef struct enemySkill_s {
                 }
             }
             else {
-                printf("\033[91mERRO: \033[0mInimigo %i nao encontrado no arquivo! Fechando programa...\n\n", index);
+                printf(_("\033[91mERRO: \033[0mInimigo %i nao encontrado no arquivo! Fechando programa...\n\n"), index);
                 fclose(file);
                 exit(1);
             }

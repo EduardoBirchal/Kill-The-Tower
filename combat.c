@@ -160,7 +160,7 @@ extern enemyS enemy;
         }
         total = roll;
 
-        if(adv > 0) printf("\033[92m(Rolando com vantagem x%i)\033[0m\n", adv);
+        if(adv > 0) printf(_("\033[92m(Rolando com vantagem x%i)\033[0m\n"), adv);
         
         // Rola com vantagem, ou seja, rola [adv] vezes e escolhe o maior resultado
         for(int i=0; i<adv; i++) {
@@ -183,13 +183,13 @@ extern enemyS enemy;
             player.status[rdntSmiteS] = false;
             int rdntRoll = rollDice(6, 2, 0, 0);
 
-            printSlow("Rolagem de dano (Golpe Radiante) - \033[36mrolando ");
+            printSlow(_("Rolagem de dano (Golpe Radiante) - \033[36mrolando "));
             printf("%id%i", 2, 6);
             printRollResult(rdntRoll);
 
             enemy.hp -= rdntRoll;
 
-            printSlow("Voce canaliza toda a energia divina acumulada para a sua lamina, liberando-a num pulso reverberante de poder radiante.\n\n");
+            printSlow(_("Voce canaliza toda a energia divina acumulada para a sua lamina, liberando-a num pulso reverberante de poder radiante.\n\n"));
         }
     }
 
@@ -200,7 +200,7 @@ extern enemyS enemy;
         int dmgRoll = rollDice(player.dmgDice, player.dmgDiceNum*2, dmgMod, 0);
 
         // Imprime as coisas
-        printSlow("Rolagem de dano - \033[36mrolando ");
+        printSlow(_("Rolagem de dano - \033[36mrolando "));
         printf("%id%i%+i",  player.dmgDiceNum*2,  player.dmgDice, dmgMod);
         printRollResult(dmgRoll);
         printSlow(player.critString);
@@ -220,7 +220,7 @@ extern enemyS enemy;
         int dmgRoll = rollDice( player.dmgDice, player.dmgDiceNum, dmgMod, 0);
 
         // Imprime as coisas
-        printSlow("Rolagem de dano - \033[36mrolando ");
+        printSlow(_("Rolagem de dano - \033[36mrolando "));
         printf("%id%i%+i", player.dmgDiceNum, player.dmgDice, dmgMod);
         printRollResult(dmgRoll);
         printSlow( player.hitString);
@@ -238,27 +238,27 @@ extern enemyS enemy;
         int atkRoll = rollDice(20, 1,  player.atkMod,  player.advantage);
 
         // Imprime a rolagem
-        printSlow("Rolagem de ataque - \033[36mrolando ");
+        printSlow(_("Rolagem de ataque - \033[36mrolando "));
         printf("1d20%+i",  player.atkMod);
         printRollResult(atkRoll);
         
         // Se for 17 natural pra cima, é um acerto crítico
         if(atkRoll- player.atkMod > 19) {
-            printSlow(" \033[33;4mAcerto Critico!\033[0m Dados de dano dobrados pra esse ataque.\n\n");
+            printSlow(_(" \033[33;4mAcerto Critico!\033[0m Dados de dano dobrados pra esse ataque.\n\n"));
 
             playerCrit(enemy);
             return 2;
         } 
         // Se for acima da armadura do inimigo, acerta
         else if (atkRoll >=  enemy.armor) { 
-            printSlow(" \033[33;4mAcerto!\033[0m\n\n");
+            printSlow(_(" \033[33;4mAcerto!\033[0m\n\n"));
             
             playerHit(enemy);
             return 1;
         }
         // Senão, erra
         else {
-            printSlow(" \033[33;4mFalha...\033[0m");
+            printSlow(_(" \033[33;4mFalha...\033[0m"));
 
             printSlow( player.missString);
             return 0;
@@ -275,10 +275,10 @@ extern enemyS enemy;
         if(battleState) {
             printInfo(enemy); // Se alguém morreu, imprime a tela pra mostrar quem foi e retorna true.
             if (battleState == 1) {
-                printSlow("O inimigo cai no chao, derrotado.\n");
+                printSlow(_("O inimigo cai no chao, derrotado.\n"));
             }
             else if (battleState == 2) {
-                printSlow("Voce sucumbe aos seus ferimentos e desmaia.\n");
+                printSlow(_("Voce sucumbe aos seus ferimentos e desmaia.\n"));
             }
             
             return true;
@@ -295,7 +295,7 @@ extern enemyS enemy;
     int skillHeal (int healDie, int healDieNum, int healMod, char* str) {
         int healRoll = rollDice(healDieNum, healDie, healMod, 0);
 
-        printSlow("Rolagem de cura - \033[36mrolando ");
+        printSlow(_("Rolagem de cura - \033[36mrolando "));
         printf("%id%i%+i", healDieNum, healDie, healMod);
         printRollResult(healRoll);
         printSlow(str);
@@ -306,7 +306,7 @@ extern enemyS enemy;
     // Checa se uma habilidade já está em efeito
     bool isInEffect (int index) {
         if (player.status[index]) {
-            printSlow("Isso ja esta em efeito!\n\n");
+            printSlow(_("Isso ja esta em efeito!\n\n"));
             return true;
         }
         else return false;
@@ -329,7 +329,7 @@ extern enemyS enemy;
              player.status[tripAtkS] = true;
              player.advantage++;
 
-            printSlow("O seu ataque faz o inimigo cair no chao, vulneravel. \033[33mVantagem +1!\033[0m\n\n");
+            printSlow(_("O seu ataque faz o inimigo cair no chao, vulneravel. \033[33mVantagem +1!\033[0m\n\n"));
         }
 
         return true;
@@ -338,7 +338,7 @@ extern enemyS enemy;
     // Dá dano no player, pra debug.
     bool debugSelfDmg () {
          player.hp -= 5;
-        printSlow("Ai.\n\n");
+        printSlow(_("Ai.\n\n"));
 
         return true;
     }
@@ -350,7 +350,7 @@ extern enemyS enemy;
          player.status[parryAtkS] = 2;
          player.armor += 3;
 
-        printSlow("Voce posiciona sua arma para bloquear o proximo ataque. \033[33mArmadura +3!\033[0m\n\n");
+        printSlow(_("Voce posiciona sua arma para bloquear o proximo ataque. \033[33mArmadura +3!\033[0m\n\n"));
 
         return true;
     }
@@ -367,7 +367,7 @@ extern enemyS enemy;
     bool divineGuidance () {
          player.atkMod += 5;
          player.dmgMod += 5;
-        printSlow("Voce se concentra na sua divindade, deixando conhecimento divino guiar seu ataque. \033[33mAtaque e dano +5!\033[0m\n\n");
+        printSlow(_("Voce se concentra na sua divindade, deixando conhecimento divino guiar seu ataque. \033[33mAtaque e dano +5!\033[0m\n\n"));
 
         playerAtk(enemy);
 
@@ -381,20 +381,20 @@ extern enemyS enemy;
     bool bloodOffering () {
         int sacrifice;  
 
-        printf("\nQuanto de HP sacrificar? (1 de HP recupera 3 Mana)\n\n> ");
+        printf(_("\nQuanto de HP sacrificar? (1 de HP recupera 3 Mana)\n\n> "));
         scanf("%i", &sacrifice);
 
          player.hp -= sacrifice;
          player.mana += sacrifice*3;
 
-        printSlow("Voce corta o seu braco, deixando sangue sair. O sangue evapora ao tocar o chao, e voce sente energia magica fluindo para suas reservas.\n\n");
+        printSlow(_("Voce corta o seu braco, deixando sangue sair. O sangue evapora ao tocar o chao, e voce sente energia magica fluindo para suas reservas.\n\n"));
     
         return true;
     }
 
     // Toma dano e recupera os cooldowns de tudo.
     bool adrenalineSurge () {
-        printSlow("Apesar de estar exausto, voce obriga seus musculos a continuarem por pura forca de vontade.\n\n");
+        printSlow(_("Apesar de estar exausto, voce obriga seus musculos a continuarem por pura forca de vontade.\n\n"));
 
         // Repete o loop pra cada skill que o player tem
         for (int i=0; i< player.skillNum; i++) {
@@ -410,7 +410,7 @@ extern enemyS enemy;
             }
             // Se o player fosse morrer ao tomar o dano, cancela a skill
             else {
-                printSlow("Voce chegou ao seu limite. Se voce se exercesse mais ainda, voce morreria. (Nao tem HP suficiente para regenerar todas as habilidades)\n\n");
+                printSlow(_("Voce chegou ao seu limite. Se voce se exercesse mais ainda, voce morreria. (Nao tem HP suficiente para regenerar todas as habilidades)\n\n"));
                 break;
             }
         }
@@ -420,7 +420,7 @@ extern enemyS enemy;
 
     // Acerta o ataque sem precisar rolar.
     bool precisionStrike () {
-        printSlow("Com um movimento gracioso, voce se posiciona para aproveitar uma brecha na defesa do alvo.\n");
+        printSlow(_("Com um movimento gracioso, voce se posiciona para aproveitar uma brecha na defesa do alvo.\n"));
         playerHit(enemy);
 
         return true;
@@ -428,7 +428,7 @@ extern enemyS enemy;
 
     // Dá um boost de dano e ataque mas coloca todas as habilidades em cooldown por 4 turnos.
     bool battleTrance () {
-        printSlow("Esquecendo toda a tecnica, voce confia o controle do seu corpo inteiramente aos seus instintos.\n\n");
+        printSlow(_("Esquecendo toda a tecnica, voce confia o controle do seu corpo inteiramente aos seus instintos.\n\n"));
 
          player.atkMod += 3;
          player.dmgMod += 3;
@@ -450,7 +450,7 @@ extern enemyS enemy;
 
     bool siphonPower () {
         if (! enemy.mana) { // Inimigo não tem mana
-            printSlow("O inimigo nao tem mana!\n\n");
+            printSlow(_("O inimigo nao tem mana!\n\n"));
             return false;
         }
         else if( enemy.mana >= 6) { // Inimigo tem mana maior ou igual a 6
@@ -462,7 +462,7 @@ extern enemyS enemy;
              enemy.mana = 0;
         }
 
-        printSlow("Usando uma conexao parasitica, voce extrai as energias do inimigo para si e se sente invigorado. \033[33mMana +6!\033[0m\n\n");
+        printSlow(_("Usando uma conexao parasitica, voce extrai as energias do inimigo para si e se sente invigorado. \033[33mMana +6!\033[0m\n\n"));
         return true;
     }
 
@@ -473,15 +473,15 @@ extern enemyS enemy;
         while (1) {
             printInfo();
 
-            printf("\033[94mVoce consegue sentir uma conexao profunda com a sua divindade, uma abundancia de luz fluindo pela sua alma. Pelo que voce pede?\n\n"); 
+            printf(_("\033[94mVoce consegue sentir uma conexao profunda com a sua divindade, uma abundancia de luz fluindo pela sua alma. Pelo que voce pede?\n\n")); 
 
-            printf("\033[33m1 - Redencao:\033[0m Recupera %i de Mana\n",  player.magMod*3); 
-            printf("\033[33m2 - Vinganca:\033[0m Aplica %i de veneno\n",  player.magMod*2); 
-            printf("\033[33m3 - Salvacao:\033[0m Recebe %i de cura\n",  player.magMod*4); 
-            printf("\033[33m4 - Gloria:\033[0m Aumenta ataque e dano em %i\n",  player.magMod); 
-            printf("\033[33m5 - Protecao:\033[0m Ganha %+i de armadura\n",  player.magMod); 
+            printf(_("\033[33m1 - Redencao:\033[0m Recupera %i de Mana\n"),  player.magMod*3); 
+            printf(_("\033[33m2 - Vinganca:\033[0m Aplica %i de veneno\n"),  player.magMod*2); 
+            printf(_("\033[33m3 - Salvacao:\033[0m Recebe %i de cura\n"),  player.magMod*4); 
+            printf(_("\033[33m4 - Gloria:\033[0m Aumenta ataque e dano em %i\n"),  player.magMod); 
+            printf(_("\033[33m5 - Protecao:\033[0m Ganha %+i de armadura\n"),  player.magMod); 
 
-            printf("\nEscolha um efeito:\n> "); // Lê a opção
+            printf(_("\nEscolha um efeito:\n> ")); // Lê a opção
             scanf("%i", &option);
             printf("\n");
 
@@ -498,7 +498,7 @@ extern enemyS enemy;
 
             case 2:
                  enemy.status[poisonedSE] +=  player.magMod*2;
-                printSlow("\033[32mVeneno ");
+                printSlow(_("\033[32mVeneno "));
                 printf("%+i",  player.magMod*2);
                 printSlow("!\033[0m\n\n");
 
@@ -507,7 +507,7 @@ extern enemyS enemy;
 
             case 3:
                  player.hp +=  player.magMod*4;
-                printSlow("\033[33mCura ");
+                printSlow(_("\033[33mCura "));
                 printf("%+i",  player.magMod*4);
                 printSlow("!\033[0m\n\n");
 
@@ -518,7 +518,7 @@ extern enemyS enemy;
                  player.atkMod +=  player.magMod;
                  player.dmgMod +=  player.magMod;
 
-                printSlow("\033[33mAtaque e dano ");
+                printSlow(_("\033[33mAtaque e dano "));
                 printf("%+i",  player.magMod);
                 printSlow("!\033[0m\n\n");
 
@@ -527,7 +527,7 @@ extern enemyS enemy;
 
             case 5:
                  player.armor +=  player.magMod;
-                printSlow("\033[33mArmadura ");
+                printSlow(_("\033[33mArmadura "));
                 printf("%+i",  player.magMod);
                 printSlow("!\033[0m\n\n");
 
@@ -535,7 +535,7 @@ extern enemyS enemy;
                 break;
             
             default:
-                printf("Opcao invalida! (tem que ser um numero de 1 a 5).\n"); // Se não for válida, pede pra colocar outra
+                printf(_("Opcao invalida! (tem que ser um numero de 1 a 5).\n")); // Se não for válida, pede pra colocar outra
                 break;
             }
         }
@@ -543,22 +543,22 @@ extern enemyS enemy;
 
     // Tem uma chance de 30% de fazer um efeito útil da escolha do player.
     bool divineIntervention () {
-        printf("\033[94m30%% de chance - se o dado tirar mais que 70, o efeito funciona\033[0m\n\n");
+        printf(_("\033[94m30%% de chance - se o dado tirar mais que 70, o efeito funciona\033[0m\n\n"));
         int chanceRoll = rollDice(100, 1, 0, 0);
 
-        printSlow("Rolagem de chance - \033[36mrolando 1d100");
+        printSlow(_("Rolagem de chance - \033[36mrolando 1d100"));
         printRollResult(chanceRoll);
         
         // Se for 70 natural pra cima, tem sucesso
         if(chanceRoll > 70) {
-            printSlow(" \033[33;4mSucesso!\033[0m\n\n");
+            printSlow(_(" \033[33;4mSucesso!\033[0m\n\n"));
 
             divineInterventionMenu(enemy);
         } 
         else {
-            printSlow(" \033[33;4mFalha...\033[0m\n\n");
+            printSlow(_(" \033[33;4mFalha...\033[0m\n\n"));
 
-            printSlow("No calor da batalha, voce nao consegue se concentrar por inteiro, e a oracao falha.\n\n");
+            printSlow(_("No calor da batalha, voce nao consegue se concentrar por inteiro, e a oracao falha.\n\n"));
         }
 
         return true;
@@ -667,7 +667,7 @@ extern enemyS enemy;
     void printSkills() {
         int option = 0, i = 0;
 
-        printf("\nDigite 0 para mostrar/parar de mostrar descricoes.\n\n");
+        printf(_("\nDigite 0 para mostrar/parar de mostrar descricoes.\n\n"));
         for(i=0; i< player.skillNum; i++) {
             // Se a skill não está em cooldown, imprime ela normalmente
             if( player.knownSkills[i].cooldown == 0) {
@@ -678,7 +678,7 @@ extern enemyS enemy;
             else {
                 printf("\033[90m%i: ", i+1);
                 fputs( player.knownSkills[i].name, stdout);
-                printf(" (%i turnos para recarregar)\033[0m",  player.knownSkills[i].cooldown);
+                printf(_(" (%i turnos para recarregar)\033[0m"),  player.knownSkills[i].cooldown);
             }
             // Imprime a descrição, se showDesc for verdadeiro
             if(showDesc) {
@@ -686,7 +686,7 @@ extern enemyS enemy;
             }
             printf("\n");
         }
-        printf("\033[33m%i: \033[36mCancelar\033[0m\n", i+1);
+        printf(_("\033[33m%i: \033[36mCancelar\033[0m\n"), i+1);
     }
 
     // Lê a escolha de skill do player
@@ -696,7 +696,7 @@ extern enemyS enemy;
         while (1) {
             printSkills(player);
 
-            printf("\nEscolha uma habilidade:\n> "); // Lê a opção
+            printf(_("\nEscolha uma habilidade:\n> ")); // Lê a opção
             scanf("%i", &option);
             printf("\n");
 
@@ -706,7 +706,7 @@ extern enemyS enemy;
                     if (useSkill(option)) break;
                 }                                                     
                 else {
-                    printf("Essa habilidade precisa recarregar!\n"); // Se está em cooldown, não usa a habilidade
+                    printf(_("Essa habilidade precisa recarregar!\n")); // Se está em cooldown, não usa a habilidade
                 }
             }
             else if(option== player.skillNum+1) {  
@@ -718,7 +718,7 @@ extern enemyS enemy;
                 return playerSkl(enemy);
             }
             else {
-                printf("Opcao invalida! (tem que ser um numero de 1 a %i).\n",  player.skillNum+1); // Se não for válida, pede pra colocar outra
+                printf(_("Opcao invalida! (tem que ser um numero de 1 a %i).\n"),  player.skillNum+1); // Se não for válida, pede pra colocar outra
             }
         }
 
@@ -764,7 +764,7 @@ extern enemyS enemy;
     int spellAtk () {
         int atkRoll = rollDice(20, 1,  player.magMod,  player.advantage);
 
-        printSlow("Rolagem de ataque magico - \033[36mrolando ");
+        printSlow(_("Rolagem de ataque magico - \033[36mrolando "));
         printf("1d20%+i",  player.magMod);
         printRollResult(atkRoll);
 
@@ -777,9 +777,9 @@ extern enemyS enemy;
         int atkRoll = spellAtk (player);
 
         if (atkRoll >=  enemy.armor) { // Se acertou, dá dano e imprime 'strHit'.
-            printSlow(" \033[33;4mAcerto!\033[0m\n\n");
+            printSlow(_(" \033[33;4mAcerto!\033[0m\n\n"));
             dmgRoll = rollDice(dmgDie, dmgDieNum,  player.magMod, 0);
-            printSlow("Rolagem de dano - \033[36mrolando ");
+            printSlow(_("Rolagem de dano - \033[36mrolando "));
             printf("%id%i%+i", dmgDieNum, dmgDie,  player.magMod);
             printRollResult(dmgRoll);
             printSlow(strHit);
@@ -824,7 +824,7 @@ extern enemyS enemy;
         
          player.status[mageArmS] = true;
          player.armor += 2;
-        printSlow("Voce conjura uma armadura translucida de energia protetiva em volta de si. \033[33mArmadura +2!\033[0m\n\n");
+        printSlow(_("Voce conjura uma armadura translucida de energia protetiva em volta de si. \033[33mArmadura +2!\033[0m\n\n"));
         
 
         return true;
@@ -836,7 +836,7 @@ extern enemyS enemy;
 
          player.status[mageShldS] = 2;
          player.armor += 5;
-        printSlow("Com uma runa protetora, voce conjura um escudo flutuante de energia arcana. \033[33mArmadura +5!\033[0m\n\n");
+        printSlow(_("Com uma runa protetora, voce conjura um escudo flutuante de energia arcana. \033[33mArmadura +5!\033[0m\n\n"));
         
         return true;
     }
@@ -845,10 +845,10 @@ extern enemyS enemy;
     bool magicMissile () {
         int dmgRoll = rollDice(4, 3, 1, 0);
 
-        printSlow("Rolagem de dano - \033[36mrolando ");
+        printSlow(_("Rolagem de dano - \033[36mrolando "));
         printf("%id%i%+i", 3, 4, 1);
         printRollResult(dmgRoll);
-        printSlow("\n\nTres dardos de energia se materializam, se curvando pelo ar e liberando pulsos de forca arcana ao atingirem o alvo.\n\n");
+        printSlow(_("\n\nTres dardos de energia se materializam, se curvando pelo ar e liberando pulsos de forca arcana ao atingirem o alvo.\n\n"));
          enemy.hp -= dmgRoll;
 
         return true;
@@ -857,7 +857,7 @@ extern enemyS enemy;
     // Aumenta o dano da arma permanentemente.
     bool blessWeapon () {
          player.dmgMod += 2;
-        printSlow("Com uma oracao voce abencoa sua arma, manipulando as forcas do destino para favorecer sua lamina. \033[33mDano +2!\033[0m\n\n");
+        printSlow(_("Com uma oracao voce abencoa sua arma, manipulando as forcas do destino para favorecer sua lamina. \033[33mDano +2!\033[0m\n\n"));
 
         return true;
     }
@@ -867,7 +867,7 @@ extern enemyS enemy;
         if (isInEffect(rdntSmiteS)) return false;
 
          player.status[rdntSmiteS] = true;
-        printSlow("Voce se concentra e canaliza as energias da sua divindade. Seu corpo comeca a emitir centelhas de poder divino, que voce sente fluir pelas suas veias. \033[33mDano do proximo ataque +2d6!\033[0m\n\n");
+        printSlow(_("Voce se concentra e canaliza as energias da sua divindade. Seu corpo comeca a emitir centelhas de poder divino, que voce sente fluir pelas suas veias. \033[33mDano do proximo ataque +2d6!\033[0m\n\n"));
 
         return true;
     }
@@ -876,7 +876,7 @@ extern enemyS enemy;
     bool hungerOfTheVoid () {
         if (isInEffect(hungerOfTheVoidS)) return false;
 
-        printSlow("Sua mente se torna inundada de visoes do Longinquo, o vazio alem do Multiverso. Com um grito terrivel, voce evoca essas visoes para o mundo fisico e conjura um portal sombrio.\n\n");
+        printSlow(_("Sua mente se torna inundada de visoes do Longinquo, o vazio alem do Multiverso. Com um grito terrivel, voce evoca essas visoes para o mundo fisico e conjura um portal sombrio.\n\n"));
          player.status[hungerOfTheVoidS] = true;
 
         return true;
@@ -884,7 +884,7 @@ extern enemyS enemy;
 
     // Diminui o custo dos feitiços do player.
     bool sightOfYogSothoth () {
-        printSlow("Por um instante voce consegue ver com olhos transcendentes, entendendo um pedaco da natureza do mundo e aprofundando a sua comunhao com os Grandes Ancestrais. \033[33mCusto dos feiticos -1!\033[0m\n\n");
+        printSlow(_("Por um instante voce consegue ver com olhos transcendentes, entendendo um pedaco da natureza do mundo e aprofundando a sua comunhao com os Grandes Ancestrais. \033[33mCusto dos feiticos -1!\033[0m\n\n"));
 
         for (int i=0; i< player.spellNum; i++) {
             if( player.knownSpells[i].cost>1 &&  player.knownSpells[i].funct != &sightOfYogSothoth) { // Só reduz o custo até 1 e não reduz o custo de Visão de Yog-Sothoth.
@@ -909,7 +909,7 @@ extern enemyS enemy;
         if (isInEffect(azathothDreamS)) return false;
         
          player.status[azathothDreamS] = true;
-        printSlow("Voce cria uma conexao entre a mente do inimigo e os sonhos do Grande Ancestral Azathoth, aflingindo-o com visoes perturbadoras e tornando dificil para a criatura discernir entre realidade e sonho. \033[33mDano do inimigo -");
+        printSlow(_("Voce cria uma conexao entre a mente do inimigo e os sonhos do Grande Ancestral Azathoth, aflingindo-o com visoes perturbadoras e tornando dificil para a criatura discernir entre realidade e sonho. \033[33mDano do inimigo -"));
         printf("%i",  player.magMod);
         printSlow("!\033[0m\n\n");
 
@@ -922,7 +922,7 @@ extern enemyS enemy;
         if (isInEffect(searingLightS)) return false;
 
          player.status[searingLightS] = true;
-        printSlow("Voce invoca a furia de sua divindade contra o inimigo, e um feixe de radiancia divina desce dos ceus sobre a criatura.\n\n");
+        printSlow(_("Voce invoca a furia de sua divindade contra o inimigo, e um feixe de radiancia divina desce dos ceus sobre a criatura.\n\n"));
 
         return true;
     }
@@ -1013,7 +1013,7 @@ extern enemyS enemy;
 
             if ( player.status[hungerOfTheVoidS]) { // Se o player estava se concentrando em H. of Hadar, quebra a concentração.
                  player.status[hungerOfTheVoidS] = false;
-                printSlow("Voce se concentra em outro feitico, e o portal para o vacuo fecha.\n");
+                printSlow(_("Voce se concentra em outro feitico, e o portal para o vacuo fecha.\n"));
             }
 
             if( player.knownSpells[option-1].funct (enemy)) {
@@ -1022,7 +1022,7 @@ extern enemyS enemy;
             }                 // (Exemplo: conjura Armadura Arcana quando ela já está em efeito)
         }                                                     
         else {
-            printf("Voce nao tem mana o suficiente para usar esse feitico!\n"); // Se não tem mana suficiente, não usa o feitiço
+            printf(_("Voce nao tem mana o suficiente para usar esse feitico!\n")); // Se não tem mana suficiente, não usa o feitiço
             return false;
         }
     }
@@ -1030,7 +1030,7 @@ extern enemyS enemy;
     void printSpells() {
         int option = 0, i = 0;
 
-        printf("\nDigite 0 para mostrar/parar de mostrar descricoes.\n\n");
+        printf(_("\nDigite 0 para mostrar/parar de mostrar descricoes.\n\n"));
         for(i=0; i< player.spellNum; i++) {
             printf("\033[33m%i:\033[0m ", i+1); // Número
             fputs( player.knownSpells[i].name, stdout); // Nome
@@ -1042,7 +1042,7 @@ extern enemyS enemy;
             }
             printf("\n");
         }
-        printf("\033[33m%i: \033[36mCancelar\033[0m\n", i+1);
+        printf(_("\033[33m%i: \033[36mCancelar\033[0m\n"), i+1);
     }
 
     int playerMag() {
@@ -1050,7 +1050,7 @@ extern enemyS enemy;
 
         while (1) {
             printSpells(player);
-            printf("\nEscolha um feitico:\n> "); // Lê a opção
+            printf(_("\nEscolha um feitico:\n> ")); // Lê a opção
             scanf("%i", &option);
             printf("\n");
 
@@ -1067,7 +1067,7 @@ extern enemyS enemy;
                 return playerMag(enemy);
             }
             else {
-                printf("Opcao invalida! (tem que ser um numero de 1 a %i).\n",  player.spellNum+1); // Se não for válida, pede pra colocar outra
+                printf(_("Opcao invalida! (tem que ser um numero de 1 a %i).\n"),  player.spellNum+1); // Se não for válida, pede pra colocar outra
             }
         }
 
@@ -1125,10 +1125,10 @@ extern enemyS enemy;
             if ( player.status[hungerOfTheVoidS] == true) {
                 evento = rodarEvento(evento);
 
-                printSlow("Tentaculos do Longinquo se estendem pelo portal, dilacerando o inimigo com os dentes afiados de suas bocas disformes.\n");
+                printSlow(_("Tentaculos do Longinquo se estendem pelo portal, dilacerando o inimigo com os dentes afiados de suas bocas disformes.\n"));
 
                 int dmgRoll = rollDice(6, 1,  player.magMod, 0);
-                printSlow("Rolagem de dano - \033[36mrolando ");
+                printSlow(_("Rolagem de dano - \033[36mrolando "));
                 printf("%id%i%+i", 1, 6,  player.magMod);
                 printRollResult(dmgRoll);
                  enemy.hp -= dmgRoll;
@@ -1140,7 +1140,7 @@ extern enemyS enemy;
             if ( player.status[searingLightS] == true) {
                 evento = rodarEvento(evento);
 
-                printSlow("A coluna cintilante de luz persiste, queimando enquanto brilha.\n");
+                printSlow(_("A coluna cintilante de luz persiste, queimando enquanto brilha.\n"));
                  enemy.hp -=  player.magMod;
             }
 
@@ -1158,9 +1158,9 @@ extern enemyS enemy;
             if( player.status[poisonedS]) {
                 evento = rodarEvento(evento);
 
-                printSlow("Voce toma ");
+                printSlow(_("Voce toma "));
                 printf("\033[32m%i",  player.status[poisonedS]);
-                printSlow(" de dano \033[0mde veneno!\n");
+                printSlow(_(" de dano \033[0mde veneno!\n"));
 
                  player.hp -=  player.status[poisonedS];
                  player.status[poisonedS]--;
@@ -1181,9 +1181,9 @@ extern enemyS enemy;
             if( enemy.status[poisonedSE]) {
                 evento = rodarEvento(evento);
 
-                printSlow("Inimigo toma ");
+                printSlow(_("Inimigo toma "));
                 printf("\033[32m%i",  enemy.status[poisonedSE]);
-                printSlow(" de dano \033[0mde veneno!\n\n");
+                printSlow(_(" de dano \033[0mde veneno!\n\n"));
 
                  enemy.hp -=  enemy.status[poisonedSE];
                  enemy.status[poisonedSE]--;
@@ -1199,7 +1199,7 @@ extern enemyS enemy;
         evento = updateEnemyStatus(evento);
 
         if (evento) {
-            printf("Press ENTER to continue.");
+            printf(_("Press ENTER to continue."));
             getchar(); // Se usasse a função requestEnter, ela ia pedir enter duas vezes, porque ela tem dois getchar pra pegar o \n da msg anterior primeiro
         }              // já que os eventos acontecem depois de algum outro requestEnter, tem que usar só um getchar
     }
@@ -1276,7 +1276,7 @@ extern enemyS enemy;
             // Opção inválido
             default:
                 printInfo();
-                printf("Opcao invalida! (tem que ser um numero entre 1 e %i).\n", OPTION_AMT);
+                printf(_("Opcao invalida! (tem que ser um numero entre 1 e %i).\n"), OPTION_AMT);
                 break;
             }
         }
@@ -1319,7 +1319,7 @@ extern enemyS enemy;
         "Usa poderes profanos vindos de um pacto com criaturas extraplanares.",
         "Guerreiro que canaliza poder divino para fortalecer seus ataques."}; // Lista das descrições das classes
 
-        printf("\033[1mEscolha sua classe:\033[0m\n\n");
+        printf(_("\033[1mEscolha sua classe:\033[0m\n\n"));
 
         for(int i=0; i<NUM_CLASSES; i++) {
             printf("\033[33m%i: \033[0m", i+1);
@@ -1457,7 +1457,7 @@ extern enemyS enemy;
                 break;
             
             default:
-                printf("Opcao invalida! (tem que ser um numero entre 1 e %i).\n", NUM_CLASSES);
+                printf(_("Opcao invalida! (tem que ser um numero entre 1 e %i).\n"), NUM_CLASSES);
                 continue;
                 break;
             }
