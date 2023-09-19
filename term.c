@@ -198,7 +198,7 @@ void printInfo () {
 
 // Imprime as opções do player
 void printConfig(playerS *player, enemyS *enemy) {
-    char options[CONFIG_AMT][MAX_OPTION] = {"VELOC. DO TEXTO", "MOSTRAR DESCS."};
+    char options[CONFIG_AMT][MAX_OPTION] = {_("VELOC. DO TEXTO"), _("MOSTRAR DESCS.")};
     int option = 0;
 
     printInfo(*player, *enemy);

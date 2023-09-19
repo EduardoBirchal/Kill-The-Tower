@@ -56,7 +56,7 @@ typedef struct enemySkill_s {
         // Imprime as coisas
         printSlow(_("Rolagem de dano - \033[36mrolando "));
         printf("%id%i%+i", enemy.dmgDiceNum*2, enemy.dmgDice, enemy.dmgMod*2);
-        printCustomResult(dmgRoll, "dano");
+        printCustomResult(dmgRoll, _("dano"));
         printf("\n\n");
 
         // Dá o dano
@@ -71,7 +71,7 @@ typedef struct enemySkill_s {
         // Imprime as coisas
         printSlow(_("Rolagem de dano - \033[36mrolando "));
         printf("%id%i%+i", enemy.dmgDiceNum, enemy.dmgDice, enemy.dmgMod);
-        printCustomResult(dmgRoll, "dano");
+        printCustomResult(dmgRoll, _("dano"));
         printf("\n\n");
 
         // Dá o dano
@@ -135,7 +135,7 @@ typedef struct enemySkill_s {
 
         printSlow(_("Rolagem de dano - \033[36mrolando "));
         printf("%id%i%+i", dmgDieNum, dmgDie, enemy.dmgMod);
-        printCustomResult(dmgRoll, "dano");
+        printCustomResult(dmgRoll,_("dano"));
         
         player.hp -= dmgRoll;
         return dmgRoll;
@@ -163,7 +163,7 @@ typedef struct enemySkill_s {
 
         printSlow(_("Rolagem de cura - \033[36mrolando "));
         printf("%id%i%+i", healDieNum, healDie, healMod);
-        printCustomResult(healRoll, "cura");
+        printCustomResult(healRoll,_("cura"));
 
         enemy.hp += healRoll;
         return healRoll;
@@ -217,7 +217,7 @@ typedef struct enemySkill_s {
 
             printSlow(_("Rolagem de veneno - \033[36mrolando "));
             printf("%id%i%+i", 1, 4, 0);
-            printCustomResult(psnRoll, "veneno");
+            printCustomResult(psnRoll,_("veneno"));
 
             player.status[poisonedS] += psnRoll;
         }
@@ -229,7 +229,7 @@ typedef struct enemySkill_s {
 
         printSlow(_("Rolagem de enfraquecimento - \033[36mrolando "));
         printf("%id%i%+i", 1, 4, 1);
-        printCustomResult(wknRoll, "enfraquecimento");
+        printCustomResult(wknRoll,_("enfraquecimento"));
 
         player.status[weakenedS] += wknRoll;
     }

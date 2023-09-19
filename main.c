@@ -13,10 +13,15 @@ COISAS PRA FAZER:
 Interface
     - Menu principal
     - Customizar nome
-    - Traduzir pra inglês (usar gettext. Pra refatorar o código, aprender regex)
+    - Traduzir pra inglês (usar gettext. Pra refatorar o código, usar regex)
         REGEX:
+            (pra print)
             find print(f|Slow)\(("[^"]*")
             replace print$1(_($2)
+
+            (pra strings)
+            find [^_\(]("[^"]*")
+            replace _($1)
     - Fazer o terminal ser controlável via setinhas
 Inimigo
     - Aprimorar IA do Inimigo
