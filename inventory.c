@@ -48,7 +48,7 @@ int itemHeal (int healDie, int healDieNum, int healMod, char* str) {
     // Aumenta a armadura do player. Não acumula.
     int healPotion () {
         itemHeal(4, 3, 5,
-        "A pocao tem um gosto forte e enjoativo, mas alivia sua dor e seus ferimentos fecham em segundos.\n\n");
+       _("A pocao tem um gosto forte e enjoativo, mas alivia sua dor e seus ferimentos fecham em segundos.\n\n"));
 
         return 1;
     }
@@ -64,7 +64,7 @@ int itemHeal (int healDie, int healDieNum, int healMod, char* str) {
     // Dá dano baixo e acerta sempre, sem precisar rolar ataque.
     int acidFlask () {
         itemDmg (6, 4, 4, 
-        "Voce puxa uma alca no frasco, retirando o tecido que separa dois liquidos dentro. Os fluidos se misturam e borbulham cada vez mais, e voce arremessa o frasco que explode numa enxurrada de acido.\n\n");
+       _("Voce puxa uma alca no frasco, retirando o tecido que separa dois liquidos dentro. Os fluidos se misturam e borbulham cada vez mais, e voce arremessa o frasco que explode numa enxurrada de acido.\n\n"));
 
         return 1;
     }

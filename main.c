@@ -41,6 +41,8 @@ Dungeon
     - Fazer o player voltar pro menu ao morrer
     - Boss no fim do andar
     - Múltiplos andares?
+Código
+    - Refatorar
 Bugs
     - Escudo Arcano te dá -1 de vantagem
     - Barra de vida não imprime direito (HP tá menos que a metade mas a barrinha tá além da metade)

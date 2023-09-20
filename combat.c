@@ -23,7 +23,7 @@
 
 typedef struct skill_s {
     sklFunct funct; // sklFunct é um ponteiro de função. Esse tipo é usado para feitiços, habilidades e itens.
-    char name[MAX_SKILL];
+    char *name;
     char desc[MAX_DESC_SKILL];
 
     int maxCooldown;
@@ -358,7 +358,7 @@ extern enemyS enemy;
     // Recupera HP.
     bool secondWind () {
         itemHeal(6, 2, 2,
-        "Voce recua e respira, recuperando seu folego e se sentindo descansado.\n\n");
+       _("Voce recua e respira, recuperando seu folego e se sentindo descansado.\n\n"));
 
         return true;
     }
@@ -799,8 +799,8 @@ extern enemyS enemy;
     // Um feitiço simples, que dá uma boa quantidade de dano.
     bool fireBolt () {
         spellDmg (8, 2,
-        "\n\nO dardo de fogo acerta a criatura, estalando e criando um estouro de chamas.\n\n", 
-        " \033[33;4mFalha...\033[0m\n\nO alvo se abaixa para fora do caminho do projetil, que dispara por cima dele e se dissipa numa nuvem de brasas.\n\n");
+       _("\n\nO dardo de fogo acerta a criatura, estalando e criando um estouro de chamas.\n\n"), 
+       _(" \033[33;4mFalha...\033[0m\n\nO alvo se abaixa para fora do caminho do projetil, que dispara por cima dele e se dissipa numa nuvem de brasas.\n\n"));
 
         return true;
     }
@@ -808,8 +808,8 @@ extern enemyS enemy;
     // Dá dano médio e diminui armadura.
     bool sonicBlast () {
         int result = spellDmg (8, 1,
-        "\n\nO pulso sonico colide com o alvo, com um impacto pesado. O som ressoante rasga um buraco em sua armadura de couro. \033[33mArmadura do inimigo -1!\033[0m\n\n", 
-        " \033[33;4mFalha...\033[0m\n\nO feixe atinge o escudo de bronze da criatura, estourando num zumbido estrondoso.\n\n");
+       _("\n\nO pulso sonico colide com o alvo, com um impacto pesado. O som ressoante rasga um buraco em sua armadura de couro. \033[33mArmadura do inimigo -1!\033[0m\n\n"), 
+       _(" \033[33;4mFalha...\033[0m\n\nO feixe atinge o escudo de bronze da criatura, estourando num zumbido estrondoso.\n\n"));
 
         if (result) {
              enemy.armor--;
@@ -898,8 +898,8 @@ extern enemyS enemy;
     // Causa dano alto.
     bool fireOfCthulhu () {
         spellDmg (8, 3,
-        "\n\nSeus olhos se enchem de escuridao, liberando um cone de fogo e trevas que envolve o inimigo por completo, queimando-o com fogo necrotico.\n\n", 
-        " \033[33;4mFalha...\033[0m\n\nA criatura bloqueia o raio de chamas sombrias com seu escudo, e o fogo produz um cheiro forte de enxofre.\n\n");
+       _("\n\nSeus olhos se enchem de escuridao, liberando um cone de fogo e trevas que envolve o inimigo por completo, queimando-o com fogo necrotico.\n\n"), 
+       _(" \033[33;4mFalha...\033[0m\n\nA criatura bloqueia o raio de chamas sombrias com seu escudo, e o fogo produz um cheiro forte de enxofre.\n\n"));
 
         return true;
     }
@@ -1209,7 +1209,7 @@ extern enemyS enemy;
 
     // Imprime as opções do player
     void printOptions() {
-        char options[OPTION_AMT][MAX_OPTION] = {"ATACAR", "HABILIDADES", "MAGIA", "INVENTARIO", "FECHAR JOGO"};
+        char options[OPTION_AMT][MAX_OPTION] = {_("ATACAR"), _("HABILIDADES"), _("MAGIA"), _("INVENTARIO"), _("FECHAR JOGO")};
         int option = 0;
 
         printInfo();
@@ -1312,7 +1312,7 @@ extern enemyS enemy;
         clearTerm();
 
         centerText (strlen("Escolha sua classe:"), BORDER_LEN);
-        char nomes[NUM_CLASSES][MAX_ITEM] = {"Guerreiro", "Mago", "Bruxo", "Paladino"}; // Lista dos nomes das classes
+        char nomes[NUM_CLASSES][MAX_ITEM] = {_("Guerreiro"),_("Mago"), _("Bruxo"), _("Paladino")}; // Lista dos nomes das classes
         char descricoes[NUM_CLASSES][MAX_DESC_CLASS] = {
         "Especialista em combate. Tem poucas magias, mas muitas habilidades e dano alto.",
         "Arcanista com uma variedade de feiticos uteis e poderosos.",
@@ -1484,7 +1484,7 @@ extern enemyS enemy;
         player.advantage = 0;
         player.hp = player.hpMax;
         player.mana = player.manaMax;
-        strcpy(player.name, "Voce");
+        strcpy(player.name,_("Voce"));
         
 
         // Inicializando os status
