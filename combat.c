@@ -670,7 +670,7 @@ extern enemyS enemy;
         printf(_("\nDigite 0 para mostrar/parar de mostrar descricoes.\n\n"));
         for(i=0; i< player.skillNum; i++) {
             // Se a skill não está em cooldown, imprime ela normalmente
-            if( player.knownSkills[i].cooldown == 0) {
+            if(player.knownSkills[i].cooldown == 0) {
                 printf("\033[33m%i:\033[0m ", i+1);
                 fputs( player.knownSkills[i].name, stdout);
             }
@@ -930,7 +930,7 @@ extern enemyS enemy;
 
     /* ==== Criar o array de feitiços ==== */
 
-    const spellS spells[NUM_SPELLS] = {
+    spellS spells[NUM_SPELLS] = {
         {
             &fireBolt,          // Função de quando o feitiço é conjurado
             "Dardo de Fogo",    // Nome do feitiço
@@ -1005,19 +1005,71 @@ extern enemyS enemy;
         }
     };
 
+    /* ==== Definir strings de feitiços ==== */
+    
+    // O motivo pelo qual as strings são definidas aqui em vez de na definição do array 'spells'
+    // é que gettext() não pode ser chamado lá, por ser uma definição constante.
+
+    void defineSpellNames() {
+        char spellNames[NUM_SPELLS][MAX_SPELL] = {
+            _("Dardo de Fogo"),
+            _("Pulso Sonico"),
+            _("Armadura Arcana"),
+            _("Escudo Arcano"),
+            _("Misseis Magicos"),
+            _("Abencoar Arma"),
+            _("Golpe Radiante"),
+            _("Fome do Vazio"),
+            _("Visao de Yog-Sothoth"),
+            _("Fogo de Cthulhu"),
+            _("Sonho de Azathoth"),
+            _("Luz Queimante"),
+        };
+
+        for (int i = 0; i < NUM_SPELLS; i++) {
+            strcpy(spells[i].name, spellNames[i]);
+        }
+    }
+
+    void defineSpellDescs() {
+        char spellDescs[NUM_SPELLS][MAX_DESC_SPELL] = {
+            _("Causa dano alto."),                                                                                  // Dardo de Fogo
+            _("Causa dano medio e diminui a armadura do alvo em -1."),                                              // Pulso Sônico
+            _("Aumenta sua armadura em +2 permanentemente."),                                                       // Armadura Arcana
+            _("Aumenta sua armadura em +5 por 1 turno."),                                                           // Escudo Arcano
+            _("Causa dano baixo e nunca erra, nao importa a armadura do alvo."),                                    // Mísseis Mágicos
+            _("Aumenta o dano da sua arma pelo resto do combate."),                                                 // Abençoar Arma
+            _("Carrega sua arma com energia divina, aumentando o dano do seu proximo ataque."),                     // Golpe Divino
+            _("Invoca tentaculos alienigenas que causam dano continuo enquanto voce nao conjurar outro feitico."),  // Fome do Vazio
+            _("Diminui o preco das suas magias pelo resto do combate."),                                            // Visão de Yog-Sothoth
+            _("Causa dano alto."),                                                                                  // Fogo de Cthulhu
+            _("Diminui o dano do inimigo pelo resto do combate."),                                                  // Sonho de Azathoth
+            _("Causa dano constante pelo resto do combate."),                                                       // Luz Queimante
+        };
+
+        for (int i = 0; i < NUM_SPELLS; i++) {
+            strcpy(spells[i].desc, spellDescs[i]);
+        }
+    }
+
+    void defineSpellStrings() {
+        defineSpellNames();
+        defineSpellDescs();
+    }
+
     /* ==== Imprimir menu de feitiços ==== */
 
     bool castSpell(int option) {
-        if( player.mana >=  player.knownSpells[option-1].cost) {
+        if(player.mana >=  player.knownSpells[option-1].cost) {
             printInfo();
 
-            if ( player.status[hungerOfTheVoidS]) { // Se o player estava se concentrando em H. of Hadar, quebra a concentração.
-                 player.status[hungerOfTheVoidS] = false;
+            if (player.status[hungerOfTheVoidS]) { // Se o player estava se concentrando em H. of Hadar, quebra a concentração.
+                player.status[hungerOfTheVoidS] = false;
                 printSlow(_("Voce se concentra em outro feitico, e o portal para o vacuo fecha.\n"));
             }
 
-            if( player.knownSpells[option-1].funct (enemy)) {
-                 player.mana -=  player.knownSpells[option-1].cost;
+            if(player.knownSpells[option-1].funct (enemy)) {
+                player.mana -= player.knownSpells[option-1].cost;
                 return true;  // Se o feitiço retornar true, retacaba o loop. Feitiços retornam 0 se eles não funcionam 
             }                 // (Exemplo: conjura Armadura Arcana quando ela já está em efeito)
         }                                                     
@@ -1027,21 +1079,26 @@ extern enemyS enemy;
         }
     }
 
+    void printSpellDesc(int spellIndex) {
+        printf("\033[90m - %s\033[0m",  player.knownSpells[spellIndex].desc);
+    }
+
     void printSpells() {
         int option = 0, i = 0;
 
         printf(_("\nDigite 0 para mostrar/parar de mostrar descricoes.\n\n"));
-        for(i=0; i< player.spellNum; i++) {
-            printf("\033[33m%i:\033[0m ", i+1); // Número
-            fputs( player.knownSpells[i].name, stdout); // Nome
-            printf(" \033[94m(%i mana)\033[0m",  player.knownSpells[i].cost); // Mana
 
-            // Imprime a descrição se showDesc é verdadeiro
-            if(showDesc) {
-                printf("\033[90m - %s\033[0m",  player.knownSpells[i].desc);
-            }
+        for(i=0; i< player.spellNum; i++) {
+            printf("\033[33m%i:\033[0m ", i+1);                                 // Número
+            fputs(player.knownSpells[i].name, stdout);                          // Nome
+            printf(" \033[94m(%i mana)\033[0m",  player.knownSpells[i].cost);   // Mana
+
+            if(showDesc) 
+                printSpellDesc(i);                                              // Descrição
+            
             printf("\n");
         }
+
         printf(_("\033[33m%i: \033[36mCancelar\033[0m\n"), i+1);
     }
 
@@ -1314,10 +1371,10 @@ extern enemyS enemy;
         centerText (strlen("Escolha sua classe:"), BORDER_LEN);
         char nomes[NUM_CLASSES][MAX_ITEM] = {_("Guerreiro"),_("Mago"), _("Bruxo"), _("Paladino")}; // Lista dos nomes das classes
         char descricoes[NUM_CLASSES][MAX_DESC_CLASS] = {
-        "Especialista em combate. Tem poucas magias, mas muitas habilidades e dano alto.",
-        "Arcanista com uma variedade de feiticos uteis e poderosos.",
-        "Usa poderes profanos vindos de um pacto com criaturas extraplanares.",
-        "Guerreiro que canaliza poder divino para fortalecer seus ataques."}; // Lista das descrições das classes
+        _("Especialista em combate. Tem poucas magias, mas muitas habilidades e dano alto."),
+        _("Arcanista com uma variedade de feiticos uteis e poderosos."),
+        _("Usa poderes profanos vindos de um pacto com criaturas extraplanares."),
+        _("Guerreiro que canaliza poder divino para fortalecer seus ataques.")}; // Lista das descrições das classes
 
         printf(_("\033[1mEscolha sua classe:\033[0m\n\n"));
 
@@ -1367,9 +1424,9 @@ extern enemyS enemy;
                 addSkill (btlTrance);
                 
                 // Mensagens de ataque
-                strcpy(player.hitString, "\n\nA lamina do seu machado atinge o inimigo, que falha em se esquivar e recua com um grito.\n\n");
-                strcpy(player.critString, "\n\nGirando sua arma com as duas maos, voce faz um corte letal no alvo, causando dano massivo.\n\n");
-                strcpy(player.missString, "\n\nO oponente desvia agilmente do seu golpe, saltando para o lado. A lamina encontra apenas terra.\n\n");
+                strcpy(player.hitString, _("\n\nA lamina do seu machado atinge o inimigo, que falha em se esquivar e recua com um grito.\n\n"));
+                strcpy(player.critString, _("\n\nGirando sua arma com as duas maos, voce faz um corte letal no alvo, causando dano massivo.\n\n"));
+                strcpy(player.missString, _("\n\nO oponente desvia agilmente do seu golpe, saltando para o lado. A lamina encontra apenas terra.\n\n"));
 
                 break;
             
@@ -1393,9 +1450,9 @@ extern enemyS enemy;
                 addSkill (parryAtk);
                 addSkill (scndWind);
 
-                strcpy(player.hitString, "\n\nApesar da sua falta de treinamento marcial, voce consegue atingir a criatura com o seu cajado, fazendo-a recuar.\n\n");
-                strcpy(player.critString, "\n\nVoce acerta o alvo com um giro do seu cajado, com um impacto brutal e o som de ossos quebrando.\n\n");
-                strcpy(player.missString, "\n\nVoce golpeia pra frente com a ponta do bastao, mas a armadura do inimigo absorve o impacto do ataque.\n\n");
+                strcpy(player.hitString,_("\n\nApesar da sua falta de treinamento marcial, voce consegue atingir a criatura com o seu cajado, fazendo-a recuar.\n\n"));
+                strcpy(player.critString,_("\n\nVoce acerta o alvo com um giro do seu cajado, com um impacto brutal e o som de ossos quebrando.\n\n"));
+                strcpy(player.missString,_("\n\nVoce golpeia pra frente com a ponta do bastao, mas a armadura do inimigo absorve o impacto do ataque.\n\n"));
                 
                 break;
 
@@ -1421,9 +1478,9 @@ extern enemyS enemy;
                 addSkill (bldOffering);
                 addSkill (siphonPwr);
                 
-                strcpy(player.hitString, "\n\nVoce invoca um feixe de energia sombria que dispara erraticamente pelo ar, atingindo o inimigo e queimando-o.\n\n");
-                strcpy(player.critString, "\n\nCom uma palavra profana voce conjura um raio faiscante de sombra, que atinge o alvo em cheio e o empurra pra tras numa chuva de faiscas.\n\n");
-                strcpy(player.missString, "\n\nNo calor da batalha, voce nao consegue se concentrar para evocar as energias extraplanares do seu patrono, e o raio se dissipa com um chiado.\n\n");
+                strcpy(player.hitString,_("\n\nVoce invoca um feixe de energia sombria que dispara erraticamente pelo ar, atingindo o inimigo e queimando-o.\n\n"));
+                strcpy(player.critString,_("\n\nCom uma palavra profana voce conjura um raio faiscante de sombra, que atinge o alvo em cheio e o empurra pra tras numa chuva de faiscas.\n\n"));
+                strcpy(player.missString,_("\n\nNo calor da batalha, voce nao consegue se concentrar para evocar as energias extraplanares do seu patrono, e o raio se dissipa com um chiado.\n\n"));
 
                 break;
 
@@ -1450,9 +1507,9 @@ extern enemyS enemy;
                 addSkill (bldOffering);
                 addSkill (dvnIntervention);
 
-                strcpy(player.hitString, "\n\nO golpe da sua espada acerta o alvo com um corte amplo, abrindo um ferimento e jorrando sangue por onde a lamina rasga.\n\n");
-                strcpy(player.critString, "\n\nVoce acerta a criatura com o seu escudo numa investida e finca sua espada num ponto vital, causando um ferimento gravissimo.\n\n");
-                strcpy(player.missString, "\n\nO som de metal com metal ressoa pelo campo de batalha quando o seu golpe e bloqueado pelo escudo do inimigo.\n\n");
+                strcpy(player.hitString,_("\n\nO golpe da sua espada acerta o alvo com um corte amplo, abrindo um ferimento e jorrando sangue por onde a lamina rasga.\n\n"));
+                strcpy(player.critString,_("\n\nVoce acerta a criatura com o seu escudo numa investida e finca sua espada num ponto vital, causando um ferimento gravissimo.\n\n"));
+                strcpy(player.missString,_("\n\nO som de metal com metal ressoa pelo campo de batalha quando o seu golpe e bloqueado pelo escudo do inimigo.\n\n"));
                 
                 break;
             

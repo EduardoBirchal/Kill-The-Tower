@@ -96,7 +96,7 @@ typedef struct enemy_s {
 } enemyS;
 
 
-/* ==== Typedefs ==== */
+/* ==== Typedefs e Enums ==== */
 
 enum statusNums {mageArmS, mageShldS, tripAtkS, parryAtkS, rdntSmiteS, hungerOfTheVoidS, azathothDreamS, searingLightS, btlTranceS, poisonedS, weakenedS};
 enum enemyStatusNums {poisonedSE};
@@ -239,6 +239,9 @@ extern enemyS enemy;
 
     // Adiciona um feitiço no vetor de feitiços do player.
     void addSpell (int index);
+
+    // Define o nome e descrição dos feitiços do player.
+    void defineSpellStrings();
 
 
 /* ==== Status - as funções de cada status do player ==== */

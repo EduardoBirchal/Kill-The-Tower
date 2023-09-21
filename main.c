@@ -76,6 +76,8 @@ int main(int argc, char** argv) {
     
     //createEnemy((rand()%3) + 1);
     createEnemy(2);
+
+    defineSpellStrings();
     
 
     while (true) {
