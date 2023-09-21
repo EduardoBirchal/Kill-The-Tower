@@ -240,6 +240,12 @@ extern enemyS enemy;
     // Adiciona um feitiço no vetor de feitiços do player.
     void addSpell (int index);
 
+    // Define os nomes dos feitiços do player.
+    void defineSpellNames();
+
+    // Define as descrições dos feitiços do player.
+    void defineSpellDescs();
+
     // Define o nome e descrição dos feitiços do player.
     void defineSpellStrings();
 

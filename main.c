@@ -52,6 +52,7 @@ Balanceamento
     - Inimigo fortifica demais
     - Rebalancear armadura (armadura demais deixa a batalha chata, mas armadura de menos elimina qualquer estratégia que não seja atacar sem parar)
 
+Using #define with gettext results in "integer from pointer without a cast" warning 
 */
 
 

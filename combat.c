@@ -933,7 +933,7 @@ extern enemyS enemy;
     spellS spells[NUM_SPELLS] = {
         {
             &fireBolt,          // Função de quando o feitiço é conjurado
-            "Dardo de Fogo",    // Nome do feitiço
+            "fgeyg",    // Nome do feitiço
             "Causa dano alto.", // Descrição do feitiço
             5                   // Custo de mana do feitiço
         },
