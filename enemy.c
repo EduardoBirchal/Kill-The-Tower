@@ -237,7 +237,7 @@ typedef struct enemySkill_s {
 
 /* ==== Array de habilidades ==== */
 
-    const enemySkillS skillsE[NUM_ENEMY_SKILLS] = {
+    enemySkillS skillsE[NUM_ENEMY_SKILLS] = {
         {
             &fireBoltE,         // Função
             "Dardo de Fogo",    // Nome
@@ -287,6 +287,20 @@ typedef struct enemySkill_s {
             {0, 0, 0, 3},
         }
     };
+
+    /* ==== Definir strings das skills ==== */
+
+    void defineSkillNamesE () {
+        char skillNames[NUM_ENEMY_SKILLS][MAX_ENEMY_SKILL] = {
+            _("Pocao de Cura"),
+            _("Runa de Protecao"),
+            _("Frasco de Acido"),
+        };
+
+        for (int i = 0; i < NUM_ENEMY_SKILLS; i++) {
+            strcpy(skillsE[i].name, skillNames[i]);
+        }
+    }
 
 
 /* ==== Funções de uso de habilidade ==== */

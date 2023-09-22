@@ -43,6 +43,7 @@ Dungeon
     - Múltiplos andares?
 Código
     - Refatorar
+    - Fazer as funções de definição de string usarem um arquivo (depois que aprender como funcionam linguagens do gettext)
 Bugs
     - Escudo Arcano te dá -1 de vantagem
     - Barra de vida não imprime direito (HP tá menos que a metade mas a barrinha tá além da metade)
@@ -52,7 +53,6 @@ Balanceamento
     - Inimigo fortifica demais
     - Rebalancear armadura (armadura demais deixa a batalha chata, mas armadura de menos elimina qualquer estratégia que não seja atacar sem parar)
 
-Using #define with gettext results in "integer from pointer without a cast" warning 
 */
 
 
@@ -78,7 +78,7 @@ int main(int argc, char** argv) {
     //createEnemy((rand()%3) + 1);
     createEnemy(2);
 
-    defineSpellStrings();
+    defineStrings();
     
 
     while (true) {
@@ -96,7 +96,9 @@ int main(int argc, char** argv) {
         
         turnEnemy();
     }
-    printf("\n");
+    printBorder();
+    printf(_("\033[94mObrigado por jogar meu jogo! Fechando...\033[33m\n"));
+    printBorder();
 
 
     // Libera arrays alocados

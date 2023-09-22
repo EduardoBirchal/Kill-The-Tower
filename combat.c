@@ -23,7 +23,7 @@
 
 typedef struct skill_s {
     sklFunct funct; // sklFunct é um ponteiro de função. Esse tipo é usado para feitiços, habilidades e itens.
-    char *name;
+    char name[MAX_SKILL];
     char desc[MAX_DESC_SKILL];
 
     int maxCooldown;
@@ -567,7 +567,7 @@ extern enemyS enemy;
 
     /* ==== Criar o array de habilidades ==== */
 
-    const skillS skills[NUM_SKILLS] = {
+    skillS skills[NUM_SKILLS] = {
         {
             &doubleStrike,       // Função de quando a habilidade é usada
             "Golpe Duplo",       // Nome da habilidade
@@ -650,6 +650,43 @@ extern enemyS enemy;
             3
         }
     };
+
+    /* ==== Definir strings de habilidades ==== */
+
+    void defineSkillNames() {
+        strcpy(skills[doubleStrk].name,         _("Golpe Duplo"));
+        strcpy(skills[tripAtk].name,            _("Rasteira"));
+        strcpy(skills[selfDmg].name,            _("Auto-Esfaquear"));
+        strcpy(skills[parryAtk].name,           _("Golpe Defensivo"));
+        strcpy(skills[scndWind].name,           _("Recuperar Folego"));
+        strcpy(skills[dvnGuidance].name,        _("Orientacao Divina"));
+        strcpy(skills[bldOffering].name,        _("Oferenda de Sangue"));
+        strcpy(skills[adrnlSurge].name,         _("Surto de Adrenalina"));
+        strcpy(skills[prcStrk].name,            _("Ataque Preciso"));
+        strcpy(skills[btlTrance].name,          _("Instinto de Batalha"));
+        strcpy(skills[siphonPwr].name,          _("Roubar Poder"));
+        strcpy(skills[dvnIntervention].name,    _("Intervencao Divina"));
+    }
+
+    void defineSkillDescs() {
+        strcpy(skills[doubleStrk].desc,         _("Ataca duas vezes."));
+        strcpy(skills[tripAtk].desc,            _("Da uma rasteira no alvo, fazendo-o cair e te dando vantagem no proximo ataque."));
+        strcpy(skills[selfDmg].desc,            _("Da dano em si mesmo. Ai."));
+        strcpy(skills[parryAtk].desc,           _("Ataca e assume uma posicao defensiva, aumentando sua armadura no proximo turno."));
+        strcpy(skills[scndWind].desc,           _("Descansa e se cura."));
+        strcpy(skills[dvnGuidance].desc,        _("Ataca e ganha um bonus na rolagem de ataque e de dano."));
+        strcpy(skills[bldOffering].desc,        _("Sacrifica HP por Mana."));
+        strcpy(skills[adrnlSurge].desc,         _("Sacrifica HP e regenera todos os cooldowns."));
+        strcpy(skills[prcStrk].desc,            _("Acerta um ataque sem precisar rolar, mas nao pode ser critico."));
+        strcpy(skills[btlTrance].desc,          _("Ganha um aumento de ataque e dano por 4 turnos, mas coloca todas as habilidades em cooldown."));
+        strcpy(skills[siphonPwr].desc,          _("Rouba 6 de Mana do inimigo."));
+        strcpy(skills[dvnIntervention].desc,    _("Pode escolher entre varios efeitos poderosos. Funciona apenas 30%% das vezes."));
+    }
+
+    void defineSkillStrings() {
+        defineSkillNames();
+        defineSkillDescs();
+    }
 
     /* ==== Imprimir menu de habilidades ==== */
 
@@ -808,7 +845,7 @@ extern enemyS enemy;
     // Dá dano médio e diminui armadura.
     bool sonicBlast () {
         int result = spellDmg (8, 1,
-       _("\n\nO pulso sonico colide com o alvo, com um impacto pesado. O som ressoante rasga um buraco em sua armadura de couro. \033[33mArmadura do inimigo -1!\033[0m\n\n"), 
+       _("\n\nO pulso sonico colide com o alvo, com um impacto pesado. O som ressoante rasga um buraco em sua armadura de couro. \033[33mArmadura do inimigo -1!\033[33m\n\n"), 
        _(" \033[33;4mFalha...\033[0m\n\nO feixe atinge o escudo de bronze da criatura, estourando num zumbido estrondoso.\n\n"));
 
         if (result) {
@@ -933,7 +970,7 @@ extern enemyS enemy;
     spellS spells[NUM_SPELLS] = {
         {
             &fireBolt,          // Função de quando o feitiço é conjurado
-            "fgeyg",    // Nome do feitiço
+            "Dardo de Fogo",    // Nome do feitiço
             "Causa dano alto.", // Descrição do feitiço
             5                   // Custo de mana do feitiço
         },
@@ -1010,46 +1047,35 @@ extern enemyS enemy;
     // O motivo pelo qual as strings são definidas aqui em vez de na definição do array 'spells'
     // é que gettext() não pode ser chamado lá, por ser uma definição constante.
 
+    // Versão temporária da função - vou usar arquivos quando eu aprender como linguagens do gettext funcionam
     void defineSpellNames() {
-        char spellNames[NUM_SPELLS][MAX_SPELL] = {
-            _("Dardo de Fogo"),
-            _("Pulso Sonico"),
-            _("Armadura Arcana"),
-            _("Escudo Arcano"),
-            _("Misseis Magicos"),
-            _("Abencoar Arma"),
-            _("Golpe Radiante"),
-            _("Fome do Vazio"),
-            _("Visao de Yog-Sothoth"),
-            _("Fogo de Cthulhu"),
-            _("Sonho de Azathoth"),
-            _("Luz Queimante"),
-        };
-
-        for (int i = 0; i < NUM_SPELLS; i++) {
-            strcpy(spells[i].name, spellNames[i]);
-        }
+        strcpy(spells[fireBlt].name,            _("Dardo de Fogo"));
+        strcpy(spells[sonicBlst].name,          _("Pulso Sonico"));
+        strcpy(spells[mageArm].name,            _("Armadura Arcana"));
+        strcpy(spells[mageShld].name,           _("Escudo Arcano"));
+        strcpy(spells[magicMsl].name,           _("Misseis Magicos"));
+        strcpy(spells[blessWpn].name,           _("Abencoar Arma"));
+        strcpy(spells[rdntSmite].name,          _("Golpe Radiante"));
+        strcpy(spells[voidHunger].name,         _("Fome do Vazio"));
+        strcpy(spells[yogSothothSight].name,    _("Visao de Yog-Sothoth"));
+        strcpy(spells[cthulhuFire].name,        _("Fogo de Cthulhu"));
+        strcpy(spells[azathothDream].name,      _("Sonho de Azathoth"));
+        strcpy(spells[srngLight].name,          _("Luz Queimante"));
     }
 
     void defineSpellDescs() {
-        char spellDescs[NUM_SPELLS][MAX_DESC_SPELL] = {
-            _("Causa dano alto."),                                                                                  // Dardo de Fogo
-            _("Causa dano medio e diminui a armadura do alvo em -1."),                                              // Pulso Sônico
-            _("Aumenta sua armadura em +2 permanentemente."),                                                       // Armadura Arcana
-            _("Aumenta sua armadura em +5 por 1 turno."),                                                           // Escudo Arcano
-            _("Causa dano baixo e nunca erra, nao importa a armadura do alvo."),                                    // Mísseis Mágicos
-            _("Aumenta o dano da sua arma pelo resto do combate."),                                                 // Abençoar Arma
-            _("Carrega sua arma com energia divina, aumentando o dano do seu proximo ataque."),                     // Golpe Divino
-            _("Invoca tentaculos alienigenas que causam dano continuo enquanto voce nao conjurar outro feitico."),  // Fome do Vazio
-            _("Diminui o preco das suas magias pelo resto do combate."),                                            // Visão de Yog-Sothoth
-            _("Causa dano alto."),                                                                                  // Fogo de Cthulhu
-            _("Diminui o dano do inimigo pelo resto do combate."),                                                  // Sonho de Azathoth
-            _("Causa dano constante pelo resto do combate."),                                                       // Luz Queimante
-        };
-
-        for (int i = 0; i < NUM_SPELLS; i++) {
-            strcpy(spells[i].desc, spellDescs[i]);
-        }
+        strcpy(spells[fireBlt].desc,            _("Causa dano alto."));
+        strcpy(spells[sonicBlst].desc,          _("Causa dano medio e diminui a armadura do alvo em -1."));
+        strcpy(spells[mageArm].desc,            _("Aumenta sua armadura em +2 permanentemente."));
+        strcpy(spells[mageShld].desc,           _("Aumenta sua armadura em +5 por 1 turno."));
+        strcpy(spells[magicMsl].desc,           _("Causa dano baixo e nunca erra, nao importa a armadura do alvo."));
+        strcpy(spells[blessWpn].desc,           _("Aumenta o dano da sua arma pelo resto do combate."));
+        strcpy(spells[rdntSmite].desc,          _("Carrega sua arma com energia divina, aumentando o dano do seu proximo ataque."));
+        strcpy(spells[voidHunger].desc,         _("Invoca tentaculos sombrios que causam dano continuo enquanto voce nao conjurar outro feitico."));
+        strcpy(spells[yogSothothSight].desc,    _("Diminui o preco das suas magias pelo resto do combate."));
+        strcpy(spells[cthulhuFire].desc,        _("Causa dano alto."));
+        strcpy(spells[azathothDream].desc,      _("Diminui o dano do inimigo pelo resto do combate."));
+        strcpy(spells[srngLight].desc,          _("Causa dano constante pelo resto do combate."));
     }
 
     void defineSpellStrings() {
@@ -1272,8 +1298,8 @@ extern enemyS enemy;
         printInfo();
         printf("\n");
         for(int i=0; i<OPTION_AMT; i++) {
-            printf("\033[33m(%i)\033[0m %s%s", i+1, options[i], TAB); // O \t não dá um número consistente de espaços, então eu fiz uma string contante TAB que é só 6 espaços. É feio, mas só custa um pouquinho de tempo de compilação.
-        }
+            printf("\033[33m(%i)\033[0m %s%s", i+1, options[i], TAB);   // O \t não dá um número consistente de espaços, então eu fiz uma string contante TAB                                                            
+        }                                                               //que é só 6 espaços. É feio, mas só custa um pouquinho de tempo de compilação.
         printf("\n");
     }
     
@@ -1368,7 +1394,7 @@ extern enemyS enemy;
     void printClasses() {
         clearTerm();
 
-        centerText (strlen("Escolha sua classe:"), BORDER_LEN);
+        centerText (strlen(_("Escolha sua classe:")), BORDER_LEN);
         char nomes[NUM_CLASSES][MAX_ITEM] = {_("Guerreiro"),_("Mago"), _("Bruxo"), _("Paladino")}; // Lista dos nomes das classes
         char descricoes[NUM_CLASSES][MAX_DESC_CLASS] = {
         _("Especialista em combate. Tem poucas magias, mas muitas habilidades e dano alto."),
@@ -1548,4 +1574,12 @@ extern enemyS enemy;
         for(int i=0; i<NUM_STATUSES; i++) { 
             player.status[i] = false;
         }
+    }
+
+    // Define os nomes e descrições dos feitiços, skills e itens.
+    void defineStrings() {
+        defineSpellStrings();
+        defineSkillStrings();
+        defineItemStrings();
+        defineSkillNamesE();
     }

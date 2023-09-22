@@ -198,6 +198,9 @@ extern enemyS enemy;
     // Adiciona uma skill no vetor de skills do player.
     void addSkill (int index);
 
+    // Define o nome e descrição das skills do player.
+    void defineSkillStrings ();
+
 
 /* ==== Spells - as funções de feitiços ==== */
 
@@ -229,7 +232,7 @@ extern enemyS enemy;
     int radiantSmite ();
 
     // Lê a escolha de feitiços do player.
-    int readSpell();
+    int readSpell ();
     
     // Imprime os feitiços e lê a escolha do player.
     int playerMag ();
@@ -240,14 +243,8 @@ extern enemyS enemy;
     // Adiciona um feitiço no vetor de feitiços do player.
     void addSpell (int index);
 
-    // Define os nomes dos feitiços do player.
-    void defineSpellNames();
-
-    // Define as descrições dos feitiços do player.
-    void defineSpellDescs();
-
     // Define o nome e descrição dos feitiços do player.
-    void defineSpellStrings();
+    void defineSpellStrings ();
 
 
 /* ==== Status - as funções de cada status do player ==== */
@@ -343,6 +340,9 @@ extern enemyS enemy;
     // Imprime o menu e lê a escolha de item.
     int playerInv ();
 
+    // Define os nomes e descrições dos itens.
+    void defineItemStrings();
+
 
 /* ==== UI do player ==== */
 
@@ -366,6 +366,9 @@ extern enemyS enemy;
 
     // Cria o player
     void createPlayer();
+    
+    // Define os nomes e descrições dos feitiços, skills e itens
+    void defineStrings();
 
 
 /* ==== Inimigo ==== */
@@ -405,3 +408,6 @@ extern enemyS enemy;
 
     // Executa as funções do turno do inimigo
     void turnEnemy ();
+
+    // Define os nomes das skills do inimigo
+    void defineSkillNamesE();

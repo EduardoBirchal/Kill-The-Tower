@@ -90,6 +90,37 @@ itemS items[INV_SIZE] = {
     }
 };
 
+/* ==== Definir strings de item ==== */
+
+    void defineItemNames() {
+        char itemNames[NUM_ITEMS][MAX_ITEM] = {
+            _("Pocao de Cura"),
+            _("Runa de Protecao"),
+            _("Frasco de Acido"),
+        };
+
+        for (int i = 0; i < NUM_ITEMS; i++) {
+            strcpy(items[i].name, itemNames[i]);
+        }
+    }
+
+    void defineItemDescs() {
+        char itemDescs[NUM_ITEMS][MAX_DESC_ITEM] = {
+            _("Cura o usuario."),                               // Poção de CUra
+            _("Aumenta a armadura do usuario em +2."),          // Runa de Proteção
+            _("Causa dano alto no alvo."),                      // Frasco de Ácido
+        };
+
+        for (int i = 0; i < NUM_ITEMS; i++) {
+            strcpy(items[i].desc, itemDescs[i]);
+        }
+    }
+
+    void defineItemStrings() {
+        defineItemNames();
+        defineItemDescs();
+    }
+
 /* ==== Funções de inventário ==== */
 
 // Cria um inventário vazio.
