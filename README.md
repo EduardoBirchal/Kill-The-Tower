@@ -1,4 +1,4 @@
-## Jogo-RPG-Sla
+## KILL-THE-TOWER
 # Protótipo/teste de um jogo baseado em turno pra terminal
 
 Jogo baseado em turno feito em C com 4 classes disponíveis. Usei ele pra treinar ponteiros de função para guardar feitiços, habilidades, etc.
