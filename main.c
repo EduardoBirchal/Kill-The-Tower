@@ -8,11 +8,12 @@
 
 /*
 
-COISAS PRA FAZER:
+==== TODO ====
 
 Interface
     - Menu principal
     - Customizar nome
+    - Menu de opções
     - Traduzir pra inglês (usar gettext. Pra refatorar o código, usar regex)
         REGEX:
             (pra print)
@@ -28,6 +29,7 @@ Inimigo
 Player
     - Sistema de levels
     - Equipamento
+    - Mais itens
 Dungeon
     - Fazer múltiplas salas da dungeon
     - Imprimir o mapa da dungeon
