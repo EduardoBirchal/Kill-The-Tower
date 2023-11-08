@@ -88,7 +88,7 @@ int main(int argc, char** argv) {
         updateStatus();
         updateCooldowns();
         
-        if (battleIsOver()) break; // Se a batalha acabou, quebra o loop.
+        if (battleIsOver()) break;
 
         if (turnPlayer()) {
             break;
